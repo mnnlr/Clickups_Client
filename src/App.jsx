@@ -9,6 +9,9 @@ import Inbox from "./components/Inbox"
 import TopNav from "./components/LoginTopNav"
 import SideNav from "./components/LoginSideNav"
 import { useSelector } from "react-redux"
+import InviteMember from "./components/InviteMember"
+import Workspace from "./components/Workspace"
+import ProfilePage from "./components/Profilepage"
 
 function App() {
 
@@ -27,6 +30,9 @@ function App() {
               <Route path="/tasks" element={<TaskBoard />} />
               <Route path="/docs" element={<Document />} />
               <Route path="/inbox" element={<Inbox />} />
+              <Route path="/invite" element={<InviteMember />} />
+             <Route path="/workspace" element={<Workspace />} />
+              <Route path="/profile" element={<ProfilePage />} />
             </Routes>
           </div>
         </div>

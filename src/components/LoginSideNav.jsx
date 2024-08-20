@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaHome, FaTasks, FaFileAlt, FaBullseye, FaInbox } from "react-icons/fa";
+import { FaHome, FaTasks, FaFileAlt, FaBullseye, FaInbox, FaUserPlus, FaBuilding } from "react-icons/fa";
 import { Link } from "react-router-dom"; 
 
 const SideNav = () => {
@@ -9,7 +9,7 @@ const SideNav = () => {
     <div>
       {/* Toggle Button for Mobile */}
       <button
-        className="md:hidden p-3 text-white bg-gray-800 fixed top-6 left-2 z-20"
+        className="md:hidden p-3 text-white bg-blue-400 fixed top-6 left-2 z-20"
         onClick={() => setIsOpen(!isOpen)}
       >
         ☰
@@ -17,7 +17,7 @@ const SideNav = () => {
 
       {/* Sidebar */}
       <div
-        className={`bg-gray-800 text-white h-screen fixed top-0 left-0 transform ${
+        className={`bg-blue-400 text-white h-screen fixed top-0 left-0 transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 transition-transform duration-300 ease-in-out w-64 md:w-16 shadow-lg z-10`}
       >
@@ -28,6 +28,8 @@ const SideNav = () => {
           <NavItem icon={FaFileAlt} to="/docs" />
           <NavItem icon={FaBullseye} to="/goals" />
           <NavItem icon={FaInbox} to="/inbox" />
+          <NavItem icon={FaUserPlus} to="/invite" /> {/* New Invite Menu Item */}
+          <NavItem icon={FaBuilding} to="/workspace" /> {/* New Workspace Menu Item */}
         </div>
       </div>
 
@@ -44,7 +46,7 @@ const SideNav = () => {
 
 const NavItem = ({ icon: Icon, to }) => {
   return (
-    <Link to={to} className="flex justify-center items-center p-3 text-sm hover:bg-gray-700 focus:outline-none">
+    <Link to={to} className="flex justify-center items-center p-3 text-sm hover:bg-blue-500 focus:outline-none">
       <Icon className="text-xl" />
     </Link>
   );
