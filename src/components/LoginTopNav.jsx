@@ -2,6 +2,8 @@ import { useState } from "react";
 import { FaSearch, FaBell, FaCog } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 import { Link } from "react-router-dom";
+import { LogoutBtn } from "../utils/LogoutBtn";
+
 export const TopNav = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -90,6 +92,9 @@ export const TopNav = () => {
               <button className="w-full text-left px-4 py-2 hover:bg-blue-100">Settings</button>
               <button className="w-full text-left px-4 py-2 hover:bg-blue-100">More</button>
               <button className="w-full text-left px-4 py-2 hover:bg-blue-100">Logout</button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
+              <button className="w-full text-left px-4 py-2 hover:bg-gray-100">Settings</button>
+              <LogoutBtn btnStyle="w-full text-left px-4 py-2 hover:bg-gray-100" />
             </div>
           )}
         </div>
