@@ -14,7 +14,6 @@ import Workspace from "./components/Workspace"
 import ProfilePage from "./components/Profilepage"
 import { LoginPage } from "./views/LoginPage"
 import { SigninPage } from "./views/SigninPage"
-import { ContactUsPage } from "./views/ContactUsPage"
 
 function App() {
 
