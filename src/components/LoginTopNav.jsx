@@ -9,6 +9,13 @@ export const TopNav = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+  // Sample notifications data with read/unread status
+  const [notifications, setNotifications] = useState([
+    { message: "You have a new task assigned.", status: "unread" },
+    { message: "Your project deadline is approaching.", status: "unread" },
+    { message: "You received a message from John.", status: "read" }
+  ]);
+
   const handleSearch = () => {
     console.log("Searching for:", searchQuery);
   };
@@ -21,12 +28,31 @@ export const TopNav = () => {
     setIsProfileOpen(!isProfileOpen);
   };
 
+  const markAsRead = (indexToUpdate) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification, index) =>
+        index === indexToUpdate
+          ? { ...notification, status: "read" }
+          : notification
+      )
+    );
+  };
+
+  const removeNotification = (indexToRemove) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter((_, index) => index !== indexToRemove)
+    );
+  };
+
+  const unreadCount = notifications.filter(notification => notification.status === "unread").length;
+
   return (
     <nav className="bg-blue-400 text-white flex items-center justify-between px-4 h-16 shadow-md fixed top-0 left-0 w-full z-20">
       {/* Left Section: Logo */}
-      <div className="flex items-center space-x-2">
-        <span className="font-bold text-lg">ClickUp</span>
-      </div>
+      <div className="flex items-center space-x-2 ml-auto text-right-4">
+  <span className="font-bold text-lg">ClickUp</span>
+</div>
+
 
       {/* Center Section: Search Bar */}
       <div className="flex-1 flex justify-center px-2">
@@ -58,11 +84,38 @@ export const TopNav = () => {
         <div className="relative">
           <button className="hover:text-purple-400" onClick={toggleNotifications}>
             <FaBell />
-            <span className="absolute top-0 right-0 bg-red-500 text-xs rounded-full px-1">3</span>
+            {unreadCount > 0 && (
+              <span className="absolute top-0 right-0 bg-red-500 text-xs rounded-full px-1">
+                {unreadCount}
+              </span>
+            )}
           </button>
           {isNotificationsOpen && (
             <div className="absolute right-0 mt-2 w-64 bg-white text-black rounded-md shadow-lg z-20">
-              <div className="p-4">No new notifications.</div>
+              <div className="p-4">
+                {notifications.length > 0 ? (
+                  notifications.map((notification, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-center justify-between p-2 border-b last:border-b-0 hover:bg-blue-100 cursor-pointer ${notification.status === "unread" ? "font-bold" : ""}`}
+                      onClick={() => markAsRead(index)}
+                    >
+                      <span>{notification.message}</span>
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeNotification(index);
+                        }}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-gray-500">No new notifications.</div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -91,9 +144,6 @@ export const TopNav = () => {
               </Link>
               <button className="w-full text-left px-4 py-2 hover:bg-blue-100">Settings</button>
               <button className="w-full text-left px-4 py-2 hover:bg-blue-100">More</button>
-              <button className="w-full text-left px-4 py-2 hover:bg-blue-100">Logout</button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100">Profile</button>
-              <button className="w-full text-left px-4 py-2 hover:bg-gray-100">Settings</button>
               <LogoutBtn btnStyle="w-full text-left px-4 py-2 hover:bg-gray-100" />
             </div>
           )}
