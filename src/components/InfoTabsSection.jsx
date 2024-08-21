@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { InfoTab } from './InfoTab'
-import img from '../../public/assets/09d6bfc03b197744925c51762fb97cbc.jpg'
+import img from '/assets/09d6bfc03b197744925c51762fb97cbc.jpg'
 
 export const InfoTabsSection = () => {
 

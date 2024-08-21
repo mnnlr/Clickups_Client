@@ -1,6 +1,5 @@
 import React from 'react'
-// import image from '../assets/09d6bfc03b197744925c51762fb97cbc'
-import image from '../../public/assets/home-bg.jpg'
+import image from '/assets/home-bg.jpg'
 import { Link } from 'react-router-dom'
 import { InfoTabsSection } from '../components/InfoTabsSection'
 
@@ -23,7 +22,7 @@ export const HomePageBeforeLogin = () => {
 
                 <div className="relative bg-black bg-opacity-40 h-screen text-center flex flex-col items-center justify-center w-screen z-10 px-4">
                     <h1 className="text-gray-900 text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6">
-                        Welcome to <span className="text-blue-400">ClickUp</span>
+                        Welcome to <span className="text-blue-400">MNNLR  Workspace</span>
                     </h1>
                     <p className="text-gray-100 text-lg md:text-2xl font-semibold leading-relaxed mb-10 max-w-2xl mx-auto">
                         Bring all your work into one place, from tasks to documents and everything in between.
