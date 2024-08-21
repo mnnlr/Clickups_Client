@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import Modal from "./Modal"; // Assuming you have a reusable Modal component
 
 const TaskBoard = () => {
+  const generateKANId = () => `KAN-${Math.floor(Math.random() * 1000000)}`;
+
   const initialTasks = [
-    { id: 1, title: "Task 1", description: "This is Task 1", assignee: "Alice", status: "To Do", priority: "High" },
-    { id: 2, title: "Task 2", description: "This is Task 2", assignee: "Bob", status: "In Progress", priority: "Medium" },
-    { id: 3, title: "Task 3", description: "This is Task 3", assignee: "Charlie", status: "On Hold", priority: "Low" },
-    { id: 4, title: "Task 4", description: "This is Task 4", assignee: "David", status: "Done", priority: "High" },
+    { id: 1, kanId: generateKANId(), title: "Task 1", description: "This is Task 1", assignee: "Alice", status: "To Do", priority: "High" },
+    { id: 2, kanId: generateKANId(), title: "Task 2", description: "This is Task 2", assignee: "Bob", status: "In Progress", priority: "Medium" },
+    { id: 3, kanId: generateKANId(), title: "Task 3", description: "This is Task 3", assignee: "Charlie", status: "On Hold", priority: "Low" },
+    { id: 4, kanId: generateKANId(), title: "Task 4", description: "This is Task 4", assignee: "David", status: "Done", priority: "High" },
   ];
 
   const [tasks, setTasks] = useState(initialTasks);
@@ -39,7 +41,7 @@ const TaskBoard = () => {
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    setTasks([...tasks, { ...newTask, id: tasks.length + 1 }]);
+    setTasks([...tasks, { ...newTask, id: tasks.length + 1, kanId: generateKANId() }]);
     setIsTaskModalOpen(false);
     setNewTask({ title: "", description: "", assignee: "", priority: "Low", status: "To Do" });
   };
@@ -52,6 +54,11 @@ const TaskBoard = () => {
     ));
     setIsEditModalOpen(false);
     setNewTask({ title: "", description: "", assignee: "", priority: "Low", status: "To Do" });
+  };
+
+  // Delete task
+  const handleDelete = (id) => {
+    setTasks(tasks.filter(task => task.id !== id));
   };
 
   // Open edit modal with task details
@@ -81,12 +88,21 @@ const TaskBoard = () => {
                     <p className="text-gray-600">{task.description}</p>
                     <p className="text-sm text-gray-500">Assigned to: {task.assignee}</p>
                     <p className="text-sm text-gray-500">Priority: {task.priority}</p>
-                    <button
-                      onClick={() => openEditModal(task)}
-                      className="bg-yellow-500 text-white py-1 px-3 rounded-lg shadow mt-2 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2 transition"
-                    >
-                      Edit
-                    </button>
+                    <p className="text-sm text-gray-500">KAN ID: {task.kanId}</p>
+                    <div className="flex space-x-2 mt-2">
+                      <button
+                        onClick={() => openEditModal(task)}
+                        className="bg-yellow-500 text-white py-1 px-3 rounded-lg shadow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-offset-2 transition"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(task.id)}
+                        className="bg-red-500 text-white py-1 px-3 rounded-lg shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
