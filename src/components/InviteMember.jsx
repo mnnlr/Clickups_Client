@@ -38,13 +38,7 @@ const InviteMember = () => {
   };
 
   return (
-<<<<<<< Updated upstream
-    <div className="relative p-6 bg-gray-100 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20">
-      <h1 className="text-2xl font-semibold mb-6">Invite Members</h1>
-
-=======
     <div className="relative pt-16 pb-6 bg-gray-100 h-screen overflow-auto md:ml-16 lg:ml-20">
->>>>>>> Stashed changes
       <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-medium mb-4">Invite New Member</h2>
         <div className="flex items-center space-x-4">
