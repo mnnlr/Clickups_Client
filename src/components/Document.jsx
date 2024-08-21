@@ -5,10 +5,17 @@ const Document = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [documents, setDocuments] = useState([
+<<<<<<< Updated upstream
     { id: 1, name: 'Company Wiki', category: 'Recent', date: 'Aug 16', items: 58 },
     { id: 2, name: 'Project Notes', category: 'Projects', date: 'Aug 16', items: 2 },
     { id: 3, name: 'Design Specs', category: 'Favorites', date: 'Aug 17', items: 15 },
     { id: 4, name: 'Meeting Minutes', category: 'Created by Me', date: 'Aug 18', items: 4 },
+=======
+    { id: 1, name: 'Company Wiki', category: 'Recent', date: 'Aug 16', items: 58, url: '/docs/company-wiki.pdf' },
+    { id: 2, name: 'Project Notes', category: 'Projects', date: 'Aug 16', items: 2, url: '/docs/project-notes.docx' },
+    { id: 3, name: 'Design Specs', category: 'Favorites', date: 'Aug 17', items: 15, url: '/docs/design-specs.pdf' },
+    { id: 4, name: 'Meeting Minutes', category: 'Created by Me', date: 'Aug 18', items: 4, url: '/docs/meeting-minutes.docx' },
+>>>>>>> Stashed changes
   ]);
 
   const [editingDoc, setEditingDoc] = useState(null);
@@ -41,6 +48,13 @@ const Document = () => {
     alert(`Sharing document: ${doc.name}`);
   };
 
+<<<<<<< Updated upstream
+=======
+  const handleOpenDocument = (url) => {
+    window.open(url, '_blank');
+  };
+
+>>>>>>> Stashed changes
   // Filter documents based on the search query
   const filteredDocuments = documents.filter((doc) =>
     doc.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -109,7 +123,12 @@ const Document = () => {
                   {groupedDocuments[category].map((doc) => (
                     <li
                       key={doc.id}
+<<<<<<< Updated upstream
                       className="flex flex-col justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200"
+=======
+                      className="flex flex-col justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                      onClick={() => handleOpenDocument(doc.url)}
+>>>>>>> Stashed changes
                     >
                       <div className="flex items-center mb-3">
                         <FaFileAlt className="text-blue-600 mr-3" />
@@ -139,6 +158,7 @@ const Document = () => {
                           <>
                             <FaEdit
                               className="text-blue-500 cursor-pointer hover:text-blue-700"
+<<<<<<< Updated upstream
                               onClick={() => handleRename(doc)}
                             />
                             <FaTrash
@@ -148,6 +168,26 @@ const Document = () => {
                             <FaShareAlt
                               className="text-yellow-500 cursor-pointer hover:text-yellow-700"
                               onClick={() => handleShare(doc)}
+=======
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRename(doc);
+                              }}
+                            />
+                            <FaTrash
+                              className="text-red-500 cursor-pointer hover:text-red-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(doc.id);
+                              }}
+                            />
+                            <FaShareAlt
+                              className="text-yellow-500 cursor-pointer hover:text-yellow-700"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleShare(doc);
+                              }}
+>>>>>>> Stashed changes
                             />
                           </>
                         )}
