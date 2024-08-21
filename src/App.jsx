@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { NavFooter } from "./layouts/NavFooter"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { HomePage } from "./views/HomePage"
+import { HomePageBeforeLogin } from "./views/HomePageBeforeLogin"
 import Homepage from "./components/Homepage"
 import TaskBoard from "./components/Task/TaskBoard"
 import Document from "./components/Document"
@@ -41,7 +41,7 @@ function App() {
       ) : (
         <Routes>
           <Route path="/" element={<NavFooter />}>
-            <Route index element={<HomePage />} />
+            <Route index element={<HomePageBeforeLogin />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signin" element={<SigninPage />} />
           </Route>

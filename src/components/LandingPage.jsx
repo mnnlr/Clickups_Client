@@ -38,7 +38,7 @@ const LandingPage = () => {
         </p>
         <button className="text-lg font-semibold bg-black-300 text-black px-6 py-2 rounded-lg hover:bg-blue-400 transition duration-300">
           Get Started
-          </button>
+        </button>
       </header>
     </div>
   );
