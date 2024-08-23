@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaHome, FaTasks, FaFileAlt, FaBullseye, FaInbox, FaUserPlus, FaBuilding } from "react-icons/fa";
-import { Link } from "react-router-dom"; 
+import { MdSpaceDashboard } from "react-icons/md";
+import { Link } from "react-router-dom";
 
 const SideNav = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,13 +18,13 @@ const SideNav = () => {
 
       {/* Sidebar */}
       <div
-        className={`bg-blue-400 text-white h-screen fixed top-0 left-0 transform ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 transition-transform duration-300 ease-in-out w-64 md:w-16 shadow-lg z-10`}
+        className={`bg-blue-400 text-white h-screen fixed top-0 left-0 transform ${isOpen ? "translate-x-0" : "-translate-x-full"
+          } md:translate-x-0 transition-transform duration-300 ease-in-out w-64 md:w-16 shadow-lg z-10`}
       >
         {/* Menu Items */}
         <div className="flex-1 flex flex-col items-center pt-16 space-y-4">
           <NavItem icon={FaHome} to="/home" />
+          <NavItem icon={MdSpaceDashboard} to="/dashboard" />
           <NavItem icon={FaTasks} to="/tasks" />
           <NavItem icon={FaFileAlt} to="/docs" />
           <NavItem icon={FaBullseye} to="/goals" />

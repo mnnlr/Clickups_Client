@@ -14,6 +14,7 @@ import Workspace from "./components/Workspace"
 import ProfilePage from "./components/Profilepage"
 import { LoginPage } from "./views/LoginPage"
 import { SigninPage } from "./views/SigninPage"
+import { Dashboard } from "./views/Dashboard"
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
               <Route path="/invite" element={<InviteMember />} />
               <Route path="/workspace" element={<Workspace />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/dashboard" element={<Dashboard />} />
             </Routes>
           </div>
         </div>
