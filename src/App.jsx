@@ -15,6 +15,7 @@ import ProfilePage from "./components/Profilepage"
 import { LoginPage } from "./views/LoginPage"
 import { SigninPage } from "./views/SigninPage"
 import { Dashboard } from "./views/Dashboard"
+import PagenotFound from "./views/PagenotFound"
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
           <SideNav />
           <div className="main-content">
             <Routes>
+              <Route path="/*" element={<PagenotFound />} />
               <Route path="/" element={<Homepage />} />
               <Route path="/tasks" element={<TaskBoard />} />
               <Route path="/docs" element={<Document />} />
