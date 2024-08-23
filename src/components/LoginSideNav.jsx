@@ -1,15 +1,6 @@
 import { useState } from "react";
 import { FaHome, FaTasks, FaFileAlt, FaBullseye, FaInbox, FaUserPlus, FaBuilding } from "react-icons/fa";
 import { MdSpaceDashboard } from "react-icons/md";
-import {
-  FaHome,
-  FaTasks,
-  FaFileAlt,
-  FaBullseye,
-  FaInbox,
-  FaUserPlus,
-  FaBuilding,
-} from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const SideNav = () => {
