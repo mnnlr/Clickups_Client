@@ -15,7 +15,7 @@ export const Dashboard = () => {
                     createdBy: 'John Doe',
                     dashboardName: 'John Doe Dashboard',
                     projectName: "MNNLR",
-                    dashboardType: 'Personal',
+                    dashboardType: 'Simple Dashboard',
                     dashboardId: 1,
                     dashboardData: {
                         name: 'John Doe',
@@ -29,7 +29,7 @@ export const Dashboard = () => {
                     createdBy: 'John Doe',
                     dashboardName: 'John Doe Dashboard',
                     projectName: "HR",
-                    dashboardType: 'Personal',
+                    dashboardType: 'Simple Dashboard',
                     dashboardId: 2,
                     dashboardData: {
                         name: 'John Doe',
@@ -43,7 +43,7 @@ export const Dashboard = () => {
                     createdBy: 'John Doe',
                     dashboardName: 'John Doe Dashboard',
                     projectName: "Management",
-                    dashboardType: 'Personal',
+                    dashboardType: 'Simple Dashboard',
                     dashboardId: 3,
                     dashboardData: {
                         name: 'John Doe',

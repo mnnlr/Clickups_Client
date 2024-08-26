@@ -50,8 +50,8 @@ export const TopNav = () => {
     <nav className="bg-blue-400 text-white flex items-center justify-between px-4 h-16 shadow-md fixed top-0 left-0 w-full z-20">
       {/* Left Section: Logo */}
       <div className="flex items-center space-x-2 ml-auto text-right-4">
-  <span className="font-bold text-lg">ClickUp</span>
-</div>
+        <span className="font-bold text-lg">MNNLR Workspace</span>
+      </div>
 
 
       {/* Center Section: Search Bar */}
