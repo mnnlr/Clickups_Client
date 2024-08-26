@@ -27,7 +27,7 @@ export const HomePageBeforeLogin = () => {
                     <p className="text-gray-100 text-lg md:text-2xl font-semibold leading-relaxed mb-10 max-w-2xl mx-auto">
                         Bring all your work into one place, from tasks to documents and everything in between.
                     </p>
-                    <Link to="/login" className="text-lg font-semibold bg-black-300 text-black px-6 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 transition duration-300">
+                    <Link to="/signin" className="text-lg font-semibold bg-black-300 text-black px-6 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 transition duration-300">
                         Get Started
                     </Link>
                 </div>
