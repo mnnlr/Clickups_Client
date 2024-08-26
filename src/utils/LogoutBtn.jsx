@@ -1,17 +1,18 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
 import { Logout } from '../redux/authentication/authSlice'
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 export const LogoutBtn = ({ btnStyle }) => {
 
-    const dispatch = useDispatch();
+    const userToken = Cookies.get('User')
     const navigate = useNavigate();
 
+    if (!userToken) return null
     const handleLoginBtn = () => {
         try {
-            dispatch(Logout())
-            navigate('/')
+            Cookies.remove('User');
+            window.location.reload();
         } catch (err) {
             console.log(`ERROR on logout button function: ${err}`)
         }

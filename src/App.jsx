@@ -13,19 +13,20 @@ import InviteMember from "./components/InviteMember"
 import Workspace from "./components/Workspace"
 import ProfilePage from "./components/Profilepage"
 import { LoginPage } from "./views/LoginPage"
-import { SigninPage } from "./views/SigninPage"
+import { SignUpPage } from "./views/SignUpPage"
 import { Dashboard } from "./views/Dashboard"
 import PagenotFound from "./views/PagenotFound"
 import Project from "./components/Project"
+import Cookies from "js-cookie"
 
 function App() {
 
-  const { user } = useSelector(state => state.auth)
+  const userToken = Cookies.get('User')
   // console.log(user)
 
   return (
     <Router>
-      {user ? (
+      {userToken ? (
         <div className="App">
           <TopNav />
           <SideNav />
@@ -48,8 +49,8 @@ function App() {
         <Routes>
           <Route path="/" element={<NavFooter />}>
             <Route index element={<HomePageBeforeLogin />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signin" element={<SigninPage />} />
+            <Route path="/signin" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
           </Route>
         </Routes>
       )}

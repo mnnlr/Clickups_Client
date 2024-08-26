@@ -1,13 +1,11 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
-import { LoginSuccess, LoginFail } from '../redux/authentication/authSlice'
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 export const LoginPage = () => {
 
     const [loginFormData, setLoginFormData] = useState(null);
-
-    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     //----------------Handle Form Change-----------------
@@ -26,15 +24,19 @@ export const LoginPage = () => {
         if (loginFormData && loginFormData.email && loginFormData.password) {
             // console.log(loginFormData);
             try {
-                const userData = { // Dumy Data
-                    name: 'John Doe',
-                    email: 'C8O4I@example.com',
-                }
-                dispatch(LoginSuccess(userData))
-                navigate('/')
+                axios.post('http://localhost:5000/api/users/login', { email: loginFormData.email, password: loginFormData.password }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                }).then((response) => {
+                    console.log(response);
+                    Cookies.set('User', response.data.token);
+                    navigate('/')
+                    window.location.reload();
+                })
             } catch (err) {
                 console.log(`ERROR on login button function: ${err}`)
-                dispatch(LoginFail(err.message))
             }
         } else {
             alert('Please enter E-mail and Password.');

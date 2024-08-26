@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-export const SigninPage = () => {
+export const SignUpPage = () => {
 
     const [signinFormData, setSigninFormData] = useState(null);
 
@@ -17,28 +18,34 @@ export const SigninPage = () => {
     }
 
     //----------------Handle form submit-----------------
-    const handleSigninSubmitBtn = (e) => {
+    const handleSigninSubmitBtn = async (e) => {
         e.preventDefault();
 
         if (signinFormData && signinFormData.email && signinFormData.password && signinFormData.name && signinFormData.confirmPassword) {
             if (signinFormData.password === signinFormData.confirmPassword) {
-                console.log(signinFormData);
                 try {
-                    // const userData = { // Dumy Data
-                    //     name: 'John Doe',
-                    //     email: 'C8O4I@example.com',
-                    // }
-                    // dispatch(LoginSuccess(userData))
-                    navigate('/')
+                    console.log(signinFormData);
+
+                    const response = await axios.post('http://localhost:5000/api/users/signup', signinFormData, {
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        withCredentials: true
+                    });
+
+                    console.log(response); // Logging the response data
+
+                    navigate('/signin'); // Navigate only after successful signup
+
                 } catch (err) {
-                    console.log(`ERROR on login button function: ${err}`)
-                    // dispatch(LoginFail(err.message))
+                    console.error(`ERROR on signup: ${err.message}`);
+                    // Handle login failure or display an error message
                 }
             } else {
-                alert('Password and Confirm Password should be same.');
+                alert('Password and Confirm Password should be the same.');
             }
         } else {
-            alert('Please enter all filds.');
+            alert('Please enter all fields.');
         }
     }
 

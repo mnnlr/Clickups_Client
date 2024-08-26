@@ -16,8 +16,8 @@ export const Navbar = () => {
                     <Link to="/" className="mr-5 font-semibold duration-300 text-white hover:text-gray-300">Home</Link>
 
                     <a target="_blank" href="https://mnnlr-emp.netlify.app/" className="mr-5 font-semibold duration-300 text-white hover:text-gray-300">MNNLR</a>
-                    <Link to="/login" className="text-gray-900 m-1 px-5 py-[7px] font-bold duration-300 bg-blue-500 hover:cursor-pointer hover:bg-gray-400 hover:shadow-lg  rounded-full">LogIn</Link>
-                    <Link to="/signin" className="text-gray-900 m-1 px-5 py-[7px] font-bold duration-300 bg-gray-100 hover:cursor-pointer hover:bg-gray-400 hover:shadow-lg  rounded-full">SignIn</Link>
+                    <Link to="/signin" className="text-gray-900 m-1 px-5 py-[7px] font-bold duration-300 bg-blue-500 hover:cursor-pointer hover:bg-gray-400 hover:shadow-lg  rounded-full">LogIn</Link>
+                    <Link to="/signup" className="text-gray-900 m-1 px-5 py-[7px] font-bold duration-300 bg-gray-100 hover:cursor-pointer hover:bg-gray-400 hover:shadow-lg  rounded-full">SignUp</Link>
                 </nav>
             </div>
         </header>
