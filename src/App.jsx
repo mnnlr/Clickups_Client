@@ -33,7 +33,6 @@ function App() {
             <Routes>
               <Route path="/*" element={<PagenotFound />} />
               <Route path="/" element={<Homepage />} />
-              <Route path="/home" element={<Homepage />} />
               <Route path="/tasks" element={<TaskBoard />} />
               <Route path="/docs" element={<Document />} />
               <Route path="/inbox" element={<Inbox />} />

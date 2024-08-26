@@ -1,14 +1,5 @@
 import { useState } from "react";
-import {
-  FaHome,
-  FaTasks,
-  FaFileAlt,
-  FaBullseye,
-  FaInbox,
-  FaUserPlus,
-  FaBuilding,FaRProject
-} from "react-icons/fa";
-import { FaHome, FaTasks, FaFileAlt, FaBullseye, FaInbox, FaUserPlus, FaBuilding } from "react-icons/fa";
+import { FaHome, FaTasks, FaFileAlt, FaBullseye, FaInbox, FaUserPlus, FaBuilding, FaRProject } from "react-icons/fa";
 import { MdSpaceDashboard } from "react-icons/md";
 import { Link } from "react-router-dom";
 
@@ -41,7 +32,7 @@ const SideNav = () => {
 
         {/* Menu Items */}
         <div className="flex-1 flex flex-col items-center pt-16 space-y-4 scrollbar">
-          <NavItem icon={FaHome} to="/home" />
+          <NavItem icon={FaHome} to="/" />
           <NavItem icon={MdSpaceDashboard} to="/dashboard" />
           <NavItem icon={FaTasks} to="/tasks" />
           <NavItem icon={FaFileAlt} to="/docs" />
