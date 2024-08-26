@@ -15,6 +15,7 @@ import ProfilePage from "./components/Profilepage"
 import { LoginPage } from "./views/LoginPage"
 import { SigninPage } from "./views/SigninPage"
 import PagenotFound from "./views/PagenotFound"
+import Project from "./components/Project"
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
               <Route path="/invite" element={<InviteMember />} />
               <Route path="/workspace" element={<Workspace />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/project" element={<Project />} />
             </Routes>
           </div>
         </div>

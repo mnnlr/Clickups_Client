@@ -6,7 +6,7 @@ import {
   FaBullseye,
   FaInbox,
   FaUserPlus,
-  FaBuilding,
+  FaBuilding,FaRProject
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
@@ -43,6 +43,7 @@ const SideNav = () => {
           <NavItem icon={FaHome} to="/home" />
           <NavItem icon={FaTasks} to="/tasks" />
           <NavItem icon={FaFileAlt} to="/docs" />
+          <NavItem icon={FaRProject} to="/project" />
           <NavItem icon={FaBullseye} to="/goals" />
           <NavItem icon={FaInbox} to="/inbox" />
           <NavItem icon={FaUserPlus} to="/invite" /> {/* New Invite Menu Item */}

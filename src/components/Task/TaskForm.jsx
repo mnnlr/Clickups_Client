@@ -22,7 +22,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-3xl p-7 relative">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 md:p-8 lg:p-10 relative">
         <button
           className="absolute top-2 right-2 text-gray-500 hover:text-blue-700 focus:outline-none"
           aria-label="Close modal"
@@ -48,20 +48,20 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
           {task ? 'Edit Task' : 'Create New Task'}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <div className="flex mb-4 space-x-2">
               <label htmlFor="task-title" className="block text-md my-3 font-medium flex-shrink-0 text-gray-700">
                 Task Title
               </label>
-              <div className="flex items-center">
+              <div className="flex items-center flex-col md:flex-row">
                 <input
                   type="text"
                   id="task-title"
                   name="title"
                   value={task?.title || ''}
                   onChange={onChange}
-                  className={`mt-1 block px-3 py-2 border border-gray-300 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-50 ${errors.title ? 'border-red-500' : ''}`}
+                  className={`mt-1 block px-3 py-2 border border-gray-300 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-full ${errors.title ? 'border-red-500' : ''}`}
                   placeholder="Enter task title"
                 />
                 {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
@@ -102,7 +102,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
             </div>
           </div>
 
-          <div className="border border-gray-300 p-4 max-w-lg mx-auto">
+          <div className="border border-gray-300 p-4">
             <div className="flex items-center mb-4">
               <label htmlFor="task-assignee" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Assignee</label>
               <input
@@ -127,6 +127,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
               >
                 <option>To Do</option>
                 <option>In Progress</option>
+                <option> On Hold</option>
                 <option>Done</option>
               </select>
             </div>
@@ -182,47 +183,36 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
         </div>
 
         <div className="my-3 text-right">
-          <p><strong>Created:</strong> {task?.created ? new Date(task?.created).toLocaleString() : 'N/A'}</p>
-          <p><strong>Updated:</strong> {task?.updated ? new Date(task?.updated).toLocaleString() : 'N/A'}</p>
+          <p><strong>Created:</strong> {task?.created ? new Date(task.created).toLocaleDateString() : 'Not set'}</p>
+          <p><strong>Updated:</strong> {task?.updated ? new Date(task.updated).toLocaleDateString() : 'Not set'}</p>
         </div>
-
         <div className="mt-6">
-          <h3 className="text-lg font-semibold text-gray-800">Activity</h3>
-          <div className="flex items-center mt-2 space-x-4">
-            <button className="text-gray-500 hover:text-gray-700 focus:outline-none">All</button>
-            <button className="text-gray-500 hover:text-gray-700 focus:outline-none">Comments</button>
-            <button className="text-gray-500 hover:text-gray-700 focus:outline-none">History</button>
-            <button className="text-gray-500 hover:text-gray-700 focus:outline-none">Newest First</button>
-          </div>
-        </div>
+  <label htmlFor="task-comment" className="block text-sm font-medium text-gray-700">Comments</label>
+  <textarea
+    id="task-comment"
+    name="comment"
+    value={task?.comment || ''}
+    onChange={onChange}
+    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-none md:resize-y lg:resize-none"
+    placeholder="Add comments..."
+  ></textarea>
+</div>
 
-        <div className="mt-6">
-          <label htmlFor="task-comment" className="block text-sm font-medium text-gray-700">Comments</label>
-          <textarea
-            id="task-comment"
-            name="comment"
-            value={task?.comment || ''}
-            onChange={onChange}
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            placeholder="Add comments..."
-          ></textarea>
-        </div>
-
-        <div className="mt-6 flex justify-between text-sm text-gray-600">
-          <div>
-            <button
-              className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onClick={handleSubmit}
-            >
-              Save
-            </button>
-            <button
-              className="ml-2 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
-              onClick={onCancel}
-            >
-              Cancel
-            </button>
-          </div>
+        <div className="flex justify-end space-x-4 mt-6">
+          <button
+            type="button"
+            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md shadow-sm hover:bg-gray-400 focus:outline-none"
+            onClick={onCancel}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none"
+            onClick={handleSubmit}
+          >
+            {task ? 'Save Changes' : 'Create Task'}
+          </button>
         </div>
       </div>
     </div>
