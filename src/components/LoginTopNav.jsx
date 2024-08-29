@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { FaSearch, FaBell, FaCog } from "react-icons/fa";
+import { FaBell, FaCog } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { LogoutBtn } from "../utils/LogoutBtn";
 
 export const TopNav = () => {
-  const [searchQuery, setSearchQuery] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -15,10 +14,6 @@ export const TopNav = () => {
     { message: "Your project deadline is approaching.", status: "unread" },
     { message: "You received a message from John.", status: "read" }
   ]);
-
-  const handleSearch = () => {
-    console.log("Searching for:", searchQuery);
-  };
 
   const toggleNotifications = () => {
     setIsNotificationsOpen(!isNotificationsOpen);
@@ -49,24 +44,8 @@ export const TopNav = () => {
   return (
     <nav className="bg-blue-400 text-white flex items-center justify-between px-4 h-16 shadow-md fixed top-0 left-0 w-full z-20">
       {/* Left Section: Logo */}
-      <div className="flex items-center space-x-2 ml-auto text-right-4">
-        <span className="font-bold text-lg">MNNLR Workspace</span>
-      </div>
-
-
-      {/* Center Section: Search Bar */}
-      <div className="flex-1 flex justify-center px-2">
-        <div className="relative w-full max-w-md">
-          <FaSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-blue-200" />
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={(e) => e.key === "Enter" && handleSearch()}
-            className="bg-blue-700 w-full text-sm text-white rounded-full pl-10 pr-4 py-1.5 focus:outline-none focus:ring-2 focus:ring-rose-600"
-          />
-        </div>
+      <div className="flex items-center space-x-2">
+        <span className="font-bold text-xl">MNNLR <span className="text-[#1D4ED8]">Workspace</span></span>
       </div>
 
       {/* Right Section: User Controls */}
@@ -77,7 +56,7 @@ export const TopNav = () => {
           onClick={() => console.log("Open Add Task Modal")}
         >
           <IoMdAdd className="text-lg" />
-          <span className="hidden md:inline">Add Task</span>
+          <span className="hidden md:inline">New Template</span>
         </button>
 
         {/* Notifications */}
@@ -155,6 +134,7 @@ export const TopNav = () => {
         </button>
       </div>
     </nav>
+
   );
 };
 

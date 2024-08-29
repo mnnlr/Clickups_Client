@@ -12,6 +12,7 @@ export const LogoutBtn = ({ btnStyle }) => {
     const handleLoginBtn = () => {
         try {
             Cookies.remove('User');
+            navigate('/');
             window.location.reload();
         } catch (err) {
             console.log(`ERROR on logout button function: ${err}`)

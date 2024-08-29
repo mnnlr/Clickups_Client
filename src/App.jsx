@@ -8,16 +8,17 @@ import Document from "./components/Document"
 import Inbox from "./components/Inbox"
 import TopNav from "./components/LoginTopNav"
 import SideNav from "./components/LoginSideNav"
-import { useSelector } from "react-redux"
+// import { useSelector } from "react-redux"
 import InviteMember from "./components/InviteMember"
 import Workspace from "./components/Workspace"
 import ProfilePage from "./components/Profilepage"
 import { LoginPage } from "./views/LoginPage"
 import { SignUpPage } from "./views/SignUpPage"
-import { Dashboard } from "./views/Dashboard"
+import { DashboardPage } from "./views/DashboardPage"
 import PagenotFound from "./views/PagenotFound"
 import Project from "./views/Project"
 import Cookies from "js-cookie"
+import { DashboardForProjectPage } from "./views/DashboardForProjectPage"
 
 function App() {
 
@@ -41,7 +42,8 @@ function App() {
               <Route path="/workspace" element={<Workspace />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/project" element={<Project />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/dashboard/project" element={<DashboardForProjectPage />} />
             </Routes>
           </div>
         </div>

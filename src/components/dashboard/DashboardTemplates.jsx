@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-export const DashboardCard = () => {
+export const DashboardTemplates = () => {
 
     const [ProjectName, setProjectName] = useState("Select Project");
     const [ToggleEdit, setToggleEdit] = useState(false);
