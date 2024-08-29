@@ -16,7 +16,7 @@ import { LoginPage } from "./views/LoginPage"
 import { SignUpPage } from "./views/SignUpPage"
 import { Dashboard } from "./views/Dashboard"
 import PagenotFound from "./views/PagenotFound"
-import Project from "./components/Project"
+import Project from "./views/Project"
 import Cookies from "js-cookie"
 
 function App() {
