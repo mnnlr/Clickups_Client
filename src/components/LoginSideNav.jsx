@@ -3,6 +3,10 @@ import { FaHome, FaTasks, FaFileAlt, FaBullseye, FaInbox, FaUserPlus, FaBuilding
 import { MdSpaceDashboard } from "react-icons/md";
 import { Link } from "react-router-dom";
 
+const projectIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 576 512"><path fill="white" d="M0 80c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v16h192V80c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48h-96c-26.5 0-48-21.5-48-48v-16H192v16c0 1.7-.1 3.4-.3 5L272 288h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48h-96c-26.5 0-48-21.5-48-48v-96c0-1.7.1-3.4.3-5L144 224H48c-26.5 0-48-21.5-48-48z" /></svg>
+)
+
 const SideNav = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,7 +32,7 @@ const SideNav = () => {
             { icon: MdSpaceDashboard, to: "/dashboard", label: "Dashboard" },
             { icon: FaTasks, to: "/tasks", label: "Tasks" },
             { icon: FaFileAlt, to: "/docs", label: "Documents" },
-            { icon: FaRProject, to: "/project", label: "Projects" },
+            { icon: projectIcon, to: "/project", label: "Projects" },
             { icon: FaBullseye, to: "/goals", label: "Goals" },
             { icon: FaInbox, to: "/inbox", label: "Inbox" },
             { icon: FaUserPlus, to: "/invite", label: "Invite" },
