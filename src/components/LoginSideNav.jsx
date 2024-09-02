@@ -10,37 +10,32 @@ const SideNav = () => {
     <div>
       {/* Toggle Button for Mobile */}
       <button
-        className="md:hidden p-3 text-white bg-blue-400 fixed top-6 left-2 z-20"
+        className="md:hidden p-3 text-white bg-blue-400 fixed top-6 left-2 z-20 rounded-full"
         onClick={() => setIsOpen(!isOpen)}
       >
-        ☰
+        {isOpen ? '✕' : '☰'}
       </button>
 
       {/* Sidebar */}
       <div
         className={`bg-blue-400 text-white h-screen fixed top-0 left-0 transform ${isOpen ? "translate-x-0" : "-translate-x-full"
-          } md:translate-x-0 transition-transform duration-300 ease-in-out w-64 md:w-16 shadow-lg z-10`}
+          } md:translate-x-0 transition-transform duration-300 ease-in-out w-64 md:w-20 shadow-lg z-20`}
       >
-        {/* Toggle Button in Sidebar */}
-        <button
-          id="button-hover-toggle"
-          className="absolute top-5 end-2 rounded-full p-1.5"
-        >
-          <span className="sr-only">Menu Toggle Button</span>
-          <i className="mgc_round_line text-xl"></i>
-        </button>
-
         {/* Menu Items */}
-        <div className="flex-1 flex flex-col items-center pt-16 space-y-4 scrollbar">
-          <NavItem icon={FaHome} to="/" />
-          <NavItem icon={MdSpaceDashboard} to="/dashboard" />
-          <NavItem icon={FaTasks} to="/tasks" />
-          <NavItem icon={FaFileAlt} to="/docs" />
-          <NavItem icon={FaRProject} to="/project" />
-          <NavItem icon={FaBullseye} to="/goals" />
-          <NavItem icon={FaInbox} to="/inbox" />
-          <NavItem icon={FaUserPlus} to="/invite" /> {/* New Invite Menu Item */}
-          <NavItem icon={FaBuilding} to="/workspace" /> {/* New Workspace Menu Item */}
+        <div className="flex-1 flex flex-col pt-16 space-y-4 scrollbar">
+          {[
+            { icon: FaHome, to: "/", label: "Home" },
+            { icon: MdSpaceDashboard, to: "/dashboard", label: "Dashboard" },
+            { icon: FaTasks, to: "/tasks", label: "Tasks" },
+            { icon: FaFileAlt, to: "/docs", label: "Documents" },
+            { icon: FaRProject, to: "/project", label: "Projects" },
+            { icon: FaBullseye, to: "/goals", label: "Goals" },
+            { icon: FaInbox, to: "/inbox", label: "Inbox" },
+            { icon: FaUserPlus, to: "/invite", label: "Invite" },
+            { icon: FaBuilding, to: "/workspace", label: "Workspace" }
+          ].map((item, index) => (
+            <NavItem key={index} icon={item.icon} to={item.to} label={item.label} />
+          ))}
         </div>
       </div>
 
@@ -55,13 +50,16 @@ const SideNav = () => {
   );
 };
 
-const NavItem = ({ icon: Icon, to }) => {
+const NavItem = ({ icon: Icon, to, label }) => {
   return (
     <Link
       to={to}
-      className="flex justify-center items-center p-3 text-sm hover:bg-blue-500 focus:outline-none"
+      className="flex items-center justify-center p-3 text-sm transition-colors duration-200 rounded-lg hover:bg-blue-300 focus:outline-none group relative"
     >
-      <Icon className="text-xl" />
+      <Icon className="text-grey-500 text-xl" />
+      <span className="absolute left-full ml-2 hidden group-hover:block text-gray-700 bg-white border border-gray-300 rounded-lg py-1 px-2 text-xs">
+        {label}
+      </span>
     </Link>
   );
 };
