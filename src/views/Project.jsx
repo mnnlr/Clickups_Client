@@ -201,12 +201,16 @@ const Project = () => {
       // console.log(updatedProjects)
 
       const updateData = {
-        ...projectData,        // Spread the original object
-        teams: selectedMembers.map(id => ({ member: id })), // Rename `teamMembers` to `teams`
+        ...currentProject,
+        projectName: projectData.projectName,
+        description: projectData.description,
+        owner: projectData.owner,
+        status: projectData.status,
+        teams: selectedMembers.map(id => ({ member: id })),
       };
       delete updateData.teamMembers;
 
-      // console.log(updateData)
+      console.log(updateData)
 
       //-----------------Patch request for project-----------------
       try {
@@ -219,13 +223,13 @@ const Project = () => {
           console.log(response)
           if (response.status === 200) {
             setProjects(updatedProjects);
+            closeEditModal();
           }
         })
       } catch (err) {
         console.log(err)
         alert("Something went wrong: " + err.response.data.message);
       }
-      closeEditModal();
     } else {
 
       // Create new project
@@ -243,6 +247,7 @@ const Project = () => {
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials: true
         }).then((response) => {
           if (response.status === 201) {
             setProjects([...projects, newProject]);
@@ -252,7 +257,7 @@ const Project = () => {
         });
       } catch (err) {
         console.log(err);
-        alert("Something went wrong: Try again. (Project Description must be between 10 and 200 characters)");
+        alert("Something went wrong: Try again. (Try: Project Description must be between 10 and 200 characters)");
       }
 
       // console.log(projectData)
@@ -389,7 +394,7 @@ const Project = () => {
         </button>
         <button
           onClick={() => setFilterType('inactive')}
-          className={`p-2 rounded-lg ${filterType === 'completed' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+          className={`p-2 rounded-lg ${filterType === 'inactive' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
         >
           Inactive
         </button>
