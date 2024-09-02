@@ -388,16 +388,22 @@ const Project = () => {
           All
         </button>
         <button
+          onClick={() => setFilterType('inactive')}
+          className={`p-2 rounded-lg ${filterType === 'completed' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+        >
+          Inactive
+        </button>
+        <button
           onClick={() => setFilterType('active')}
           className={`p-2 rounded-lg ${filterType === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
         >
           Active
         </button>
         <button
-          onClick={() => setFilterType('inactive')}
+          onClick={() => setFilterType('completed')}
           className={`p-2 rounded-lg ${filterType === 'completed' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
         >
-          inactive
+          Completed
         </button>
       </div>
       <div className="bg-white shadow-lg rounded-xl p-6">

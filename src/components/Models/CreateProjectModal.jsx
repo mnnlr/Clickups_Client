@@ -79,6 +79,7 @@ const CreateProjectModal = ({
             required
           >
             <option value="">Select Status</option>
+            <option value="inactive">Inactive</option>
             <option value="active">Active</option>
             <option value="completed">Completed</option>
           </select>
