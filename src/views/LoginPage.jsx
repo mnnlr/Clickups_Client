@@ -26,7 +26,7 @@ export const LoginPage = () => {
         if (loginFormData && loginFormData.email && loginFormData.password) {
             // console.log(loginFormData);
             try {
-                axios.post('http://localhost:5000/api/users/login', { email: loginFormData.email, password: loginFormData.password }, {
+                axios.post('https://clickups-server.onrender.com/api/users/login', { email: loginFormData.email, password: loginFormData.password }, {
                     headers: {
                         'Content-Type': 'application/json'
                     },

@@ -71,7 +71,7 @@ const EditProjectModal = ({
           >
             <option value="">Select Status</option>
             <option value="active">Active</option>
-            <option value="completed">Completed</option>
+            <option value="inactive">Inactive</option>
           </select>
         </div>
         <div className="flex justify-end space-x-4">
