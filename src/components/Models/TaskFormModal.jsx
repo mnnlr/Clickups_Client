@@ -5,10 +5,10 @@ import childIssueIcon from '../Svg icon/website-connection-communication-svgrepo
 
 const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
   const [errors, setErrors] = useState({});
-  
+
   const validate = () => {
     const newErrors = {};
-    if (!task?.title) newErrors.title = 'Title is required';
+    if (!task?.taskName) newErrors.taskName = 'Task Name is required';
     if (!task?.description) newErrors.description = 'Description is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -51,20 +51,20 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
             <div className="flex mb-4 space-x-2">
-              <label htmlFor="task-title" className="block text-md my-3 font-medium flex-shrink-0 text-gray-700">
-                Task Title
+              <label htmlFor="task-name" className="block text-md my-3 font-medium flex-shrink-0 text-gray-700">
+                Task title
               </label>
               <div className="flex items-center flex-col md:flex-row">
                 <input
                   type="text"
-                  id="task-title"
-                  name="title"
-                  value={task?.title || ''}
+                  id="taskName"
+                  name="taskName"
+                  value={task.taskName}
                   onChange={onChange}
-                  className={`mt-1 block px-3 py-2 border border-gray-300 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-full ${errors.title ? 'border-red-500' : ''}`}
-                  placeholder="Enter task title"
+                  className={`mt-1 block px-3 py-2 border border-gray-300 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-full ${errors.taskName ? 'border-red-500' : ''}`}
+                  placeholder="Enter task name"
                 />
-                {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                {errors.taskName && <p className="text-red-500 text-sm mt-1">{errors.taskName}</p>}
               </div>
             </div>
 
@@ -125,10 +125,10 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
                 onChange={onChange}
                 className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
-                <option>To Do</option>
-                <option>In Progress</option>
-                <option> On Hold</option>
-                <option>Done</option>
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Done">Done</option>
               </select>
             </div>
 
@@ -187,16 +187,16 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
           <p><strong>Updated:</strong> {task?.updated ? new Date(task.updated).toLocaleDateString() : 'Not set'}</p>
         </div>
         <div className="mt-6">
-  <label htmlFor="task-comment" className="block text-sm font-medium text-gray-700">Comments</label>
-  <textarea
-    id="task-comment"
-    name="comment"
-    value={task?.comment || ''}
-    onChange={onChange}
-    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-none md:resize-y lg:resize-none"
-    placeholder="Add comments..."
-  ></textarea>
-</div>
+          <label htmlFor="task-comment" className="block text-sm font-medium text-gray-700">Comments</label>
+          <textarea
+            id="task-comment"
+            name="comment"
+            value={task?.comment || ''}
+            onChange={onChange}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-none md:resize-y lg:resize-none"
+            placeholder="Add comments..."
+          ></textarea>
+        </div>
 
         <div className="flex justify-end space-x-4 mt-6">
           <button

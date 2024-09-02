@@ -44,8 +44,12 @@ export const TopNav = () => {
   return (
     <nav className="bg-blue-400 text-white flex items-center justify-between px-4 h-16 shadow-md fixed top-0 left-0 w-full z-20">
       {/* Left Section: Logo */}
-      <div className="flex items-center space-x-2">
-        <span className="font-bold text-xl">MNNLR <span className="text-[#1D4ED8]">Workspace</span></span>
+      <div className="flex items-center justify-center space-x-2 p-4 m-20">
+        <Link to="/" className="flex items-center space-x-2">
+          <span className="font-bold text-2xl">
+            MNNLR <span className="text-[#1D4ED8]">Workspace</span>
+          </span>
+        </Link>
       </div>
 
       {/* Right Section: User Controls */}

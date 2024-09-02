@@ -1,47 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import TaskForm from '../Models/TaskFormModal.jsx';
 import TaskColumn from './TaskColumn';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import CustomAxios from '../../CustomAxios/customAxios';
+import Cookies from 'js-cookie';
 
 const TaskBoard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskMode, setTaskMode] = useState(null);
   const [task, setTask] = useState({
-    id: null,
-    title: '',
+    _id: null,
+    taskName: '',
     description: '',
-    assignee: '',
+    assignees: '',
     status: 'To Do',
-    labels: '',
-    parent: '',
-    sprint: '',
-    reporter: '',
-    comment: '',
+    report: '',
   });
+  const token = Cookies.get("User");
+
   const [tasks, setTasks] = useState({
-    'To Do': [],
-    'In Progress': [],
-    'On Hold': [],
+    'ToDo': [],
+    'In-Progress': [],
+    'On-Hold': [],
     'Done': [],
   });
+
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await CustomAxios.get('/tasks');
-        const tasksData = response.data;
-        console.log('Tasks Data:', tasksData);
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
+        const response = await CustomAxios.get('/api/tasks', {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          const tasksData = response.data.data.allTask;
+          console.log(tasksData);
+
+          setTasks({
+            'To Do': tasksData.filter(task => task.status === 'To Do'),
+            'In Progress': tasksData.filter(task => task.status === 'In Progress'),
+            'On Hold': tasksData.filter(task => task.status === 'On Hold'),
+            'Done': tasksData.filter(task => task.status === 'Done'),
+          });
+        } else {
+          alert("Failed to fetch tasks: " + response.data.message);
+        }
+      } catch (err) {
+        console.error('Error fetching tasks:', err);
       }
     };
-    fetchTasks();
-  }, []);
-  
 
-  
+    fetchTasks();
+  }, [token]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => ({ ...prevTask, [name]: value }));
@@ -49,18 +64,34 @@ const TaskBoard = () => {
 
   const handleSubmit = async () => {
     try {
-      if (task.id) {
-        await CustomAxios.patch(`/tasks/${task.id}`, task);
-        console.log('Updated task:', task);
-        updateTaskInState(task);
+      if (task._id) {
+        const response = await CustomAxios.patch(`/api/tasks/${task._id}`, task, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (response.status === 200) {
+          updateTaskInState(response.data.data.task);
+          console.log('Updated task:', task);
+        } else {
+          alert("Failed to update task: " + response.data.message);
+        }
       } else {
-        const response = await CustomAxios.post('/tasks', task);
-        const newTask = response.data;
-        console.log('Created task:', newTask);
-        setTasks((prevTasks) => ({
-          ...prevTasks,
-          [newTask.status]: [...(prevTasks[newTask.status] || []), newTask],
-        }));
+        const response = await CustomAxios.post('/api/tasks', task, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+        if (response.status === 201) {
+          const newTask = response.data.data.task;
+          setTasks((prevTasks) => ({
+            ...prevTasks,
+            [newTask.status]: [...(prevTasks[newTask.status] || []), newTask],
+          }));
+          console.log('Created task:', newTask);
+        } else {
+          alert("Failed to create task: " + response.data.message);
+        }
       }
       resetTaskForm();
     } catch (error) {
@@ -72,7 +103,7 @@ const TaskBoard = () => {
     setTasks((prevTasks) => {
       const updatedTasks = { ...prevTasks };
       updatedTasks[updatedTask.status] = updatedTasks[updatedTask.status].map((task) =>
-        task.id === updatedTask.id ? updatedTask : task
+        task._id === updatedTask._id ? updatedTask : task
       );
       return updatedTasks;
     });
@@ -80,12 +111,20 @@ const TaskBoard = () => {
 
   const handleDeleteTask = async (taskId, status) => {
     try {
-      await CustomAxios.delete(`/tasks/${taskId}`);
-      console.log('Deleted task ID:', taskId);
-      setTasks((prevTasks) => ({
-        ...prevTasks,
-        [status]: prevTasks[status].filter((task) => task.id !== taskId),
-      }));
+      const response = await CustomAxios.delete(`/api/tasks/${taskId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        setTasks((prevTasks) => ({
+          ...prevTasks,
+          [status]: prevTasks[status].filter((task) => task._id !== taskId),
+        }));
+        console.log('Deleted task ID:', taskId);
+      } else {
+        alert("Failed to delete task: " + response.data.message);
+      }
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -94,14 +133,22 @@ const TaskBoard = () => {
   const moveTask = async (task, newStatus) => {
     try {
       const updatedTask = { ...task, status: newStatus };
-      await CustomAxios.patch(`/tasks/${task.id}`, updatedTask);
-
-      setTasks((prevTasks) => {
-        const updatedTasks = { ...prevTasks };
-        updatedTasks[task.status] = updatedTasks[task.status].filter((t) => t.id !== task.id);
-        updatedTasks[newStatus] = [...(updatedTasks[newStatus] || []), updatedTask];
-        return updatedTasks;
+      const response = await CustomAxios.patch(`/api/tasks/${task._id}`, updatedTask, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
       });
+
+      if (response.status === 200) {
+        setTasks((prevTasks) => {
+          const updatedTasks = { ...prevTasks };
+          updatedTasks[task.status] = updatedTasks[task.status].filter((t) => t._id !== task._id);
+          updatedTasks[newStatus] = [...(updatedTasks[newStatus] || []), updatedTask];
+          return updatedTasks;
+        });
+      } else {
+        alert("Failed to move task: " + response.data.message);
+      }
     } catch (error) {
       console.error('Error moving task:', error);
     }
@@ -111,16 +158,12 @@ const TaskBoard = () => {
     setIsModalOpen(false);
     setTaskMode(null);
     setTask({
-      id: null,
-      title: '',
+      _id: null,
+      taskName: '',
       description: '',
-      assignee: '',
+      assignees: '',
       status: 'To Do',
-      labels: '',
-      parent: '',
-      sprint: '',
-      reporter: '',
-      comment: '',
+      report: '',
     });
   };
 
