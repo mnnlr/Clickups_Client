@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CreateProjectModal from '../components/Models/CreateProjectModal';
 import EditProjectModal from '../components/Models/EditProjectModal';
 import AddMembersModal from '../components/Models/AddMemberModal';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 // Mock data for projects and members
 const mockProjects = [
@@ -25,13 +27,13 @@ const mockProjects = [
   },
 ];
 
-const availableMembers = [
-  { id: 'user1', name: 'Alice Johnson' },
-  { id: 'user2', name: 'Bob Smith' },
-  { id: 'user3', name: 'Charlie Brown' },
-  { id: 'user4', name: 'Mighty Raju' },
-  { id: 'user5', name: 'Baldev Singh' },
-];
+// const availableMembersEx = [
+// { id: 'user1', name: 'Alice Johnson' },
+// { id: 'user2', name: 'Bob Smith' },
+// { id: 'user3', name: 'Charlie Brown' },
+// { id: 'user4', name: 'Mighty Raju' },
+// { id: 'user5', name: 'Baldev Singh' },
+// ];
 
 const Project = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -40,6 +42,7 @@ const Project = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [availableMembers, setAvailableMembers] = useState([]);
   const [projectData, setProjectData] = useState({
     projectName: '',
     description: '',
@@ -50,6 +53,69 @@ const Project = () => {
   });
   const [projects, setProjects] = useState(mockProjects);
   const [currentProject, setCurrentProject] = useState(null);
+
+
+  const token = Cookies.get("User");
+
+  useEffect(() => {
+
+    //------------------Get request for Team Members for adding in project-----------------
+    const getMembers = async () => {
+      try {
+        await axios.get("http://localhost:5000/api/teams", {
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": `Bearer ${token}`
+          },
+        }).then((response) => {
+          // console.log(response)
+
+          const responseData = response.data.map(item => ({
+            id: item.member._id,
+            name: item.member.name,
+            teamName: item.teamName
+          }));
+          // console.log(responseData)
+
+          setAvailableMembers(responseData);
+        })
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getMembers();
+
+    //------------------Get request for Projects-----------------
+    const getProjects = async () => {
+      try {
+        await axios.get("http://localhost:5000/api/projects", {
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": `Bearer ${token}`
+          },
+        }).then((response) => {
+          // console.log(response.data.Data)
+          //--------------------destructuring response data-------------------
+          const formattedProjects = response.data.Data.map((project) => ({
+            id: project._id,
+            projectName: project.projectName,
+            description: project.description,
+            teamMembers: project.teams.map(team => team.member._id), // destructure team member ID
+            owner: project.owner._id, // destructure owner ID
+            dueDate: "", // <<---------dont have due date from backend-----------------
+            status: project.status,
+          }));
+
+          setProjects(formattedProjects);
+        })
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getProjects();
+
+  }, [token]);
+
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -66,6 +132,7 @@ const Project = () => {
   };
 
   const openEditModal = (project) => {
+
     setProjectData({
       projectName: project.projectName,
       description: project.description,
@@ -82,17 +149,20 @@ const Project = () => {
   const closeEditModal = () => {
     setIsEditModalOpen(false);
     setCurrentProject(null);
+    setSelectedMembers([]);
   };
 
   const openAddMembersModal = (project) => {
     setCurrentProject(project);
     setSelectedMembers(project.teamMembers);
     setIsAddMembersModalOpen(true);
+    setSelectedMembers([]);
   };
 
   const closeAddMembersModal = () => {
     setIsAddMembersModalOpen(false);
     setCurrentProject(null);
+    setSelectedMembers([]);
   };
 
   const handleAddMember = (member) => {
@@ -110,9 +180,9 @@ const Project = () => {
     setSearchQuery(query);
   };
 
-  const filteredMembers = availableMembers.filter((member) =>
-    member.name.toLowerCase().includes(searchQuery)
-  );
+  // const filteredMembers = availableMembers?.filter((member) =>
+  //   member.name.toLowerCase().includes(searchQuery)
+  // );
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -122,31 +192,93 @@ const Project = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (currentProject) {
-      // Update project
+
+      //-------------------Update project-------------------
       const updatedProjects = projects.map((proj) =>
         proj.id === currentProject.id
           ? { ...projectData, id: currentProject.id, teamMembers: selectedMembers }
           : proj
       );
-      setProjects(updatedProjects);
+      // console.log(updatedProjects)
+
+      const updateData = {
+        ...projectData,        // Spread the original object
+        teams: selectedMembers.map(id => ({ member: id })), // Rename `teamMembers` to `teams`
+      };
+      delete updateData.teamMembers;
+
+      // console.log(updateData)
+
+      //-----------------Patch request for project-----------------
+      try {
+        await axios.patch(`http://localhost:5000/api/projects/${currentProject.id}`, updateData, {
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": `Bearer ${token}`
+          },
+        }).then((response) => {
+          console.log(response)
+          if (response.status === 200) {
+            setProjects(updatedProjects);
+          }
+        })
+      } catch (err) {
+        console.log(err)
+        alert("Something went wrong: " + err.response.data.message);
+      }
       closeEditModal();
     } else {
+
       // Create new project
       const newProject = {
         id: `proj${projects.length + 1}`,
         ...projectData,
         teamMembers: selectedMembers,
       };
+
+      //-----------------Post request for project-----------------
+      const MembersIds = selectedMembers.map(id => ({ member: id }));
+      // console.log(MembersIds)
+      try {
+        axios.post("http://localhost:5000/api/projects", { projectName: projectData.projectName, teams: MembersIds, description: projectData.description, owner: projectData.owner, status: projectData.status }, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).then((response) => {
+          // console.log(response.data);
+        });
+      } catch (err) {
+        console.log(err);
+        alert("Something went wrong: " + err.response.data.message);
+      }
+
+      // console.log(projectData)
       setProjects([...projects, newProject]);
       closeModal();
     }
   };
 
   const handleDelete = (id) => {
-    setProjects(projects.filter((proj) => proj.id !== id));
+    //------------------Delete request for project-----------------
+    try {
+      axios.delete(`http://localhost:5000/api/projects/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`
+        },
+      }).then((response) => {
+        if (response.status === 200) {
+          setProjects(projects.filter((proj) => proj.id !== id));
+        } else {
+          alert("Something went wrong: " + err.response.data.message);
+        }
+      })
+    } catch (err) {
+      console.log(err)
+    }
   };
 
   const handleViewDetails = (project) => {
@@ -161,7 +293,7 @@ const Project = () => {
     }
   };
 
-  const handleAddMembersSubmit = (e) => {
+  const handleAddMembersSubmit = async (e) => {
     e.preventDefault();
     if (currentProject) {
       const updatedProjects = projects.map((proj) =>
@@ -169,10 +301,35 @@ const Project = () => {
           ? { ...proj, teamMembers: selectedMembers }
           : proj
       );
-      setProjects(updatedProjects);
+
+      const updateData = {
+        ...projectData,        // Spread the original object
+        teams: selectedMembers.map(id => ({ member: id })), // Rename `teamMembers` to `teams`
+      };
+      delete updateData.teamMembers;
+
+      //-----------------Patch request for project-----------------
+      try {
+        await axios.patch(`http://localhost:5000/api/projects/${currentProject.id}`, updateData, {
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": `Bearer ${token}`
+          },
+        }).then((response) => {
+          console.log(response)
+          if (response.status === 200) {
+            setProjects(updatedProjects);
+          }
+        })
+      } catch (err) {
+        console.log(err)
+        alert("Something went wrong: " + err.response.data.message);
+      }
+
       closeAddMembersModal();
     }
   };
+
 
   return (
     <div className="relative p-6 bg-gray-100 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
@@ -233,7 +390,6 @@ const Project = () => {
           Completed
         </button>
       </div>
-
       <div className="bg-white shadow-lg rounded-xl p-6">
         <h2 className="text-xl font-semibold mb-4">Project List</h2>
         <table className="w-full table-auto">
@@ -241,7 +397,7 @@ const Project = () => {
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
               <th className="py-3 px-6 text-left">Project Name</th>
               <th className="py-3 px-6 text-left">Description</th>
-              <th className="py-3 px-6 text-left">Members</th>
+              <th className="py-3 px-6 text-left">Members assigned</th>
               <th className="py-3 px-6 text-left">Owner</th>
               <th className="py-3 px-6 text-left">Due Date</th>
               <th className="py-3 px-6 text-left">Status</th>
@@ -253,9 +409,9 @@ const Project = () => {
               <tr key={project.id} className="border-b border-gray-200 hover:bg-gray-100">
                 <td className="py-3 px-6 text-left">{project.projectName}</td>
                 <td className="py-3 px-6 text-left">{project.description}</td>
-                <td className="py-3 px-6 text-left">
+                <td className="py-3 px-6 text-left flex flex-row flex-wrap">
                   {project.teamMembers.map((memberId) => (
-                    <div key={memberId} className="text-sm">
+                    <div key={memberId} className="text-sm mr-3">
                       {availableMembers.find((m) => m.id === memberId)?.name}
                     </div>
                   ))}

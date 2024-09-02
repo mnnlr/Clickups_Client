@@ -26,7 +26,7 @@ export const SignUpPage = () => {
                 try {
                     console.log(signinFormData);
 
-                    const response = await axios.post('https://clickups-server.onrender.com/api/users/signup', signinFormData, {
+                    const response = await axios.post('http://localhost:5000/api/users/signup', signinFormData, {
                         headers: {
                             'Content-Type': 'application/json'
                         },

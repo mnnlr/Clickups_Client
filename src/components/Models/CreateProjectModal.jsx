@@ -19,35 +19,35 @@ const CreateProjectModal = ({
 
   return (
     <Modal title="Create New Project" onClose={onClose}>
-      <form onSubmit={onSubmit}>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Project Name</label>
+      <form className="space-y-2" onSubmit={onSubmit}>
+        <div className="mb-2">
+          <label className="block text-gray-700 font-medium mb-1 text-sm">Project Name</label>
           <input
             type="text"
             name="projectName"
             value={projectData.projectName}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             required
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Description</label>
+        <div className="mb-2">
+          <label className="block text-gray-700 font-medium mb-1 text-sm">Description</label>
           <textarea
             name="description"
             value={projectData.description}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             required
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Owner</label>
+        <div className="mb-2">
+          <label className="block text-gray-700 font-medium mb-1 text-sm">Owner</label>
           <select
             name="owner"
             value={projectData.owner}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             required
           >
             <option value="">Select Owner</option>
@@ -58,24 +58,24 @@ const CreateProjectModal = ({
             ))}
           </select>
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Due Date</label>
+        <div className="mb-2">
+          <label className="block text-gray-700 font-medium mb-1 text-sm">Due Date</label>
           <input
             type="date"
             name="dueDate"
             value={projectData.dueDate}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             required
           />
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Status</label>
+        <div className="mb-2">
+          <label className="block text-gray-700 font-medium mb-1 text-sm">Status</label>
           <select
             name="status"
             value={projectData.status}
             onChange={onInputChange}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             required
           >
             <option value="">Select Status</option>
@@ -83,43 +83,61 @@ const CreateProjectModal = ({
             <option value="completed">Completed</option>
           </select>
         </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-1">Select Members</label>
+        <div className="mb-2">
+          <label className="block text-gray-700 font-medium mb-1 text-sm">Select Members</label>
           <input
             type="text"
             placeholder="Search members..."
             onChange={onSearch}
             value={searchQuery}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
+            className="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 text-sm"
           />
+
           <div className="flex flex-wrap">
-            {filteredMembers.map((member) => (
-              <div
-                key={member.id}
-                onClick={() => onSelectMember(member.id)}
-                className={`cursor-pointer p-2 bg-gray-200 rounded-lg mr-2 mb-2 ${
-                  selectedMembers.includes(member.id) ? 'bg-blue-500 text-white' : ''
-                }`}
-              >
-                {member.name}
+            {Object.entries(
+              filteredMembers.reduce((groups, member) => {
+                const { teamName } = member;
+                if (!groups[teamName]) {
+                  groups[teamName] = [];
+                }
+                groups[teamName].push(member);
+                return groups;
+              }, {})
+            ).map(([teamName, members]) => (
+              <div key={teamName} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-2">
+                <div className="bg-gray-100 shadow-md rounded-lg p-4">
+                  <h1 className="text-lg font-semibold mb-2">{teamName}</h1>
+                  <div className="flex flex-wrap">
+                    {members.map((member) => (
+                      <div
+                        key={member.id}
+                        onClick={() => onSelectMember(member.id)}
+                        className={`cursor-pointer p-2 bg-gray-200 rounded-md mr-2 mb-2 ${selectedMembers.includes(member.id) ? 'bg-blue-500 text-white' : ''}`}
+                      >
+                        {member.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-          <div className="mt-2">
-            <p className="font-medium text-gray-700">Selected Members:</p>
-            <div className="flex flex-wrap mt-2">
+
+          <div className="mt-1">
+            <p className="font-medium text-gray-700 text-sm">Selected Members:</p>
+            <div className="flex flex-wrap mt-1">
               {selectedMembers.map((memberId) => {
                 const member = availableMembers.find((m) => m.id === memberId);
                 return (
                   <div
                     key={memberId}
-                    className="flex items-center p-2 bg-blue-500 text-white rounded-lg mr-2 mb-2"
+                    className="flex items-center p-1 bg-blue-500 text-white rounded-md mr-1 mb-1 text-sm"
                   >
                     <span>{member?.name}</span>
                     <button
                       type="button"
                       onClick={() => onRemoveMember(memberId)}
-                      className="ml-2 text-xs text-red-500"
+                      className="ml-1 text-sm bg-gray-300 font-semibold px-2 py-1 rounded-md text-center text-red-500"
                     >
                       Remove
                     </button>
@@ -129,17 +147,17 @@ const CreateProjectModal = ({
             </div>
           </div>
         </div>
-        <div className="flex justify-end space-x-4">
+        <div className="flex justify-end space-x-2">
           <button
             type="button"
             onClick={onClose}
-            className="bg-gray-500 text-white p-2 rounded-md"
+            className="bg-gray-500 text-white p-1 rounded-md text-sm"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="bg-blue-500 text-white p-2 rounded-md"
+            className="bg-blue-500 text-white p-1 rounded-md text-sm"
           >
             Create Project
           </button>
