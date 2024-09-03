@@ -14,7 +14,8 @@ const TaskBoard = () => {
     taskName: '',
     description: '',
     assignees: '',
-    status: 'To Do',
+    status: '',
+    SprintId:'',
     report: '',
   });
   const token = Cookies.get("User");
@@ -41,9 +42,9 @@ const TaskBoard = () => {
           console.log(tasksData);
 
           setTasks({
-            'To Do': tasksData.filter(task => task.status === 'To Do'),
-            'In Progress': tasksData.filter(task => task.status === 'In Progress'),
-            'On Hold': tasksData.filter(task => task.status === 'On Hold'),
+            'ToDo': tasksData.filter(task => task.status === 'ToDo'),
+            'In-Progress': tasksData.filter(task => task.status === 'In-Progress'),
+            'On-Hold': tasksData.filter(task => task.status === 'On-Hold'),
             'Done': tasksData.filter(task => task.status === 'Done'),
           });
         } else {
@@ -53,7 +54,6 @@ const TaskBoard = () => {
         console.error('Error fetching tasks:', err);
       }
     };
-
     fetchTasks();
   }, [token]);
 
@@ -162,8 +162,9 @@ const TaskBoard = () => {
       taskName: '',
       description: '',
       assignees: '',
-      status: 'To Do',
+      status: '',
       report: '',
+      SprintId:''
     });
   };
 
@@ -184,7 +185,7 @@ const TaskBoard = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="relative pt-16 pb-6 bg-gray-100 h-screen overflow-auto md:ml-16 lg:ml-20">
+    <div className="relative p-6 bg-gray-100 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
         <div className="flex space-x-4 overflow-x-auto">
           {Object.keys(tasks).map((status) => (
             <TaskColumn

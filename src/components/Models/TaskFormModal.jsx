@@ -8,7 +8,8 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!task?.taskName) newErrors.taskName = 'Task Name is required';
+    console.log('Task object:', task); // Log to check the task object
+    if (!task.taskName) newErrors.taskName = 'Task Name is required';
     if (!task?.description) newErrors.description = 'Description is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -59,7 +60,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
                   type="text"
                   id="taskName"
                   name="taskName"
-                  value={task.taskName}
+                  value={task.taskName || ''}
                   onChange={onChange}
                   className={`mt-1 block px-3 py-2 border border-gray-300 shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm w-full ${errors.taskName ? 'border-red-500' : ''}`}
                   placeholder="Enter task name"
@@ -125,55 +126,68 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
                 onChange={onChange}
                 className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
-                <option value="To Do">To Do</option>
-                <option value="In Progress">In Progress</option>
-                <option value="On Hold">On Hold</option>
+                <option value="ToDo">To Do</option>
+                <option value="In-Progress">In Progress</option>
+                <option value="On-Hold">On Hold</option>
                 <option value="Done">Done</option>
               </select>
             </div>
 
+
             <div className="flex items-center mb-4">
-              <label htmlFor="task-labels" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Labels</label>
+              <label htmlFor="task-priority" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Priority</label>
               <select
-                id="task-labels"
-                name="labels"
-                value={task?.labels || ''}
+                id="task-priority"
+                name="priority"
+                value={task?.priority || ''}
                 onChange={onChange}
                 className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
-                <option>None</option>
-                <option>Urgent</option>
-                <option>Feature</option>
-                <option>Bug</option>
-                <option>Improvement</option>
+                <option value="">None</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
               </select>
             </div>
 
+
+
             <div className="flex items-center mb-4">
-              <label htmlFor="task-parent" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Parent Task</label>
+              <label htmlFor="task-sprint" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">
+                Sprint
+              </label>
               <input
                 type="text"
-                id="task-parent"
-                name="parent"
-                value={task?.parent || ''}
-                onChange={onChange}
+                id="task-sprint"
+                name="SprintId"
                 className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Enter parent task"
+                value={task.SprintId || ''}
+                onChange={onChange}
               />
             </div>
 
             <div className="flex items-center mb-4">
-              <label htmlFor="task-sprint" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Sprint</label>
-              <small className="mt-1 flex-grow px-3 py-2 sm:text-sm">{task?.sprint || ''}</small>
+              <label htmlFor="task-due-date" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">
+                Due Date
+              </label>
+              <input
+                type="date"
+                id="task-due-date"
+                name="task-due-date"
+                className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
+                value={task?.dueDate ? new Date(task.dueDate).toISOString().substring(0, 10) : ''}
+                onChange={(e) => handleDueDateChange(e)}
+              />
             </div>
 
             <div className="flex items-center mb-4">
               <label htmlFor="task-reporter" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Reporter</label>
               <input
                 type="text"
-                id="task-reporter"
-                name="reporter"
-                value={task?.reporter || ''}
+                id="task-report"
+                name="report"
+                value={task?.report || ''}
                 onChange={onChange}
                 className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Enter reporter name"
@@ -182,16 +196,22 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel }) => {
           </div>
         </div>
 
-        <div className="my-3 text-right">
-          <p><strong>Created:</strong> {task?.created ? new Date(task.created).toLocaleDateString() : 'Not set'}</p>
-          <p><strong>Updated:</strong> {task?.updated ? new Date(task.updated).toLocaleDateString() : 'Not set'}</p>
+        <div className="my-2 text-right text-xs">
+          <p className="mb-1 text-gray-500">
+            <strong className="text-sm text-gray-700">Created:</strong> {task?.timestamp ? new Date(task.timestamp).toLocaleString() : 'Not set'}
+          </p>
+          <p className="text-gray-500">
+            <strong className="text-sm text-gray-700">Updated:</strong> {task?.updated ? new Date(task.updated).toLocaleString() : 'Not set'}
+          </p>
         </div>
+
+
         <div className="mt-6">
           <label htmlFor="task-comment" className="block text-sm font-medium text-gray-700">Comments</label>
           <textarea
             id="task-comment"
             name="comment"
-            value={task?.comment || ''}
+            value={''}
             onChange={onChange}
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm resize-none md:resize-y lg:resize-none"
             placeholder="Add comments..."

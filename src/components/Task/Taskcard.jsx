@@ -17,8 +17,27 @@ const TaskCard = ({ task, handleTaskClick, handleDeleteTask, status }) => {
       className={`bg-gray-200 p-4 rounded-lg shadow-sm cursor-pointer hover:bg-gray-300 relative ${isDragging ? 'opacity-50' : ''}`}
       onClick={() => handleTaskClick(task)}
     >
+      <h3 className="font-medium text-sm text-gray-800">
+        <span className="inline-block bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
+          {task.kanId}
+        </span>
+      </h3>
+
       <h3 className="font-medium text-md text-gray-800">{task.taskName}</h3>
-      <p className="text-md text-gray-600">{task.description}</p>
+      <p className="text-md text-gray-600 mt-2 overflow-hidden text-ellipsis whitespace-nowrap">
+    {task.description}
+  </p>
+      {/* assignedname */}
+      {/* <div className="absolute bottom-2 right-2 flex items-center space-x-2">
+        {task.assignees ? (
+          <span className="text-gray-600 text-sm">
+            Assignee: {task.assignees.name}
+          </span>
+        ) : (
+          <span className="text-gray-400 text-sm">Unassigned</span>
+        )}
+      </div> */}
+
       <button
         className="absolute top-2 right-2 text-gray-500 hover:text-red-600 focus:outline-none"
         aria-label="Delete task"
