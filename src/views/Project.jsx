@@ -27,14 +27,6 @@ const mockProjects = [
   },
 ];
 
-// const availableMembersEx = [
-// { id: 'user1', name: 'Alice Johnson' },
-// { id: 'user2', name: 'Bob Smith' },
-// { id: 'user3', name: 'Charlie Brown' },
-// { id: 'user4', name: 'Mighty Raju' },
-// { id: 'user5', name: 'Baldev Singh' },
-// ];
-
 const Project = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
@@ -62,7 +54,7 @@ const Project = () => {
     //------------------Get request for Team Members for adding in project-----------------
     const getMembers = async () => {
       try {
-        await axios.get("http://localhost:5000/api/teams", {
+        await axios.get("https://clickups-server.onrender.com/api/teams", {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
@@ -88,25 +80,30 @@ const Project = () => {
     //------------------Get request for Projects-----------------
     const getProjects = async () => {
       try {
-        await axios.get("http://localhost:5000/api/projects", {
+        await axios.get("https://clickups-server.onrender.com/api/projects", {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
           },
         }).then((response) => {
-          // console.log(response.data.Data)
-          //--------------------destructuring response data-------------------
-          const formattedProjects = response.data.Data.map((project) => ({
-            id: project._id,
-            projectName: project.projectName,
-            description: project.description,
-            teamMembers: project.teams.map(team => team.member._id), // destructure team member ID
-            owner: project.owner._id, // destructure owner ID
-            dueDate: "", // <<---------dont have due date from backend-----------------
-            status: project.status,
-          }));
+          console.log(response.data.Data);
+          if (response.data.Data.length === 0) {
+            setProjects(mockProjects);
+          } else {
+            //--------------------destructuring response data-------------------
+            const formattedProjects = response.data.Data.map((project) => ({
+              id: project._id,
+              projectName: project.projectName,
+              description: project.description,
+              teamMembers: project.teams.map(team => team.member._id), // destructure team member ID
+              owner: project.owner._id, // destructure owner ID
+              dueDate: "", // <<---------dont have due date from backend-----------------
+              status: project.status,
+            }));
 
-          setProjects(formattedProjects);
+            setProjects(formattedProjects);
+          }
+          console.log(projects)
         })
       } catch (err) {
         console.log(err);
@@ -156,7 +153,6 @@ const Project = () => {
     setCurrentProject(project);
     setSelectedMembers(project.teamMembers);
     setIsAddMembersModalOpen(true);
-    setSelectedMembers([]);
   };
 
   const closeAddMembersModal = () => {
@@ -205,16 +201,20 @@ const Project = () => {
       // console.log(updatedProjects)
 
       const updateData = {
-        ...projectData,        // Spread the original object
-        teams: selectedMembers.map(id => ({ member: id })), // Rename `teamMembers` to `teams`
+        ...currentProject,
+        projectName: projectData.projectName,
+        description: projectData.description,
+        owner: projectData.owner,
+        status: projectData.status,
+        teams: selectedMembers.map(id => ({ member: id })),
       };
       delete updateData.teamMembers;
 
-      // console.log(updateData)
+      console.log(updateData)
 
       //-----------------Patch request for project-----------------
       try {
-        await axios.patch(`http://localhost:5000/api/projects/${currentProject.id}`, updateData, {
+        await axios.patch(`https://clickups-server.onrender.com/api/projects/${currentProject.id}`, updateData, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
@@ -223,13 +223,13 @@ const Project = () => {
           console.log(response)
           if (response.status === 200) {
             setProjects(updatedProjects);
+            closeEditModal();
           }
         })
       } catch (err) {
         console.log(err)
         alert("Something went wrong: " + err.response.data.message);
       }
-      closeEditModal();
     } else {
 
       // Create new project
@@ -243,41 +243,48 @@ const Project = () => {
       const MembersIds = selectedMembers.map(id => ({ member: id }));
       // console.log(MembersIds)
       try {
-        axios.post("http://localhost:5000/api/projects", { projectName: projectData.projectName, teams: MembersIds, description: projectData.description, owner: projectData.owner, status: projectData.status }, {
+        await axios.post("https://clickups-server.onrender.com/api/projects", { projectName: projectData.projectName, teams: MembersIds, description: projectData.description, owner: projectData.owner, status: projectData.status }, {
           headers: {
             "Content-Type": "application/json",
           },
+          withCredentials: true
         }).then((response) => {
-          // console.log(response.data);
+          if (response.status === 201) {
+            setProjects([...projects, newProject]);
+            closeModal();
+            // console.log(response.data);
+          }
         });
       } catch (err) {
         console.log(err);
-        alert("Something went wrong: " + err.response.data.message);
+        alert("Something went wrong: Try again. (Try: Project Description must be between 10 and 200 characters)");
       }
 
       // console.log(projectData)
-      setProjects([...projects, newProject]);
-      closeModal();
     }
   };
 
   const handleDelete = (id) => {
-    //------------------Delete request for project-----------------
-    try {
-      axios.delete(`http://localhost:5000/api/projects/${id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": `Bearer ${token}`
-        },
-      }).then((response) => {
-        if (response.status === 200) {
-          setProjects(projects.filter((proj) => proj.id !== id));
-        } else {
-          alert("Something went wrong: " + err.response.data.message);
-        }
-      })
-    } catch (err) {
-      console.log(err)
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      //------------------Delete request for project-----------------
+      try {
+        axios.delete(`https://clickups-server.onrender.com/api/projects/${id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": `Bearer ${token}`
+          },
+        }).then((response) => {
+          if (response.status === 200) {
+            setProjects(projects.filter((proj) => proj.id !== id));
+            alert("Project deleted successfully.");
+          } else {
+            alert("Something went wrong: " + response.data.message);
+          }
+        })
+      } catch (err) {
+        console.log(err);
+        alert("Something went wrong: " + err.message);
+      }
     }
   };
 
@@ -286,11 +293,16 @@ const Project = () => {
   };
 
   const filterProjects = (projects) => {
-    if (filterType === 'all') {
-      return projects;
-    } else {
-      return projects.filter(project => project.status === filterType);
+    let filteredProjects = projects;
+    if (filterType !== 'all') {
+      filteredProjects = filteredProjects.filter(project => project.status === filterType);
     }
+    if (searchQuery) {
+      filteredProjects = filteredProjects.filter(project =>
+        project.projectName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    return filteredProjects;
   };
 
   const handleAddMembersSubmit = async (e) => {
@@ -301,16 +313,20 @@ const Project = () => {
           ? { ...proj, teamMembers: selectedMembers }
           : proj
       );
+      // console.log(updatedProjects)
+
+
 
       const updateData = {
-        ...projectData,        // Spread the original object
+        ...currentProject,        // Spread the original object
         teams: selectedMembers.map(id => ({ member: id })), // Rename `teamMembers` to `teams`
       };
       delete updateData.teamMembers;
+      // console.log(updateData)
 
       //-----------------Patch request for project-----------------
       try {
-        await axios.patch(`http://localhost:5000/api/projects/${currentProject.id}`, updateData, {
+        await axios.patch(`https://clickups-server.onrender.com/api/projects/${currentProject.id}`, updateData, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
@@ -319,14 +335,13 @@ const Project = () => {
           console.log(response)
           if (response.status === 200) {
             setProjects(updatedProjects);
+            closeAddMembersModal();
           }
         })
       } catch (err) {
         console.log(err)
         alert("Something went wrong: " + err.response.data.message);
       }
-
-      closeAddMembersModal();
     }
   };
 
@@ -378,6 +393,12 @@ const Project = () => {
           All
         </button>
         <button
+          onClick={() => setFilterType('inactive')}
+          className={`p-2 rounded-lg ${filterType === 'inactive' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+        >
+          Inactive
+        </button>
+        <button
           onClick={() => setFilterType('active')}
           className={`p-2 rounded-lg ${filterType === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
         >
@@ -424,25 +445,25 @@ const Project = () => {
                 <td className="py-3 px-6 text-right">
                   <button
                     onClick={() => openEditModal(project)}
-                    className="text-blue-500 hover:underline mr-2"
+                    className="bg-indigo-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 mr-1"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleViewDetails(project)}
-                    className="text-green-500 hover:underline mr-2"
+                    className="bg-indigo-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 mr-1"
                   >
                     View
                   </button>
                   <button
                     onClick={() => openAddMembersModal(project)}
-                    className="text-yellow-500 hover:underline mr-2"
+                    className="bg-indigo-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 mr-1"
                   >
                     Add Members
                   </button>
                   <button
                     onClick={() => handleDelete(project.id)}
-                    className="text-red-500 hover:underline"
+                    className="bg-red-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-rose-300"
                   >
                     Delete
                   </button>
