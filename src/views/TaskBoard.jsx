@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import TaskForm from '../Models/TaskFormModal.jsx';
-import TaskColumn from './TaskColumn';
+import TaskForm from '../components/Models/TaskFormModal.jsx';
+import TaskColumn from '../components/Task/TaskColumn.jsx';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import CustomAxios from '../../CustomAxios/customAxios';
+import CustomAxios from '../CustomAxios/customAxios.js';
 import Cookies from 'js-cookie';
 
 const TaskBoard = () => {
@@ -19,7 +19,6 @@ const TaskBoard = () => {
     report: '',
   });
   const token = Cookies.get("User");
-
   const [tasks, setTasks] = useState({
     'ToDo': [],
     'In-Progress': [],
@@ -27,6 +26,7 @@ const TaskBoard = () => {
     'Done': [],
   });
 
+  
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -72,7 +72,7 @@ const TaskBoard = () => {
         });
         if (response.status === 200) {
           updateTaskInState(response.data.data.task);
-          console.log('Updated task:', task);
+         // console.log('Updated task:', task);
         } else {
           alert("Failed to update task: " + response.data.message);
         }
@@ -204,6 +204,7 @@ const TaskBoard = () => {
             onChange={handleChange}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
+            taskMode={taskMode}
           />
         )}
         <button

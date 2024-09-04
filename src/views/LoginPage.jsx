@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import customAxios from '../CustomAxios/customAxios';
 // import { useDispatch, useSelector } from 'react-redux';
 // import { LoginSuccess } from '../redux/authentication/authSlice';
 
@@ -26,7 +27,7 @@ export const LoginPage = () => {
         if (loginFormData && loginFormData.email && loginFormData.password) {
             // console.log(loginFormData);
             try {
-                axios.post('https://clickups-server.onrender.com/api/users/login', { email: loginFormData.email, password: loginFormData.password }, {
+               customAxios.post('/api/users/login', { email: loginFormData.email, password: loginFormData.password }, {
                     headers: {
                         'Content-Type': 'application/json'
                     },
