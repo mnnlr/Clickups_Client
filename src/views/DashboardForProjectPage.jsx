@@ -23,7 +23,7 @@ export const DashboardForProjectPage = () => {
 
             {/* Sprints and Tickets */}
             <div className="flex flex-col md:flex-row gap-8">
-                <div className="flex-auto">
+                <div className="flex-auto ml-3">
                     <SprintsAndTickets sprints={sprints} />
                 </div>
 

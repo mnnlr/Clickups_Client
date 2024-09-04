@@ -79,15 +79,15 @@ const EditProjectModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="bg-gray-500 text-white p-2 rounded-md"
+            className="bg-gray-500 text-white px-2 py-1 rounded-md text-sm"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="bg-blue-500 text-white p-2 rounded-md"
+            className="bg-blue-500 text-white px-2 py-1 rounded-md text-sm"
           >
-            Save Changes
+            Save Members
           </button>
         </div>
       </form>

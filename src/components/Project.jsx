@@ -133,7 +133,7 @@ const Project = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredProjects.map((project, index) => (
-                <tr key={index}>
+                <tr tr key={index} >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{project.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.key}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{project.type}</td>
@@ -158,101 +158,105 @@ const Project = () => {
         )}
       </div>
       {/* Render the modal */}
-      {isModalOpen && (
-        <Modal title="Create new Project" onClose={closeModal}>
-          <form>
-            <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-1">Project Name</label>
-              <input type="text" name="projectName" class="w-full border border-gray-300 rounded-md p-2" required />
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-1">Description</label>
-              <textarea name="description" class="w-full border border-gray-300 rounded-md p-2" required></textarea>
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-1">Team Members</label>
-              <select multiple name="teamMembers" class="w-full border border-gray-300 rounded-md p-2">
-                <option value="active">user1</option>
-                <option value="inactive">user2e</option>
-              </select>
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-1">Owner</label>
-              <select name="owner" class="w-full border border-gray-300 rounded-md p-2" required>
-                <option value="active">user1</option>
-                <option value="inactive">user2</option>
-              </select>
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-1">Due Date</label>
-              <input type="date" name="dueDate" class="w-full border border-gray-300 rounded-md p-2" required />
-            </div>
-            <div class="mb-4">
-              <label class="block text-gray-700 font-medium mb-1">Status</label>
-              <select name="status" class="w-full border border-gray-300 rounded-md p-2" required>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </div>
-            <div class="flex justify-end">
-              <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md">Create</button>
-            </div>
-          </form>
-          <button
-            onClick={closeModal}
-            className="bg-blue-500 text-white p-2 rounded-lg mt-4 hover:bg-blue-600"
-          >
-            Close
-          </button>
-        </Modal>
-      )}
+      {
+        isModalOpen && (
+          <Modal title="Create new Project" onClose={closeModal}>
+            <form>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">Project Name</label>
+                <input type="text" name="projectName" class="w-full border border-gray-300 rounded-md p-2" required />
+              </div>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">Description</label>
+                <textarea name="description" class="w-full border border-gray-300 rounded-md p-2" required></textarea>
+              </div>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">Team Members</label>
+                <select multiple name="teamMembers" class="w-full border border-gray-300 rounded-md p-2">
+                  <option value="active">user1</option>
+                  <option value="inactive">user2e</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">Owner</label>
+                <select name="owner" class="w-full border border-gray-300 rounded-md p-2" required>
+                  <option value="active">user1</option>
+                  <option value="inactive">user2</option>
+                </select>
+              </div>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">Due Date</label>
+                <input type="date" name="dueDate" class="w-full border border-gray-300 rounded-md p-2" required />
+              </div>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-1">Status</label>
+                <select name="status" class="w-full border border-gray-300 rounded-md p-2" required>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="flex justify-end">
+                <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md">Create</button>
+              </div>
+            </form>
+            <button
+              onClick={closeModal}
+              className="bg-blue-500 text-white p-2 rounded-lg mt-4 hover:bg-blue-600"
+            >
+              Close
+            </button>
+          </Modal>
+        )
+      }
 
       {/* hendel the members form */}
-      {ToggleAddMemberForm && (
-        <Modal title="Create new Project" onClose={handleAddMembersToggle}>
-          <form className="space-y-4">
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-1">Team Name</label>
-              <input
-                type="text"
-                name="teamName"
-                placeholder='Enter Team Name'
-                onChange={handleMemberFormChange}
-                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-1">Team Member Email</label>
-              <input
-                type="email"
-                placeholder='jone@gmail.com'
-                onChange={handleMemberFormChange}
-                name="member"
-                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div className="flex justify-end space-x-4">
-              <button
-                type="submit"
-                onClick={handleAddMember}
-                className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-              >
-                Create
-              </button>
-              <button
-                type="button"
-                onClick={handleAddMembersToggle}
-                className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200"
-              >
-                Close
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
-    </div>
+      {
+        ToggleAddMemberForm && (
+          <Modal title="Create new Project" onClose={handleAddMembersToggle}>
+            <form className="space-y-4">
+              <div className="mb-4">
+                <label className="block text-gray-700 font-medium mb-1">Team Name</label>
+                <input
+                  type="text"
+                  name="teamName"
+                  placeholder='Enter Team Name'
+                  onChange={handleMemberFormChange}
+                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 font-medium mb-1">Team Member Email</label>
+                <input
+                  type="email"
+                  placeholder='jone@gmail.com'
+                  onChange={handleMemberFormChange}
+                  name="member"
+                  className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="submit"
+                  onClick={handleAddMember}
+                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                >
+                  Create
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddMembersToggle}
+                  className="bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200"
+                >
+                  Close
+                </button>
+              </div>
+            </form>
+          </Modal>
+        )
+      }
+    </div >
   );
 };
 

@@ -105,15 +105,15 @@ const CreateProjectModal = ({
                 return groups;
               }, {})
             ).map(([teamName, members]) => (
-              <div key={teamName} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-2">
+              <div key={teamName} className="w-full sm:w-1/3 md:w-1/5 lg:w-1/6 p-2">
                 <div className="bg-gray-100 shadow-md rounded-lg p-4">
-                  <h1 className="text-lg font-semibold mb-2">{teamName}</h1>
+                  <h1 className="text-sm font-bold mb-2">{teamName}</h1>
                   <div className="flex flex-wrap">
                     {members.map((member) => (
                       <div
                         key={member.id}
                         onClick={() => onSelectMember(member.id)}
-                        className={`cursor-pointer p-2 bg-gray-200 rounded-md mr-2 mb-2 ${selectedMembers.includes(member.id) ? 'bg-blue-500 text-white' : ''}`}
+                        className={`cursor-pointer p-2 bg-gray-200 rounded-md mr-2 mb-2 break-words ${selectedMembers.includes(member.id) ? 'bg-blue-500 text-white' : ''}`}
                       >
                         {member.name}
                       </div>

@@ -4,6 +4,7 @@ import EditProjectModal from '../components/Models/EditProjectModal';
 import AddMembersModal from '../components/Models/AddMemberModal';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { axiosPrivate } from '../CustomAxios/customAxios';
 
 // Mock data for projects and members
 const mockProjects = [
@@ -54,7 +55,7 @@ const Project = () => {
     //------------------Get request for Team Members for adding in project-----------------
     const getMembers = async () => {
       try {
-        await axios.get("https://clickups-server.onrender.com/api/teams", {
+        await axiosPrivate.get("/api/teams", {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
@@ -62,7 +63,7 @@ const Project = () => {
         }).then((response) => {
           // console.log(response)
 
-          const responseData = response.data.map(item => ({
+          const responseData = response.data.teams.map(item => ({
             id: item.member._id,
             name: item.member.name,
             teamName: item.teamName
@@ -80,7 +81,7 @@ const Project = () => {
     //------------------Get request for Projects-----------------
     const getProjects = async () => {
       try {
-        await axios.get("https://clickups-server.onrender.com/api/projects", {
+        await axiosPrivate.get("/api/projects", {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
@@ -214,7 +215,7 @@ const Project = () => {
 
       //-----------------Patch request for project-----------------
       try {
-        await axios.patch(`https://clickups-server.onrender.com/api/projects/${currentProject.id}`, updateData, {
+        await axiosPrivate.patch(`/api/projects/${currentProject.id}`, updateData, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
@@ -264,11 +265,11 @@ const Project = () => {
     }
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this project?")) {
       //------------------Delete request for project-----------------
       try {
-        axios.delete(`https://clickups-server.onrender.com/api/projects/${id}`, {
+        await axiosPrivate.delete(`/api/projects/${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
@@ -286,10 +287,6 @@ const Project = () => {
         alert("Something went wrong: " + err.message);
       }
     }
-  };
-
-  const handleViewDetails = (project) => {
-    // Implementation for viewing details
   };
 
   const filterProjects = (projects) => {
@@ -326,7 +323,7 @@ const Project = () => {
 
       //-----------------Patch request for project-----------------
       try {
-        await axios.patch(`https://clickups-server.onrender.com/api/projects/${currentProject.id}`, updateData, {
+        await axiosPrivate.patch(`/api/projects/${currentProject.id}`, updateData, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
@@ -433,7 +430,7 @@ const Project = () => {
                 <td className="py-3 px-6 text-left flex flex-row flex-wrap">
                   {project.teamMembers.map((memberId) => (
                     <div key={memberId} className="text-sm mr-3">
-                      {availableMembers.find((m) => m.id === memberId)?.name}
+                      {availableMembers.find((m) => m.id === memberId)?.name.charAt(0).toUpperCase() + availableMembers.find((m) => m.id === memberId)?.name.slice(1)}
                     </div>
                   ))}
                 </td>

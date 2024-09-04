@@ -2,14 +2,15 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { FaUserPlus, FaEnvelope, FaUserCircle, FaTrashAlt, FaSearch } from 'react-icons/fa';
 import Cookies from 'js-cookie';
+import { axiosPrivate } from '../CustomAxios/customAxios';
 
 const InviteMember = () => {
   const [email, setEmail] = useState('');
   const [teamName, setTeamName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [members, setMembers] = useState([
-    { id: 1, email: 'john.doe@example.com', teamName: 'Team A' },
-    { id: 2, email: 'jane.smith@example.com', teamName: 'Team B' },
+    { id: 1, email: 'john.doe@example.com', teamName: 'Team A', name: 'John Doe' },
+    { id: 2, email: 'jane.smith@example.com', teamName: 'Team B', name: 'Jane Smith' },
   ]);
   const [error, setError] = useState('');
 
@@ -19,21 +20,21 @@ const InviteMember = () => {
     //------------------Get request for Team Members for adding in project-----------------
     const getMembers = async () => {
       try {
-        await axios.get("https://clickups-server.onrender.com/api/teams", {
+        await axiosPrivate.get("/api/teams", {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
           },
         }).then((response) => {
           // console.log(response)
-
-          const responseData = response.data.map(item => ({
+          const responseData = response.data.teams.map(item => ({
             id: item.member._id,
             email: item.member.email,
             name: item.member.name,
-            teamName: item.teamName
+            teamName: item.teamName,
+            teamId: item._id
           }));
-          console.log(responseData)
+          // console.log(responseData)
           setMembers(responseData);
         })
       } catch (err) {
@@ -48,9 +49,9 @@ const InviteMember = () => {
     const teamNames = members.map(member => member.teamName);
     return [...new Set(teamNames)].filter(Boolean);
   }
-  console.log(teamName)
+  // console.log(teamName)
 
-  const handleInvite = () => {
+  const handleInvite = async () => {
     setError(''); // Clear previous errors
 
     // Validate email format
@@ -65,36 +66,60 @@ const InviteMember = () => {
       setError('Team name is required.');
       return;
     } else if (members.some((member) => member.email === email)) {
-      setError('This email is already a member.');
+      setError(`The member "${email}" is already exsist in the same team or added in the different team.`);
       return;
     } else {
       console.log(email, teamName)
-      // axios.post('http://localhost:5000/api/teams/', { email, teamName, role },
-      //   {
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       'Authorization': `Bearer ${localStorage.getItem('token')}`
-      //     }
-      //   }
-      // ).then(response => {
-      //   console.log('Invitation sent successfully:', response.data);
-      //   // Optionally, update the UI or state here
-      // })
-      // .catch(error => {
-      //   console.error('Error inviting member:', error);
-      //   setError('Failed to invite member. Please try again.');
-      // });
+      try {
+        //-----------------Post request for adding member in the team-----------------
+        await axiosPrivate.post('/api/teams/', { memberEmail: email, teamName, },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              "authorization": `Bearer ${token}`
+            },
+            withCredentials: true
+          }
+        ).then(response => {
+          console.log('Invitation sent successfully:', response.data);
+          if (response.status === 201) {
+            alert("Member added successfully")
+            window.location.reload();
+          }
+        })
+      } catch (error) {
+        console.error('Error inviting member:', error);
+        setError('Failed to invite member. Please try again.');
+      };
     }
-
-    // If validation passes, add the new member
-    const newMember = { id: members.length + 1, email, teamName };
-    setMembers([...members, newMember]);
-    setEmail('');
-    setTeamName('');
   };
 
   const handleRemoveMember = (id) => {
-    setMembers(members.filter(member => member.id !== id));
+    (members.filter(async (member) => {
+      if (member.id === id) {
+        console.log(member.teamName, member.email)
+        console.log(token)
+        try {
+          await axiosPrivate.delete(`/api/teams`, {
+            data: { teamName: member.teamName, memberEmail: member.email },
+            headers: {
+              'Content-Type': 'application/json',
+              'authorization': `Bearer ${token}`
+            },
+            withCredentials: true
+          }).then(response => {
+            console.log(response)
+            if (response.status === 200) {
+              setMembers(members.filter(member => member.id !== id));
+              alert("Member removed successfully")
+            }
+          })
+        } catch (err) {
+          console.log(err)
+          alert("Failed to remove member")
+        }
+      }
+    }))
   };
 
   const filteredMembers = members.filter(member => {
@@ -134,11 +159,11 @@ const InviteMember = () => {
               className="focus:outline-none"
             />
           </div>
-          <div className="flex items-center border border-gray-300 rounded-lg p-2">
+          <div className="flex items-center border border-gray-300 w-1/6 rounded-lg p-2">
             <select
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
-              className="focus:outline-none"
+              className="focus:outline-none w-full"
             >
               <option value="">Select a team</option>
               {uniqueTeamNames().map((teamName, index) => (
@@ -178,24 +203,26 @@ const InviteMember = () => {
 
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-xl font-medium mb-4">Current Members</h2>
-        {filteredMembers.map((member) => (
-          <div key={member.id} className="flex justify-between items-center p-4 border-b last:border-b-0">
-            <div className="flex items-center">
-              <FaUserCircle className="text-gray-500 text-2xl mr-4" />
-              <div>
-                <p className="text-lg font-bold">{member.name}</p>
-                <p className="text-lg font-medium">{member.email}</p>
-                <p className="text-sm text-gray-600">{member.teamName}</p>
+        <div className='grid grid-cols-4 gap-3'>
+          {filteredMembers.map((member) => (
+            <div key={member.id} className="flex flex-wrap justify-between shadow-md items-center p-4 border-b last:border-b-0">
+              <div className="flex items-center">
+                <FaUserCircle className="text-gray-500 text-2xl mr-4" />
+                <div>
+                  <p className="text-lg font-bold">{member.name ? member.name.charAt(0).toUpperCase() + member.name.slice(1) : "No Name"}</p>
+                  <p className="text-lg font-medium">{member.email}</p>
+                  <p className="text-sm font-normal text-indigo-500">{member.teamName}</p>
+                </div>
               </div>
+              <button
+                onClick={() => handleRemoveMember(member.id)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <FaTrashAlt />
+              </button>
             </div>
-            <button
-              onClick={() => handleRemoveMember(member.id)}
-              className="text-red-500 hover:text-red-700"
-            >
-              <FaTrashAlt />
-            </button>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
