@@ -3,7 +3,7 @@ import TaskForm from '../components/Models/TaskFormModal.jsx';
 import TaskColumn from '../components/Task/TaskColumn.jsx';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import CustomAxios from '../CustomAxios/customAxios.js';
+import{axiosPrivate} from '../CustomAxios/customAxios.js';
 import Cookies from 'js-cookie';
 
 const TaskBoard = () => {
@@ -31,7 +31,7 @@ const TaskBoard = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await CustomAxios.get('/api/tasks', {
+        const response = await axiosPrivate.get('/api/tasks', {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
@@ -65,7 +65,7 @@ const TaskBoard = () => {
   const handleSubmit = async () => {
     try {
       if (task._id) {
-        const response = await CustomAxios.patch(`/api/tasks/${task._id}`, task, {
+        const response = await axiosPrivate.patch(`/api/tasks/${task._id}`, task, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
@@ -77,7 +77,7 @@ const TaskBoard = () => {
           alert("Failed to update task: " + response.data.message);
         }
       } else {
-        const response = await CustomAxios.post('/api/tasks', task, {
+        const response = await axiosPrivate.post('/api/tasks', task, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
@@ -111,7 +111,7 @@ const TaskBoard = () => {
 
   const handleDeleteTask = async (taskId, status) => {
     try {
-      const response = await CustomAxios.delete(`/api/tasks/${taskId}`, {
+      const response = await axiosPrivate.delete(`/api/tasks/${taskId}`, {
         headers: {
           "Authorization": `Bearer ${token}`,
         },
@@ -133,7 +133,7 @@ const TaskBoard = () => {
   const moveTask = async (task, newStatus) => {
     try {
       const updatedTask = { ...task, status: newStatus };
-      const response = await CustomAxios.patch(`/api/tasks/${task._id}`, updatedTask, {
+      const response = await axiosPrivate.patch(`/api/tasks/${task._id}`, updatedTask, {
         headers: {
           "Authorization": `Bearer ${token}`,
         },
