@@ -45,46 +45,49 @@ export const SprintsAndTickets = ({ sprints }) => {
                             )}
                         </button>
 
-                        {openSprints[sprint] && (
-                            <div className="px-6 py-4">
-                                {sprints[sprint]
-                                    .filter((ticket) =>
-                                        ticket.title.toLowerCase().includes(searchQuery) ||
-                                        ticket.createdBy.toLowerCase().includes(searchQuery) ||
-                                        ticket.status.toLowerCase().includes(searchQuery)
-                                    )
-                                    .map((ticket) => (
-                                        <div
-                                            key={ticket.id}
-                                            className="mb-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition"
-                                        >
-                                            <h3 className="text-xl font-semibold text-gray-800 mb-2">{ticket.title}</h3>
-                                            <p className="text-gray-600 mb-2">{ticket.description}</p>
-                                            <div className="flex items-center justify-between text-sm text-gray-500">
-                                                <span>Created by: {ticket.createdBy}</span>
-                                                <span
-                                                    className={`px-2 py-1 rounded-full ${ticket.status === 'Todo'
-                                                        ? 'bg-blue-100 text-blue-600'
-                                                        : ticket.status === 'In Progress'
-                                                            ? 'bg-yellow-100 text-yellow-600'
-                                                            : 'bg-green-100 text-green-600'
-                                                        }`}
-                                                >
-                                                    {ticket.status}
-                                                </span>
+                        <div className=''>
+                            {openSprints[sprint] && (
+                                <div className="px-6 py-4 grid grid-cols-5 gap-2">
+                                    {sprints[sprint]
+                                        .filter((ticket) =>
+                                            ticket.title.toLowerCase().includes(searchQuery) ||
+                                            ticket.createdBy.toLowerCase().includes(searchQuery) ||
+                                            ticket.status.toLowerCase().includes(searchQuery)
+                                        )
+                                        .map((ticket) => (
+                                            <div
+                                                key={ticket.id}
+                                                className="mb-4 p-4 border border-gray-200 rounded-lg hover:scale-[1.02] hover:shadow-md transition"
+                                            >
+                                                <h3 className="text-xl font-semibold text-gray-800 mb-2">{ticket.title}</h3>
+                                                <p className="text-gray-600 mb-2">{ticket.description}</p>
+                                                <div className="flex items-center justify-between text-sm text-gray-500">
+                                                    <span>Created by: {ticket.createdBy}</span>
+                                                    <span
+                                                        className={`px-2 py-1 rounded-full ${ticket.status === 'Todo'
+                                                            ? 'bg-blue-100 text-blue-600'
+                                                            : ticket.status === 'In Progress'
+                                                                ? 'bg-yellow-100 text-yellow-600'
+                                                                : 'bg-green-100 text-green-600'
+                                                            }`}
+                                                    >
+                                                        {ticket.status}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
-                                {sprints[sprint].filter(
-                                    (ticket) =>
-                                        ticket.title.toLowerCase().includes(searchQuery) ||
-                                        ticket.createdBy.toLowerCase().includes(searchQuery) ||
-                                        ticket.status.toLowerCase().includes(searchQuery)
-                                ).length === 0 && (
-                                        <p className="text-gray-500 text-center py-4">No tickets found.</p>
-                                    )}
-                            </div>
-                        )}
+                                        ))}
+                                    {sprints[sprint].filter(
+                                        (ticket) =>
+                                            ticket.title.toLowerCase().includes(searchQuery) ||
+                                            ticket.createdBy.toLowerCase().includes(searchQuery) ||
+                                            ticket.status.toLowerCase().includes(searchQuery)
+                                    ).length === 0 && (
+                                            <p className="text-gray-500 text-center py-4">No tickets found.</p>
+                                        )}
+                                </div>
+                            )}
+                        </div>
+
                     </div>
                 ))}
             </div>
