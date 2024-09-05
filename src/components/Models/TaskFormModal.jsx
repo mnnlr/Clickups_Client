@@ -10,12 +10,13 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode }) => {
   const validate = () => {
     const newErrors = {};
     // console.log('Task object:', task); 
-    //console.log("id",task._id);
+   
     
     if (!task.taskName) newErrors.taskName = 'Task Name is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  console.log("userId", task?.userId);
 
 
   const handleSubmit = () => {
@@ -107,7 +108,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode }) => {
 
               <div className="mt-3">
               
-              <CommentsSection />
+              <CommentsSection taskId={task?._id} />
               </div>
             </div>
           </div>
