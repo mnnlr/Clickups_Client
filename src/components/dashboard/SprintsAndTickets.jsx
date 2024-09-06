@@ -47,7 +47,7 @@ export const SprintsAndTickets = ({ sprints }) => {
 
                         <div className=''>
                             {openSprints[sprint] && (
-                                <div className="px-6 py-4 grid grid-cols-5 gap-2">
+                                <div className="px-6 py-4 grid grid-cols-4 gap-2">
                                     {sprints[sprint]
                                         .filter((ticket) =>
                                             ticket.title.toLowerCase().includes(searchQuery) ||

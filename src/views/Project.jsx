@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import CreateProjectModal from '../components/Models/CreateProjectModal';
 import EditProjectModal from '../components/Models/EditProjectModal';
 import AddMembersModal from '../components/Models/AddMemberModal';
-import axios from 'axios';
 import Cookies from 'js-cookie';
 import { axiosPrivate } from '../CustomAxios/customAxios';
+import { Link } from 'react-router-dom';
 
 // Mock data for projects and members
 const mockProjects = [
@@ -47,96 +47,71 @@ const Project = () => {
   const [projects, setProjects] = useState(mockProjects);
   const [currentProject, setCurrentProject] = useState(null);
 
-
   const token = Cookies.get("User");
 
   useEffect(() => {
-
-    //------------------Get request for Team Members for adding in project-----------------
-    const getMembers = async () => {
-      try {
-        await axiosPrivate.get("/api/teams", {
-          headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`
-          },
-        }).then((response) => {
-          // console.log(response)
-
-          const responseData = response.data.teams.map(item => ({
-            id: item.member._id,
-            name: item.member.name,
-            teamName: item.teamName
-          }));
-          // console.log(responseData)
-
-          setAvailableMembers(responseData);
-        })
-      } catch (err) {
-        console.log(err);
-      }
+    const fetchData = async () => {
+      await getMembers();
+      await getProjects();
     };
-    getMembers();
-
-    //------------------Get request for Projects-----------------
-    const getProjects = async () => {
-      try {
-        await axiosPrivate.get("/api/projects", {
-          headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`
-          },
-        }).then((response) => {
-          console.log(response.data.Data);
-          if (response.data.Data.length === 0) {
-            setProjects(mockProjects);
-          } else {
-            //--------------------destructuring response data-------------------
-            const formattedProjects = response.data.Data.map((project) => ({
-              id: project._id,
-              projectName: project.projectName,
-              description: project.description,
-              teamMembers: project.teams.map(team => team.member._id), // destructure team member ID
-              owner: project.owner._id, // destructure owner ID
-              dueDate: "", // <<---------dont have due date from backend-----------------
-              status: project.status,
-            }));
-
-            setProjects(formattedProjects);
-          }
-          console.log(projects)
-        })
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getProjects();
-
+    fetchData();
   }, [token]);
 
+  const getMembers = async () => {
+    try {
+      const response = await axiosPrivate.get("/api/users/get-all-users", {
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`
+        },
+      });
+      const responseData = response.data.users.map(item => ({
+        id: item._id,
+        name: item.name,
+        email: item.email,
+      }));
+      setAvailableMembers(responseData);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getProjects = async () => {
+    try {
+      const response = await axiosPrivate.get("/api/projects", {
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`
+        },
+      });
+      const responseData = response.data.Data.length === 0 ? mockProjects : response.data.Data.map((project) => ({
+        id: project._id,
+        projectName: project.projectName,
+        description: project.description,
+        teamMembers: project.teams.members.map(team => team._id),
+        owner: project.owner._id,
+        dueDate: project.dueDate,
+        status: project.status,
+      }));
+      setProjects(responseData);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    setProjectData({
-      projectName: '',
-      description: '',
-      teamMembers: [],
-      owner: '',
-      dueDate: '',
-      status: '',
-    });
-    setSelectedMembers([]);
+    resetProjectData();
   };
 
   const openEditModal = (project) => {
-
     setProjectData({
       projectName: project.projectName,
       description: project.description,
       teamMembers: project.teamMembers,
       owner: project.owner,
-      dueDate: project.dueDate,
+      dueDate: new Date(project.dueDate).toISOString().split('T')[0],
       status: project.status,
     });
     setSelectedMembers(project.teamMembers);
@@ -146,8 +121,7 @@ const Project = () => {
 
   const closeEditModal = () => {
     setIsEditModalOpen(false);
-    setCurrentProject(null);
-    setSelectedMembers([]);
+    resetProjectData();
   };
 
   const openAddMembersModal = (project) => {
@@ -158,8 +132,20 @@ const Project = () => {
 
   const closeAddMembersModal = () => {
     setIsAddMembersModalOpen(false);
-    setCurrentProject(null);
+    resetProjectData();
+  };
+
+  const resetProjectData = () => {
+    setProjectData({
+      projectName: '',
+      description: '',
+      teamMembers: [],
+      owner: '',
+      dueDate: '',
+      status: '',
+    });
     setSelectedMembers([]);
+    setCurrentProject(null);
   };
 
   const handleAddMember = (member) => {
@@ -177,10 +163,6 @@ const Project = () => {
     setSearchQuery(query);
   };
 
-  // const filteredMembers = availableMembers?.filter((member) =>
-  //   member.name.toLowerCase().includes(searchQuery)
-  // );
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProjectData({
@@ -191,97 +173,103 @@ const Project = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (currentProject) {
+    currentProject ? updateProject() : createProject();
+  };
 
-      //-------------------Update project-------------------
-      const updatedProjects = projects.map((proj) =>
-        proj.id === currentProject.id
-          ? { ...projectData, id: currentProject.id, teamMembers: selectedMembers }
-          : proj
-      );
-      // console.log(updatedProjects)
+  const updateProject = async () => {
+    const updatedProjects = projects.map((proj) =>
+      proj.id === currentProject.id
+        ? { ...projectData, id: currentProject.id, teamMembers: selectedMembers }
+        : proj
+    );
 
-      const updateData = {
-        ...currentProject,
-        projectName: projectData.projectName,
-        description: projectData.description,
-        owner: projectData.owner,
-        status: projectData.status,
-        teams: selectedMembers.map(id => ({ member: id })),
-      };
-      delete updateData.teamMembers;
+    const updateData = {
+      ...currentProject,
+      projectName: projectData.projectName,
+      description: projectData.description,
+      owner: projectData.owner,
+      dueDate: projectData.dueDate,
+      status: projectData.status,
+    };
 
-      console.log(updateData)
+    try {
+      const response = await axiosPrivate.patch(`/api/projects/${currentProject.id}`, updateData, {
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`
+        },
+      });
+      if (response.status === 200) {
+        alert("Project updated successfully.");
+        setProjects(updatedProjects);
+        closeEditModal();
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Something went wrong: " + err.response.data.message);
+    }
+  };
 
-      //-----------------Patch request for project-----------------
-      try {
-        await axiosPrivate.patch(`/api/projects/${currentProject.id}`, updateData, {
+  const createProject = async () => {
+    const newProject = {
+      id: `proj${projects.length + 1}`,
+      ...projectData,
+      teamMembers: selectedMembers,
+    };
+
+    const MembersIds = selectedMembers.map(id => ({ teamData: id }));
+
+    try {
+      if (projectData && selectedMembers) {
+        const teamResponse = await axiosPrivate.post('/api/teams', { teamName: projectData.projectName + "'s Team", memberIdentifiers: selectedMembers }, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
           },
-        }).then((response) => {
-          console.log(response)
-          if (response.status === 200) {
-            setProjects(updatedProjects);
-            closeEditModal();
-          }
-        })
-      } catch (err) {
-        console.log(err)
-        alert("Something went wrong: " + err.response.data.message);
-      }
-    } else {
+        });
 
-      // Create new project
-      const newProject = {
-        id: `proj${projects.length + 1}`,
-        ...projectData,
-        teamMembers: selectedMembers,
-      };
+        const dataForBackend = {
+          projectName: projectData.projectName,
+          teams: teamResponse.data.teamId,
+          description: projectData.description,
+          dueDate: projectData.dueDate,
+          owner: projectData.owner,
+          status: projectData.status
+        };
 
-      //-----------------Post request for project-----------------
-      const MembersIds = selectedMembers.map(id => ({ member: id }));
-      // console.log(MembersIds)
-      try {
-        await axios.post("https://clickups-server.onrender.com/api/projects", { projectName: projectData.projectName, teams: MembersIds, description: projectData.description, owner: projectData.owner, status: projectData.status }, {
+        const projectResponse = await axiosPrivate.post("/api/projects", dataForBackend, {
           headers: {
             "Content-Type": "application/json",
           },
           withCredentials: true
-        }).then((response) => {
-          if (response.status === 201) {
-            setProjects([...projects, newProject]);
-            closeModal();
-            // console.log(response.data);
-          }
         });
-      } catch (err) {
-        console.log(err);
-        alert("Something went wrong: Try again. (Try: Project Description must be between 10 and 200 characters)");
-      }
 
-      // console.log(projectData)
+        if (projectResponse.status === 201) {
+          setProjects([...projects, newProject]);
+          closeModal();
+        }
+      }
+    } catch (err) {
+      console.log(err);
+      alert("Something went wrong: Try again. (Try: Project Description must be between 10 and 200 characters)");
     }
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this project?")) {
-      //------------------Delete request for project-----------------
       try {
-        await axiosPrivate.delete(`/api/projects/${id}`, {
+        const response = await axiosPrivate.delete(`/api/projects/${id}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
           },
-        }).then((response) => {
-          if (response.status === 200) {
-            setProjects(projects.filter((proj) => proj.id !== id));
-            alert("Project deleted successfully.");
-          } else {
-            alert("Something went wrong: " + response.data.message);
-          }
-        })
+        });
+        if (response.status === 200) {
+          setProjects(projects.filter((proj) => proj.id !== id));
+          alert("Project deleted successfully.");
+        } else {
+          alert("Something went wrong: " + response.data.message);
+        }
       } catch (err) {
         console.log(err);
         alert("Something went wrong: " + err.message);
@@ -310,38 +298,23 @@ const Project = () => {
           ? { ...proj, teamMembers: selectedMembers }
           : proj
       );
-      // console.log(updatedProjects)
 
-
-
-      const updateData = {
-        ...currentProject,        // Spread the original object
-        teams: selectedMembers.map(id => ({ member: id })), // Rename `teamMembers` to `teams`
-      };
-      delete updateData.teamMembers;
-      // console.log(updateData)
-
-      //-----------------Patch request for project-----------------
       try {
-        await axiosPrivate.patch(`/api/projects/${currentProject.id}`, updateData, {
+        const response = await axiosPrivate.patch(`/api/teams/`, { teamName: currentProject.projectName + "'s Team", members: selectedMembers }, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
           },
-        }).then((response) => {
-          console.log(response)
-          if (response.status === 200) {
-            setProjects(updatedProjects);
-            closeAddMembersModal();
-          }
-        })
+        });
+        if (response.status === 200) {
+          setProjects(updatedProjects);
+          closeAddMembersModal();
+        }
       } catch (err) {
-        console.log(err)
-        alert("Something went wrong: " + err.response.data.message);
+        console.log(err);
       }
     }
   };
-
 
   return (
     <div className="relative p-6 bg-gray-100 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
@@ -425,20 +398,23 @@ const Project = () => {
           <tbody className="text-gray-600 text-sm font-light">
             {filterProjects(projects).map((project) => (
               <tr key={project.id} className="border-b border-gray-200 hover:bg-gray-100">
-                <td className="py-3 px-6 text-left">{project.projectName}</td>
-                <td className="py-3 px-6 text-left">{project.description}</td>
+                <td className="py-3 px-6 text-left">{project.projectName || ''}</td>
+                <td className="py-3 px-6 text-left">{project.description || ''}</td>
                 <td className="py-3 px-6 text-left flex flex-row flex-wrap">
-                  {project.teamMembers.map((memberId) => (
-                    <div key={memberId} className="text-sm mr-3">
-                      {availableMembers.find((m) => m.id === memberId)?.name.charAt(0).toUpperCase() + availableMembers.find((m) => m.id === memberId)?.name.slice(1)}
-                    </div>
-                  ))}
+                  {project.teamMembers.map((memberId) => {
+                    const member = availableMembers.find((m) => m.id === memberId);
+                    return (
+                      <div key={memberId} className="text-sm mr-3">
+                        {member ? member.name.charAt(0).toUpperCase() + member.name.slice(1) : ''}
+                      </div>
+                    );
+                  })}
                 </td>
                 <td className="py-3 px-6 text-left">
-                  {availableMembers.find((m) => m.id === project.owner)?.name}
+                  {availableMembers.find((m) => m.id === project.owner)?.name || ''}
                 </td>
-                <td className="py-3 px-6 text-left">{project.dueDate}</td>
-                <td className="py-3 px-6 text-left">{project.status}</td>
+                <td className="py-3 px-6 text-left">{new Date(project.dueDate).toLocaleDateString() || ''}</td>
+                <td className="py-3 px-6 text-left">{project.status || ''}</td>
                 <td className="py-3 px-6 text-right">
                   <button
                     onClick={() => openEditModal(project)}
@@ -446,17 +422,18 @@ const Project = () => {
                   >
                     Edit
                   </button>
-                  <button
+                  <Link
+                    to={`/dashboard/`}
                     onClick={() => handleViewDetails(project)}
                     className="bg-indigo-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 mr-1"
                   >
                     View
-                  </button>
+                  </Link>
                   <button
                     onClick={() => openAddMembersModal(project)}
                     className="bg-indigo-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 mr-1"
                   >
-                    Add Members
+                    Add Teams
                   </button>
                   <button
                     onClick={() => handleDelete(project.id)}
