@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { NavFooter } from "./layouts/NavFooter"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { HomePageBeforeLogin } from "./views/HomePageBeforeLogin"
-import Homepage from "./components/Homepage"
+import Homepage from "./views/Homepage"
 import TaskBoard from "./views/TaskBoardPage"
 import Document from "./views/DocumentPage"
 import InviteMember from "./views/InviteMemberPage"
@@ -16,6 +16,9 @@ import Project from "./views/Project"
 import Cookies from "js-cookie"
 import { DashboardForProjectPage } from "./views/DashboardForProjectPage"
 import { SideNavTopNav } from "./layouts/SideNavTopNav"
+import Check_auth from "./components/check_auth/Check_auth"
+import AuthLayout from "./views/AuthLayout";
+
 
 function App() {
 
@@ -23,7 +26,7 @@ function App() {
 
   return (
     <Router>
-      {userToken ? (
+      {/* {userToken ? (
         <div className="App">
           <div className="main-content">
             <Routes>
@@ -51,6 +54,30 @@ function App() {
           </Route>
         </Routes>
       )}
+       */}
+      <Routes>
+        <Route element={<Check_auth/>}>
+           <Route path="/" element={<AuthLayout />}>
+            <Route path="home" element={<Homepage />} />
+            <Route path="tasks" element={<TaskBoard />} />
+            <Route path="docs" element={<Document />} />
+            <Route path="invite" element={<InviteMember />} />
+            <Route path="workspace" element={<Workspace />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="project" element={<Project />} />
+            <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="/dashboard/project" element={<DashboardForProjectPage />} />
+          </Route>
+        </Route>
+        <Route>  
+          <Route path="/" element={<NavFooter />}>
+            <Route index element={<HomePageBeforeLogin />} />
+            <Route path="signup" element={<SignUpPage />} />
+            <Route path="signin" element={<LoginPage />} />
+          </Route>
+        </Route>
+        <Route path="/*" element={<PagenotFound />} />
+      </Routes>
     </Router>
   );
 }

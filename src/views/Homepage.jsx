@@ -1,12 +1,15 @@
 import React from "react";
+import { useDispatch ,useSelector} from "react-redux";
 
-const Homepage = ({name}) => {
+const Homepage = () => {
+  const user = useSelector((state)=>state.login)
+  const dispatch = useDispatch();
   return (
     <div className="relative p-6 bg-gray-100 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
 
       {/* Greeting Section */}
       <header className="bg-blue-600 text-white p-4">
-        <h1 className="text-3xl font-bold">Good morning, <span>{name||"Rashmika"}</span></h1>
+        <h1 className="text-3xl font-bold">Good morning, <span>{user?.user?.name}</span></h1>
       </header>
 
       {/* Main Content */}

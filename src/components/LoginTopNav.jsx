@@ -1,12 +1,23 @@
 import { useState } from "react";
-import { FaBell, FaCog } from "react-icons/fa";
+import { FaSearch, FaBell, FaCog } from "react-icons/fa";
 import { IoMdAdd } from "react-icons/io";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { LogoutBtn } from "../utils/LogoutBtn";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutSuccess } from "../redux/authentication/loginSlice";
 
 export const TopNav = () => {
+  const [searchQuery, setSearchQuery] = useState("");
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+
+
+  // access the user data in this:-
+  const user = useSelector((state)=>state.login)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  console.log('user from dashboard', user);
 
   // Sample notifications data with read/unread status
   const [notifications, setNotifications] = useState([
@@ -14,6 +25,10 @@ export const TopNav = () => {
     { message: "Your project deadline is approaching.", status: "unread" },
     { message: "You received a message from John.", status: "read" }
   ]);
+
+  const handleSearch = () => {
+    console.log("Searching for:", searchQuery);
+  };
 
   const toggleNotifications = () => {
     setIsNotificationsOpen(!isNotificationsOpen);
@@ -23,6 +38,14 @@ export const TopNav = () => {
     setIsProfileOpen(!isProfileOpen);
   };
 
+      const handleLogoutBtn = () => {
+        try {
+            dispatch(logoutSuccess())
+            navigate('/signin')
+        } catch (err) {
+            console.log(`ERROR on logout button function: ${err}`)
+        }
+    }
   const markAsRead = (indexToUpdate) => {
     setNotifications((prevNotifications) =>
       prevNotifications.map((notification, index) =>
@@ -60,7 +83,7 @@ export const TopNav = () => {
           onClick={() => console.log("Open Add Task Modal")}
         >
           <IoMdAdd className="text-lg" />
-          <span className="hidden md:inline">New Template</span>
+          <span className="hidden md:inline">Add Task</span>
         </button>
 
         {/* Notifications */}
@@ -113,10 +136,10 @@ export const TopNav = () => {
             />
           </button>
           {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-black rounded-md shadow-lg z-20">
+            <div className="absolute right-0 mt-2 w-52 bg-white text-black rounded-md shadow-lg z-20">
               <div className="px-4 py-2">
-                <p className="font-semibold">Rohit</p>
-                <p className="text-sm text-gray-500">Rohit.pal@example.com</p>
+                <p className="font-semibold">{user?.user?.name}</p>
+                <p className="text-sm text-gray-500">{user?.user?.email}</p>
               </div>
               <hr />
               <Link
@@ -127,7 +150,8 @@ export const TopNav = () => {
               </Link>
               <button className="w-full text-left px-4 py-2 hover:bg-blue-100">Settings</button>
               <button className="w-full text-left px-4 py-2 hover:bg-blue-100">More</button>
-              <LogoutBtn btnStyle="w-full text-left px-4 py-2 hover:bg-gray-100" />
+              <button className="w-full text-left px-4 py-2 hover:bg-blue-100" onClick={handleLogoutBtn}>Logout</button>
+              {/* <LogoutBtn btnStyle="w-full text-left px-4 py-2 hover:bg-gray-100" /> */}
             </div>
           )}
         </div>
@@ -138,7 +162,6 @@ export const TopNav = () => {
         </button>
       </div>
     </nav>
-
   );
 };
 

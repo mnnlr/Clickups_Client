@@ -28,13 +28,11 @@ const SideNav = () => {
         {/* Menu Items */}
         <div className="flex-1 flex flex-col pt-16 space-y-4 scrollbar">
           {[
-            { icon: FaHome, to: "/", label: "Home" },
+            { icon: FaHome, to: "/home", label: "Home" },
             { icon: MdSpaceDashboard, to: "/dashboard", label: "Dashboard" },
             { icon: FaTasks, to: "/tasks", label: "Tasks" },
             { icon: FaFileAlt, to: "/docs", label: "Documents" },
             { icon: projectIcon, to: "/project", label: "Projects" },
-            { icon: FaBullseye, to: "/goals", label: "Goals" },
-            { icon: FaInbox, to: "/inbox", label: "Inbox" },
             { icon: FaUserPlus, to: "/invite", label: "Invite" },
             { icon: FaBuilding, to: "/workspace", label: "Workspace" }
           ].map((item, index) => (

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { axiosPrivate } from '../CustomAxios/customAxios';
-import Cookies from 'js-cookie'; // Ensure Cookies is imported
+import Cookies from 'js-cookie'; 
+import { useDispatch ,useSelector} from "react-redux";
 
 const CommentsSection = ({ taskId }) => {
   const [comments, setComments] = useState([]);
@@ -10,6 +11,9 @@ const CommentsSection = ({ taskId }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const token = Cookies.get("User");
+
+  const user = useSelector((state)=>state.login)
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -134,7 +138,7 @@ const CommentsSection = ({ taskId }) => {
                 <div className="flex items-start space-x-3">
                   <div className="flex-1">
                     <p className="font-semibold text-gray-700">
-                      {comment?.creatorId?.name ?? 'Unknown User'}
+                      {user?.user?.name || 'Unknown User'}
                     </p> 
                     {editingCommentId === comment?._id ? (
                       <form onSubmit={handleEditSubmit} className="mt-2 space-y-2">
