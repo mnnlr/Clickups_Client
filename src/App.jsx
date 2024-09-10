@@ -3,10 +3,9 @@ import { NavFooter } from "./layouts/NavFooter"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { HomePageBeforeLogin } from "./views/HomePageBeforeLogin"
 import Homepage from "./components/Homepage"
-import TaskBoard from "./views/TaskBoard"
-import Document from "./views/Document"
-import Inbox from "./views/Inbox"
-import InviteMember from "./views/InviteMember"
+import TaskBoard from "./views/TaskBoardPage"
+import Document from "./views/DocumentPage"
+import InviteMember from "./views/InviteMemberPage"
 import Workspace from "./views/Workspace"
 import ProfilePage from "./views/Profilepage"
 import { LoginPage } from "./views/LoginPage"
@@ -33,7 +32,6 @@ function App() {
                 <Route index element={<Homepage />} />
                 <Route path="/tasks" element={<TaskBoard />} />
                 <Route path="/docs" element={<Document />} />
-                <Route path="/inbox" element={<Inbox />} />
                 <Route path="/invite" element={<InviteMember />} />
                 <Route path="/workspace" element={<Workspace />} />
                 <Route path="/profile" element={<ProfilePage />} />

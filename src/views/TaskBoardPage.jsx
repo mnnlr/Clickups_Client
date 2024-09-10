@@ -6,7 +6,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import{axiosPrivate} from '../CustomAxios/customAxios.js';
 import Cookies from 'js-cookie';
 
-const TaskBoard = () => {
+const TaskBoardPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskMode, setTaskMode] = useState(null);
   const [task, setTask] = useState({
@@ -218,4 +218,4 @@ const TaskBoard = () => {
   );
 };
 
-export default TaskBoard;
+export default TaskBoardPage;
