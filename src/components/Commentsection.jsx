@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { axiosPrivate } from '../CustomAxios/customAxios';
-import Cookies from 'js-cookie'; 
-import { useDispatch ,useSelector} from "react-redux";
+import Cookies from 'js-cookie';
+import { useSelector } from "react-redux";
 
 const CommentsSection = ({ taskId }) => {
   const [comments, setComments] = useState([]);
@@ -12,8 +12,7 @@ const CommentsSection = ({ taskId }) => {
   const [error, setError] = useState(null);
   const token = Cookies.get("User");
 
-  const user = useSelector((state)=>state.login)
-  const dispatch = useDispatch();
+  const user = useSelector((state) => state.login?.user);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -54,7 +53,11 @@ const CommentsSection = ({ taskId }) => {
     e.preventDefault();
     if (newComment.trim()) {
       try {
-        const response = await axiosPrivate.post('/api/comments', { comment: newComment, taskId }, {
+        const response = await axiosPrivate.post('/api/comments', {
+          comment: newComment,
+          taskId,
+          creatorId: user._id // Include the creatorId here
+        }, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.data.success) {
@@ -137,9 +140,9 @@ const CommentsSection = ({ taskId }) => {
               <li key={comment?._id} className="relative bg-white border border-gray-200 rounded p-3 shadow-sm text-sm rounded-xl">
                 <div className="flex items-start space-x-3">
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-700">
-                      {user?.user?.name || 'Unknown User'}
-                    </p> 
+                    <p className="font-semibold text-blue-700 bg-blue-100 rounded-xl px-3 py-1 inline-block">
+                      {comment?.creatorId?.name || 'Unknown User'}
+                    </p>
                     {editingCommentId === comment?._id ? (
                       <form onSubmit={handleEditSubmit} className="mt-2 space-y-2">
                         <textarea
