@@ -28,7 +28,7 @@ const CommentsSection = ({ taskId }) => {
             setError('Failed to fetch comments: ' + response.data.message);
           }
         } else {
-          setError('Task ID is required');
+          setError('First Create Task after Show Comments Section');
         }
       } catch (err) {
         console.error('Error fetching comments:', err);
@@ -127,7 +127,14 @@ const CommentsSection = ({ taskId }) => {
   };
 
   if (loading) return <p>Loading comments...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (error) return (
+    <div className="flex justify-center mb-4">
+      <p className='font-semibold text-red-700 bg-red-100 rounded-xl px-3 py-1 inline-block'>
+        {error}
+      </p>
+    </div>
+  );
+  
 
   return (
     <div className="max-w-sm mx-auto p-4 overflow-y-auto max-h-80">

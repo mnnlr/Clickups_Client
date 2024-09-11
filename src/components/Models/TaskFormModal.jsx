@@ -3,20 +3,33 @@ import attachIcon from '../Svg icon/attachment-2-svgrepo-com.svg';
 import linkIcon from '../Svg icon/link-round-svgrepo-com.svg';
 import childIssueIcon from '../Svg icon/website-connection-communication-svgrepo-com.svg';
 import CommentsSection from '../Commentsection';
-const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode }) => {
+const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembers }) => {
   const [errors, setErrors] = useState({});
+
 
   const title = taskMode === 'edit' ? 'Edit Task' : 'Create New Task';
   const validate = () => {
     const newErrors = {};
     // console.log('Task object:', task); 
-   
-    
+
+
     if (!task.taskName) newErrors.taskName = 'Task Name is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  console.log("userId", task?.userId);
+
+
+  // Function to handle due date changes
+  const handleDueDateChange = (e) => {
+    const newDueDate = e.target.value;
+    // Assuming you're using setTask to update the task state
+    onChange({
+      target: {
+        name: 'dueDate',
+        value: newDueDate,
+      }
+    });
+  };
 
 
   const handleSubmit = () => {
@@ -107,25 +120,35 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode }) => {
               </div>
 
               <div className="mt-3">
-              
-              <CommentsSection taskId={task?._id} />
+
+                <CommentsSection taskId={task?._id} />
               </div>
             </div>
           </div>
 
           <div className="border border-gray-300 p-4">
             <div className="flex items-center mb-4">
-              <label htmlFor="task-assignee" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Assignee</label>
-              <input
-                type="text"
+              <label htmlFor="task-assignee" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">
+                Assignee
+              </label>
+              <select
                 id="task-assignee"
-                name="assignee"
-                value={task?.assignee || ''}
+                name="assignees"
+                value={task?.assignees || ''}
                 onChange={onChange}
-                className="mt-1 flex-grow px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Enter assignee name"
-              />
+                className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="" disabled>
+                  Select an assignee
+                </option>
+                {availableMembers.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
             </div>
+
 
             <div className="flex items-center mb-4">
               <label htmlFor="task-status" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Status</label>
@@ -180,25 +203,36 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode }) => {
               <input
                 type="date"
                 id="task-due-date"
-                name="task-due-date"
+                name="dueDate"
                 className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm sm:text-sm"
                 value={task?.dueDate ? new Date(task.dueDate).toISOString().substring(0, 10) : ''}
-                onChange={(e) => handleDueDateChange(e)}
+                onChange={handleDueDateChange}
               />
             </div>
 
+
             <div className="flex items-center mb-4">
-              <label htmlFor="task-reporter" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">Reporter</label>
-              <input
-                type="text"
-                id="task-report"
+              <label htmlFor="task-reporter" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-32">
+                Reporter
+              </label>
+              <select
+                id="task-reporter"
                 name="report"
                 value={task?.report || ''}
                 onChange={onChange}
                 className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Enter reporter name"
-              />
+              >
+                <option value="" disabled>
+                  Select a reporter
+                </option>
+                {availableMembers.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
             </div>
+
           </div>
         </div>
 

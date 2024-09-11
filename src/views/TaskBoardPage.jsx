@@ -28,6 +28,8 @@ const TaskBoardPage = () => {
 
   
 
+  const [availableMembers, setAvailableMembers] = useState([]);
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -39,7 +41,6 @@ const TaskBoardPage = () => {
 
         if (response.status === 200) {
           const tasksData = response.data.data.allTask;
-          console.log(tasksData);
 
           setTasks({
             'ToDo': tasksData.filter(task => task.status === 'ToDo'),
@@ -54,9 +55,31 @@ const TaskBoardPage = () => {
         console.error('Error fetching tasks:', err);
       }
     };
+
+    const fetchMembers = async () => {
+      try {
+        const response = await axiosPrivate.get("/api/users/get-all-users", {
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": `Bearer ${token}`
+          },
+        });
+        const responseData = response.data.users.map(item => ({
+          id: item._id,
+          name: item.name,
+          email: item.email,
+        }));
+        setAvailableMembers(responseData);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
     fetchTasks();
+    fetchMembers();
   }, [token]);
 
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => ({ ...prevTask, [name]: value }));
@@ -205,13 +228,14 @@ const TaskBoardPage = () => {
             onSubmit={handleSubmit}
             onCancel={handleCancel}
             taskMode={taskMode}
+            availableMembers={availableMembers}
           />
         )}
         <button
-          className="fixed bottom-8 right-8 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 transition-transform transform rotate-45"
+          className="fixed bottom-8 right-8 bg-blue-500 text-white p-4 rounded-xl shadow-lg hover:bg-blue-600 "
           onClick={handleCreateTaskClick}
         >
-          +
+          Create Task
         </button>
       </div>
     </DndProvider>
