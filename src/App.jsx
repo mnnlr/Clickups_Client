@@ -56,8 +56,8 @@ function App() {
       )}
        */}
       <Routes>
-        <Route element={<Check_auth/>}>
-           <Route path="/" element={<AuthLayout />}>
+        <Route element={<Check_auth />}>
+          <Route path="/" element={<AuthLayout />}>
             <Route path="home" element={<Homepage />} />
             <Route path="tasks" element={<TaskBoard />} />
             <Route path="docs" element={<Document />} />
@@ -69,7 +69,7 @@ function App() {
             <Route path="/dashboard/project" element={<DashboardForProjectPage />} />
           </Route>
         </Route>
-        <Route>  
+        <Route>
           <Route path="/" element={<NavFooter />}>
             <Route index element={<HomePageBeforeLogin />} />
             <Route path="signup" element={<SignUpPage />} />
@@ -78,7 +78,7 @@ function App() {
         </Route>
         <Route path="/*" element={<PagenotFound />} />
       </Routes>
-    </Router>
+    </Router >
   );
 }
 

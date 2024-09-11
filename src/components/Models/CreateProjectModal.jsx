@@ -7,15 +7,17 @@ const CreateProjectModal = ({
   onSubmit,
   searchQuery,
   onSearch,
-  selectedMembers,
-  onSelectMember,
-  onRemoveMember,
-  availableMembers,
+  selectedTeams,
+  onSelectTeam,
+  onRemoveTeam,
+  availableTeams,
+  availableMembers, // Add this line
   onClose
 }) => {
-  const filteredMembers = availableMembers.filter((member) =>
-    member.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTeams = availableTeams.filter((team) =>
+    team.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  // console.log(filteredTeams)
 
   return (
     <Modal title="Create New Project" onClose={onClose}>
@@ -51,11 +53,11 @@ const CreateProjectModal = ({
             required
           >
             <option value="">Select Owner</option>
-            {availableMembers.map((member) => (
+            {availableMembers.length > 0 ? availableMembers.map((member) => (
               <option key={member.id} value={member.id}>
                 {member.name}
               </option>
-            ))}
+            )) : <option value="">No members available</option>}
           </select>
         </div>
         <div className="mb-2">
@@ -84,52 +86,6 @@ const CreateProjectModal = ({
             <option value="completed">Completed</option>
           </select>
         </div>
-        <div className="mb-2">
-          <label className="block text-gray-700 font-medium mb-1 text-sm">Select Members</label>
-          <input
-            type="text"
-            placeholder="Search members..."
-            onChange={onSearch}
-            value={searchQuery}
-            className="w-full p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 text-sm"
-          />
-
-          <div className="flex flex-wrap">
-            {filteredMembers.map((member) => (
-              <div
-                key={member.id}
-                onClick={() => onSelectMember(member.id)}
-                className={`cursor-pointer p-2 bg-gray-200 rounded-md mr-2 mb-2 break-words ${selectedMembers.includes(member.id) ? 'bg-blue-500 text-white' : ''}`}
-              >
-                {member.name}
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-1">
-            <p className="font-medium text-gray-700 text-sm">Selected Members:</p>
-            <div className="flex flex-wrap mt-1">
-              {selectedMembers.map((memberId) => {
-                const member = availableMembers.find((m) => m.id === memberId);
-                return (
-                  <div
-                    key={memberId}
-                    className="flex items-center p-1 bg-blue-500 text-white rounded-md mr-1 mb-1 text-sm"
-                  >
-                    <span>{member?.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => onRemoveMember(memberId)}
-                      className="ml-1 text-sm bg-gray-300 font-semibold px-2 py-1 rounded-md text-center text-red-500"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
         <div className="flex justify-end space-x-2">
           <button
             type="button"
@@ -146,7 +102,7 @@ const CreateProjectModal = ({
           </button>
         </div>
       </form>
-    </Modal>
+    </Modal >
   );
 };
 

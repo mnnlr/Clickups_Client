@@ -12,7 +12,7 @@ const mockProjects = [
     id: 'proj1',
     projectName: 'Project Alpha',
     description: 'This is the first project.',
-    teamMembers: ['user1', 'user2'],
+    teams: ['team1', 'team2'],
     owner: 'user1',
     dueDate: '2024-09-15',
     status: 'active',
@@ -21,7 +21,7 @@ const mockProjects = [
     id: 'proj2',
     projectName: 'Project Beta',
     description: 'This is the second project.',
-    teamMembers: ['user2', 'user3'],
+    teams: ['team2', 'team3'],
     owner: 'user3',
     dueDate: '2024-10-01',
     status: 'completed',
@@ -34,12 +34,13 @@ const Project = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
-  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [selectedTeams, setSelectedTeams] = useState([]);
   const [availableMembers, setAvailableMembers] = useState([]);
+  const [availableTeams, setAvailableTeams] = useState([]);
   const [projectData, setProjectData] = useState({
     projectName: '',
     description: '',
-    teamMembers: [],
+    teams: [],
     owner: '',
     dueDate: '',
     status: '',
@@ -52,6 +53,7 @@ const Project = () => {
   useEffect(() => {
     const fetchData = async () => {
       await getMembers();
+      await getTeams();
       await getProjects();
     };
     fetchData();
@@ -84,16 +86,42 @@ const Project = () => {
           "authorization": `Bearer ${token}`
         },
       });
-      const responseData = response.data.Data.length === 0 ? mockProjects : response.data.Data.map((project) => ({
-        id: project._id,
-        projectName: project.projectName,
-        description: project.description,
-        teamMembers: project.teams.members.map(team => team._id),
-        owner: project.owner._id,
-        dueDate: project.dueDate,
-        status: project.status,
-      }));
+      // console.log('Raw project data:', response.data.Data);
+      const responseData = response.data.Data.length === 0 ? mockProjects : response.data.Data.map((project) => {
+        // console.log('Processing project:', project);
+        return {
+          id: project._id,
+          projectName: project.projectName,
+          description: project.description,
+          teams: project.teams ? project.teams.map((team) => ({
+            id: team._id,
+            teamName: team.teamName
+          })) : [],
+          owner: project.owner._id,
+          dueDate: project.dueDate,
+          status: project.status,
+        };
+      });
       setProjects(responseData);
+    } catch (err) {
+      console.error('Error fetching projects:', err);
+    }
+  };
+
+  const getTeams = async () => {
+    try {
+      const response = await axiosPrivate.get("/api/teams", {
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`
+        },
+      });
+      const responseData = response.data.teams.map(team => ({
+        id: team._id,
+        name: team.teamName,
+      }));
+      setAvailableTeams(responseData);
+      // console.log(responseData)
     } catch (err) {
       console.log(err);
     }
@@ -109,12 +137,12 @@ const Project = () => {
     setProjectData({
       projectName: project.projectName,
       description: project.description,
-      teamMembers: project.teamMembers,
+      teams: project.teams,
       owner: project.owner,
       dueDate: new Date(project.dueDate).toISOString().split('T')[0],
       status: project.status,
     });
-    setSelectedMembers(project.teamMembers);
+    setSelectedTeams(project.teams);
     setCurrentProject(project);
     setIsEditModalOpen(true);
   };
@@ -125,8 +153,15 @@ const Project = () => {
   };
 
   const openAddMembersModal = (project) => {
-    setCurrentProject(project);
-    setSelectedMembers(project.teamMembers);
+    setCurrentProject({
+      id: project.id,
+      projectName: project.projectName,
+      description: project.description,
+      status: project.status,
+      owner: project.owner,
+      teams: project.teams || []
+    });
+    setSelectedTeams(project.teams || []);
     setIsAddMembersModalOpen(true);
   };
 
@@ -139,23 +174,24 @@ const Project = () => {
     setProjectData({
       projectName: '',
       description: '',
-      teamMembers: [],
+      teams: [],
       owner: '',
       dueDate: '',
       status: '',
     });
-    setSelectedMembers([]);
+    setSelectedTeams([]);
     setCurrentProject(null);
   };
 
-  const handleAddMember = (member) => {
-    if (!selectedMembers.includes(member)) {
-      setSelectedMembers([...selectedMembers, member]);
+  const handleAddTeam = (teamId) => {
+    if (!selectedTeams.some(team => team.id === teamId)) {
+      const teamToAdd = availableTeams.find(team => team.id === teamId);
+      setSelectedTeams([...selectedTeams, teamToAdd]);
     }
   };
 
-  const handleRemoveMember = (member) => {
-    setSelectedMembers(selectedMembers.filter((m) => m !== member));
+  const handleRemoveTeam = (teamId) => {
+    setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));
   };
 
   const handleSearchMember = (e) => {
@@ -179,7 +215,7 @@ const Project = () => {
   const updateProject = async () => {
     const updatedProjects = projects.map((proj) =>
       proj.id === currentProject.id
-        ? { ...projectData, id: currentProject.id, teamMembers: selectedMembers }
+        ? { ...projectData, id: currentProject.id, teams: selectedTeams }
         : proj
     );
 
@@ -190,6 +226,7 @@ const Project = () => {
       owner: projectData.owner,
       dueDate: projectData.dueDate,
       status: projectData.status,
+      teams: selectedTeams.map(team => team.id)
     };
 
     try {
@@ -214,23 +251,16 @@ const Project = () => {
     const newProject = {
       id: `proj${projects.length + 1}`,
       ...projectData,
-      teamMembers: selectedMembers,
+      teams: selectedTeams,
     };
 
-    const MembersIds = selectedMembers.map(id => ({ teamData: id }));
+    const MembersIds = selectedTeams.map(id => ({ teamData: id }));
 
     try {
-      if (projectData && selectedMembers) {
-        const teamResponse = await axiosPrivate.post('/api/teams', { teamName: projectData.projectName + "'s Team", memberIdentifiers: selectedMembers }, {
-          headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`
-          },
-        });
+      if (projectData) {
 
         const dataForBackend = {
           projectName: projectData.projectName,
-          teams: teamResponse.data.teamId,
           description: projectData.description,
           dueDate: projectData.dueDate,
           owner: projectData.owner,
@@ -295,23 +325,60 @@ const Project = () => {
     if (currentProject) {
       const updatedProjects = projects.map((proj) =>
         proj.id === currentProject.id
-          ? { ...proj, teamMembers: selectedMembers }
+          ? { ...proj, teams: selectedTeams }
           : proj
       );
 
+      const updateData = {
+        projectName: currentProject.projectName,
+        description: currentProject.description,
+        status: currentProject.status,
+        owner: currentProject.owner,
+        teams: selectedTeams.length > 0 ? selectedTeams.map(team => team.id) : []
+      };
+      // console.log(updateData);
+      // Validate data before sending
+      if (!updateData.projectName || updateData.projectName.length > 50) {
+        alert("Project Name is required and cannot exceed 50 characters");
+        return;
+      }
+      if (!updateData.description || updateData.description.length < 10 || updateData.description.length > 200) {
+        alert("Project Description is required and must be between 10 and 200 characters");
+        return;
+      }
+      if (!['active', 'inactive', 'completed'].includes(updateData.status)) {
+        alert("Project status must be either 'active', 'inactive', or 'completed'");
+        return;
+      }
+      if (!updateData.owner) {
+        alert("Owner is required");
+        return;
+      }
+
       try {
-        const response = await axiosPrivate.patch(`/api/teams/`, { teamName: currentProject.projectName + "'s Team", members: selectedMembers }, {
-          headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`
-          },
-        });
+        const response = await axiosPrivate.patch(`/api/projects/${currentProject.id}`,
+          updateData,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "authorization": `Bearer ${token}`
+            },
+          }
+        );
         if (response.status === 200) {
           setProjects(updatedProjects);
           closeAddMembersModal();
+          getProjects();
+          alert("Project teams updated successfully.");
         }
       } catch (err) {
         console.log(err);
+        if (err.response && err.response.data && err.response.data.errors) {
+          const errorMessages = err.response.data.errors.map(error => error.msg).join('\n');
+          alert("Failed to update project teams:\n" + errorMessages);
+        } else {
+          alert("Failed to update project teams: " + (err.response?.data?.message || err.message));
+        }
       }
     }
   };
@@ -388,7 +455,7 @@ const Project = () => {
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
               <th className="py-3 px-6 text-left">Project Name</th>
               <th className="py-3 px-6 text-left">Description</th>
-              <th className="py-3 px-6 text-left">Members assigned</th>
+              <th className="py-3 px-6 text-left">Teams assigned</th>
               <th className="py-3 px-6 text-left">Owner</th>
               <th className="py-3 px-6 text-left">Due Date</th>
               <th className="py-3 px-6 text-left">Status</th>
@@ -398,23 +465,24 @@ const Project = () => {
           <tbody className="text-gray-600 text-sm font-light">
             {filterProjects(projects).map((project) => (
               <tr key={project.id} className="border-b border-gray-200 hover:bg-gray-100">
-                <td className="py-3 px-6 text-left">{project.projectName || ''}</td>
-                <td className="py-3 px-6 text-left">{project.description || ''}</td>
+                <td className="py-3 px-6 text-left">{project.projectName}</td>
+                <td className="py-3 px-6 text-left">{project.description}</td>
                 <td className="py-3 px-6 text-left flex flex-row flex-wrap">
-                  {project.teamMembers.map((memberId) => {
-                    const member = availableMembers.find((m) => m.id === memberId);
+                  {/* {console.log(project)} */}
+                  {Array.isArray(project.teams) && project.teams.map((team, index) => {
+                    // console.log('Team object:', team);
                     return (
-                      <div key={memberId} className="text-sm mr-3">
-                        {member ? member.name.charAt(0).toUpperCase() + member.name.slice(1) : ''}
+                      <div key={`${team.id || index}`} className="text-sm mr-3">
+                        {team.teamName}
                       </div>
                     );
                   })}
                 </td>
                 <td className="py-3 px-6 text-left">
-                  {availableMembers.find((m) => m.id === project.owner)?.name || ''}
+                  {availableMembers.find((m) => m.id === project.owner)?.name}
                 </td>
                 <td className="py-3 px-6 text-left">{new Date(project.dueDate).toLocaleDateString() || ''}</td>
-                <td className="py-3 px-6 text-left">{project.status || ''}</td>
+                <td className="py-3 px-6 text-left">{project.status}</td>
                 <td className="py-3 px-6 text-right">
                   <button
                     onClick={() => openEditModal(project)}
@@ -455,9 +523,10 @@ const Project = () => {
           onSubmit={handleSubmit}
           searchQuery={searchQuery}
           onSearch={handleSearchMember}
-          selectedMembers={selectedMembers}
-          onSelectMember={handleAddMember}
-          onRemoveMember={handleRemoveMember}
+          selectedTeams={selectedTeams}
+          onSelectTeam={handleAddTeam}
+          onRemoveTeam={handleRemoveTeam}
+          availableTeams={availableTeams}
           availableMembers={availableMembers}
           onClose={closeModal}
         />
@@ -475,10 +544,10 @@ const Project = () => {
 
       {isAddMembersModalOpen && (
         <AddMembersModal
-          selectedMembers={selectedMembers}
-          onAddMember={handleAddMember}
-          onRemoveMember={handleRemoveMember}
-          availableMembers={availableMembers}
+          selectedTeams={selectedTeams}
+          onAddTeam={handleAddTeam}
+          onRemoveTeam={handleRemoveTeam}
+          availableTeams={availableTeams}
           onClose={closeAddMembersModal}
           onSubmit={handleAddMembersSubmit}
         />

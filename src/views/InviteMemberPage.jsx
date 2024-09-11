@@ -1,6 +1,6 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { FaUserPlus, FaEnvelope, FaUserCircle, FaTrashAlt, FaSearch } from 'react-icons/fa';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import Cookies from 'js-cookie';
 import { axiosPrivate } from '../CustomAxios/customAxios';
 
@@ -13,48 +13,49 @@ const InviteMember = () => {
     { id: 2, email: 'jane.smith@example.com', teamName: 'Team B', name: 'Jane Smith' },
   ]);
   const [error, setError] = useState('');
+  const [openTeams, setOpenTeams] = useState({});
+  const [teams, setTeams] = useState([]);
 
   const token = Cookies.get("User");
 
+  const getTeamsAndMembers = async () => {
+    try {
+      const response = await axiosPrivate.get("/api/teams", {
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`
+        },
+      });
+      setTeams(response.data.teams);
+      const responseData = response.data.teams.flatMap(item =>
+        item.members.map(member => ({
+          id: member._id,
+          email: member.email,
+          name: member.name,
+          teamId: item._id,
+          teamName: item.teamName,
+        }))
+      );
+      setMembers(responseData);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
-    //------------------Get request for Team Members for adding in project-----------------
-    const getMembers = async () => {
-      try {
-        await axiosPrivate.get("/api/teams", {
-          headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`
-          },
-        }).then((response) => {
-          // console.log(response)
-          const responseData = response.data.teams.map(item => ({
-            id: item.member._id,
-            email: item.member.email,
-            name: item.member.name,
-            teamName: item.teamName,
-            teamId: item._id
-          }));
-          // console.log(responseData)
-          setMembers(responseData);
-        })
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    getMembers();
-  }, [token])
+
+    getTeamsAndMembers();
+  }, [token]);
 
   const uniqueTeamNames = () => {
-    // return [...new setTeamName(members.map(member => member.teamName))].filter(Boolean);
-    const teamNames = members.map(member => member.teamName);
-    return [...new Set(teamNames)].filter(Boolean);
+    const teamNamesFromMembers = members.map(member => member.teamName);
+    const teamNamesFromTeams = teams.map(team => team.teamName);
+    return [...new Set([...teamNamesFromMembers, ...teamNamesFromTeams])].filter(Boolean);
   }
-  // console.log(teamName)
 
   const handleInvite = async () => {
     setError(''); // Clear previous errors
 
-    // Validate email format
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
       setError('Email is required.');
@@ -66,31 +67,50 @@ const InviteMember = () => {
       setError('Team name is required.');
       return;
     } else if (members.some((member) => member.email === email)) {
-      setError(`The member "${email}" is already exsist in the same team or added in the different team.`);
+      setError(`The member "${email}" already exists in the same team or is added to a different team.`);
       return;
     } else {
-      console.log(email, teamName)
+      console.log(email, teamName);
       try {
-        //-----------------Post request for adding member in the team-----------------
-        await axiosPrivate.post('/api/teams/', { memberEmail: email, teamName, },
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              "authorization": `Bearer ${token}`
-            },
-            withCredentials: true
-          }
-        ).then(response => {
-          console.log('Invitation sent successfully:', response.data);
-          if (response.status === 201) {
-            alert("Member added successfully")
-            window.location.reload();
-          }
-        })
+        const teamExists = uniqueTeamNames().includes(teamName);
+        let response;
+
+        if (teamExists) {
+          // PATCH request for adding member to an existing team
+          response = await axiosPrivate.patch('/api/teams/',
+            { memberEmail: email, teamName },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`
+              },
+              withCredentials: true
+            }
+          );
+        } else {
+          // POST request for creating a new team and adding the member
+          response = await axiosPrivate.post('/api/teams/',
+            { memberEmail: email, teamName },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                "authorization": `Bearer ${token}`
+              },
+              withCredentials: true
+            }
+          );
+        }
+
+        console.log('Invitation sent successfully:', response.data);
+        if (response.data.success) {
+          getTeamsAndMembers();
+          alert(teamExists ? "Member added successfully" : "Team created and member added successfully");
+          window.location.reload();
+        }
       } catch (error) {
         console.error('Error inviting member:', error);
         setError('Failed to invite member. Please try again.');
-      };
+      }
     }
   };
 
@@ -100,8 +120,8 @@ const InviteMember = () => {
         console.log(member.teamName, member.email)
         console.log(token)
         try {
-          await axiosPrivate.delete(`/api/teams`, {
-            data: { teamName: member.teamName, memberEmail: member.email },
+          await axiosPrivate.delete(`/api/teams/delete-member`, {
+            data: { teamName: member.teamName, email: member.email },
             headers: {
               'Content-Type': 'application/json',
               'authorization': `Bearer ${token}`
@@ -111,6 +131,7 @@ const InviteMember = () => {
             console.log(response)
             if (response.status === 200) {
               setMembers(members.filter(member => member.id !== id));
+              getTeamsAndMembers();
               alert("Member removed successfully")
             }
           })
@@ -120,6 +141,13 @@ const InviteMember = () => {
         }
       }
     }))
+  };
+
+  const toggleTeam = (teamName) => {
+    setOpenTeams((prevState) => ({
+      ...prevState,
+      [teamName]: !prevState[teamName],
+    }));
   };
 
   const filteredMembers = members.filter(member => {
@@ -133,6 +161,37 @@ const InviteMember = () => {
       return member
     }
   })
+
+  // const groupedMembers = filteredMembers.reduce((acc, member) => {
+  //   if (!acc[member.teamName]) {
+  //     acc[member.teamName] = [];
+  //   }
+  //   acc[member.teamName].push(member);
+  //   return acc;
+  // }, {});
+
+  const handleDeleteTeam = async (teamId, teamName) => {
+    if (window.confirm(`Are you sure you want to delete the team "${teamName}"?`)) {
+      try {
+        await axiosPrivate.delete(`/api/teams/`, {
+          data: {
+            teamId
+          },
+          headers: {
+            'Content-Type': 'application/json',
+            'authorization': `Bearer ${token}`
+          },
+          withCredentials: true
+        });
+        setTeams(teams.filter(team => team._id !== teamId));
+        setMembers(members.filter(member => member.teamId !== teamId));
+        alert("Team deleted successfully");
+      } catch (err) {
+        console.log(err);
+        alert("Failed to delete team");
+      }
+    }
+  };
 
   return (
     <div className="relative pt-16 pb-6 bg-gray-100 h-screen overflow-auto md:ml-16 lg:ml-20">
@@ -187,7 +246,7 @@ const InviteMember = () => {
         )}
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+      {/* <div className="bg-white p-6 rounded-lg shadow-md mb-6">
         <h2 className="text-xl font-medium mb-4">Search Members</h2>
         <div className="flex items-center border border-gray-300 rounded-lg p-2">
           <FaSearch className="text-gray-500 mr-2" />
@@ -199,30 +258,87 @@ const InviteMember = () => {
             className="focus:outline-none w-full"
           />
         </div>
-      </div>
+      </div> */}
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-xl font-medium mb-4">Current Members</h2>
-        <div className='grid grid-cols-4 gap-3'>
-          {filteredMembers.map((member) => (
-            <div key={member.id} className="flex flex-wrap justify-between shadow-md items-center p-4 border-b last:border-b-0">
-              <div className="flex items-center">
-                <FaUserCircle className="text-gray-500 text-2xl mr-4" />
-                <div>
-                  <p className="text-lg font-bold">{member.name ? member.name.charAt(0).toUpperCase() + member.name.slice(1) : "No Name"}</p>
-                  <p className="text-lg font-medium">{member.email}</p>
-                  <p className="text-sm font-normal text-indigo-500">{member.teamName}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => handleRemoveMember(member.id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <FaTrashAlt />
-              </button>
-            </div>
-          ))}
+      <div className="bg-white p-6 rounded-sm shadow-md">
+        <h2 className="text-xl font-medium mb-4">Teams and Members</h2>
+        <div className="w-full mb-4">
+          <div className="relative">
+            <FaSearch className="absolute top-3 left-3 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by Name, Email, or Team Name"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+            />
+          </div>
         </div>
+        {teams.map((team) => (
+          <div key={team._id} className="mb-2 bg-white rounded-lg shadow border border-gray-200">
+            <div className="flex justify-between items-center px-6 py-4 bg-gray-200 text-black rounded-t-lg">
+              <button
+                onClick={() => toggleTeam(team.teamName)}
+                className="flex-grow text-left focus:outline-none"
+              >
+                <span className="text-lg font-medium">
+                  {team.teamName} ({team.members.length} Members)
+                </span>
+              </button>
+              <div className="flex items-center">
+                <button
+                  onClick={() => handleDeleteTeam(team._id, team.teamName)}
+                  className="text-red-500 hover:text-red-700 mr-4 focus:outline-none"
+                >
+                  <FaTrashAlt />
+                </button>
+                <button
+                  onClick={() => toggleTeam(team.teamName)}
+                  className="focus:outline-none"
+                >
+                  {openTeams[team.teamName] ? (
+                    <FiChevronUp className="w-6 h-6" />
+                  ) : (
+                    <FiChevronDown className="w-6 h-6" />
+                  )}
+                </button>
+              </div>
+            </div>
+            {openTeams[team.teamName] && (
+              <div className="px-6 py-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {team.members.length > 0 ? (
+                  team.members
+                    .filter((member) =>
+                      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      team.teamName.toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((member) => (
+                      <div key={member._id} className="flex bg-gray-50 rounded-lg flex-wrap justify-between shadow-md items-center p-4 border-b last:border-b-0">
+                        <div className="flex items-center">
+                          <FaUserCircle className="text-gray-500 text-2xl mr-4" />
+                          <div>
+                            <p className="text-lg font-bold">{member.name ? member.name.charAt(0).toUpperCase() + member.name.slice(1) : "No Name"}</p>
+                            <p className="text-lg font-medium">{member.email}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveMember(member._id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <FaTrashAlt />
+                        </button>
+                      </div>
+                    ))
+                ) : (
+                  <div className="col-span-full text-center text-gray-500">
+                    No members in this team
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
