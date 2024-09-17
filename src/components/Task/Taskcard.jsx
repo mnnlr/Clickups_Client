@@ -25,8 +25,8 @@ const TaskCard = ({ task, handleTaskClick, handleDeleteTask, status }) => {
 
       <h3 className="font-medium text-md text-gray-800">{task.taskName}</h3>
       <p className="text-md text-gray-600 mt-2 overflow-hidden text-ellipsis whitespace-nowrap">
-    {task.description}
-  </p>
+        {/* {task.description} */}
+      </p>
       {/* assignedname */}
       {/* <div className="absolute bottom-2 right-2 flex items-center space-x-2">
         {task.assignees ? (

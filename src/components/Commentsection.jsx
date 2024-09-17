@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { axiosPrivate } from '../CustomAxios/customAxios';
 import Cookies from 'js-cookie';
 import { useSelector } from "react-redux";
+import { TextEditor } from './TinyMCE_TextEditor/TextEditor';
+import DOMPurify from 'dompurify'; // for HTML sanitization
 
 const CommentsSection = ({ taskId }) => {
   const [comments, setComments] = useState([]);
@@ -10,6 +12,7 @@ const CommentsSection = ({ taskId }) => {
   const [editText, setEditText] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [inputClick, setInputClick] = useState(false);
   const token = Cookies.get("User");
 
   const user = useSelector((state) => state.login?.user);
@@ -70,12 +73,19 @@ const CommentsSection = ({ taskId }) => {
         console.error('Error submitting new comment:', err);
         setError('Error submitting new comment: ' + err.message);
       }
+    } else {
+      console.log("something went wrong in handleSubmit: do not have 'newComment.trim()'")
     }
   };
 
-  const handleEditChange = (e) => {
-    setEditText(e.target.value);
-  };
+  // const handleEditChange = (e) => {
+  //   setEditText(e.target.value);
+  // };
+
+  const inputClickHandler = async (e) => {
+    e.preventDefault();
+    setInputClick(false);
+  }
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -134,17 +144,50 @@ const CommentsSection = ({ taskId }) => {
       </p>
     </div>
   );
-  
+
 
   return (
-    <div className="max-w-sm mx-auto p-4 overflow-y-auto max-h-80">
+    <div className="max-w-5xl mx-auto p-4 overflow-y-auto max-h-[450px]">
+      <div>
+        <form onSubmit={handleSubmit} className="space-y-2">
+          {/* <textarea
+            placeholder="Add a comment..."
+            value={newComment}
+            onChange={handleChange}
+            className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
+          ></textarea>
+
+          <button
+            type="submit"
+            className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Comment
+          </button> */}
+          <h1>Comments</h1>
+          {inputClick ? (
+            <TextEditor
+              content={newComment}
+              setContent={setNewComment}
+              commentSubmitBtn={handleSubmit}
+              commentbtn={true}
+              inputVisible={inputClickHandler}
+              editbtn={false} />
+          ) : (
+            <input
+              onClick={() => setInputClick(true)}
+              placeholder='Add a comment...'
+              className={`mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm`}
+            />
+          )}
+        </form>
+      </div>
       <div className="mt-4">
         {comments.length === 0 ? (
           <p className="text-gray-500 text-sm">No comments yet.</p>
         ) : (
           <ul className="space-y-2">
             {comments.map((comment) => (
-              <li key={comment?._id} className="relative bg-white border border-gray-200 rounded p-3 shadow-sm text-sm rounded-xl">
+              <li key={comment?._id} className="relative bg-white border border-gray-200 p-3 shadow-sm text-sm rounded-xl">
                 <div className="flex items-start space-x-3">
                   <div className="flex-1">
                     <p className="font-semibold text-blue-700 bg-blue-100 rounded-xl px-3 py-1 inline-block">
@@ -152,7 +195,7 @@ const CommentsSection = ({ taskId }) => {
                     </p>
                     {editingCommentId === comment?._id ? (
                       <form onSubmit={handleEditSubmit} className="mt-2 space-y-2">
-                        <textarea
+                        {/* <textarea
                           value={editText}
                           onChange={handleEditChange}
                           placeholder="Edit your comment..."
@@ -169,13 +212,21 @@ const CommentsSection = ({ taskId }) => {
                           >
                             Cancel
                           </button>
-                        </div>
+                        </div> */}
+                        <TextEditor
+                          content={editText}
+                          setContent={setEditText}
+                          commentbtn={false}
+                          editbtn={true}
+                          editSubmitBtn={handleEditSubmit}
+                          editingCommentId={setEditingCommentId} />
                       </form>
                     ) : (
                       <div className="mt-3">
-                        <p className="text-gray-700 break-all">
+                        {/* <p className="text-gray-700 break-all">
                           {comment?.comment ?? 'No comment available'}
-                        </p> {/* Ensure text wraps and fallback to a default message */}
+                        </p> */}
+                        <p className="text-gray-700 break-all" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(comment?.comment ?? 'No comment available') }}></p>
                         <div className="space-x-3 mt-3">
                           <button
                             className="text-blue-600 hover:text-blue-800 mr-2"
@@ -201,22 +252,6 @@ const CommentsSection = ({ taskId }) => {
             ))}
           </ul>
         )}
-      </div>
-      <div className="mt-3">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <textarea
-            placeholder="Add a comment..."
-            value={newComment}
-            onChange={handleChange}
-            className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-          ></textarea>
-          <button
-            type="submit"
-            className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Comment
-          </button>
-        </form>
       </div>
     </div>
   );

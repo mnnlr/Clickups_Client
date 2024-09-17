@@ -3,7 +3,7 @@ import TaskForm from '../components/Models/TaskFormModal.jsx';
 import TaskColumn from '../components/Task/TaskColumn.jsx';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import{axiosPrivate} from '../CustomAxios/customAxios.js';
+import { axiosPrivate } from '../CustomAxios/customAxios.js';
 import Cookies from 'js-cookie';
 
 const TaskBoardPage = () => {
@@ -15,7 +15,7 @@ const TaskBoardPage = () => {
     description: '',
     assignees: '',
     status: '',
-    SprintId:'',
+    SprintId: '',
     report: '',
   });
   const token = Cookies.get("User");
@@ -26,7 +26,7 @@ const TaskBoardPage = () => {
     'Done': [],
   });
 
-  
+
 
   const [availableMembers, setAvailableMembers] = useState([]);
 
@@ -79,7 +79,7 @@ const TaskBoardPage = () => {
     fetchMembers();
   }, [token]);
 
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => ({ ...prevTask, [name]: value }));
@@ -95,7 +95,7 @@ const TaskBoardPage = () => {
         });
         if (response.status === 200) {
           updateTaskInState(response.data.data.task);
-         // console.log('Updated task:', task);
+          // console.log('Updated task:', task);
         } else {
           alert("Failed to update task: " + response.data.message);
         }
@@ -187,7 +187,7 @@ const TaskBoardPage = () => {
       assignees: '',
       status: '',
       report: '',
-      SprintId:''
+      SprintId: ''
     });
   };
 
@@ -208,7 +208,7 @@ const TaskBoardPage = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-    <div className="relative p-6 bg-gray-100 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
+      <div className="relative p-6 bg-gray-100 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
         <div className="flex space-x-4 overflow-x-auto">
           {Object.keys(tasks).map((status) => (
             <TaskColumn

@@ -3,8 +3,13 @@ import attachIcon from '../Svg icon/attachment-2-svgrepo-com.svg';
 import linkIcon from '../Svg icon/link-round-svgrepo-com.svg';
 import childIssueIcon from '../Svg icon/website-connection-communication-svgrepo-com.svg';
 import CommentsSection from '../Commentsection';
+import { TextEditor } from '../TinyMCE_TextEditor/TextEditor';
+import DOMPurify from 'dompurify'; // for HTML sanitization
+
 const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembers }) => {
   const [errors, setErrors] = useState({});
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [isDescriptionVisible, setIsDescriptionVisible] = useState(true);
 
 
   const title = taskMode === 'edit' ? 'Edit Task' : 'Create New Task';
@@ -31,6 +36,16 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
     });
   };
 
+  // Function to handle description changes
+  // const handleDescriptionChange = (e) => {
+  //   onChange({
+  //     target: {
+  //       name: 'description',
+  //       value: e.target.value,
+  //     }
+  //   })
+  // }
+
 
   const handleSubmit = () => {
     if (validate()) {
@@ -40,7 +55,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-6 md:p-8 lg:p-10 relative">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-7xl max-h-screen p-6 md:p-8 lg:p-10 relative">
         <button
           className="absolute top-2 right-2 text-gray-500 hover:text-blue-700 focus:outline-none"
           aria-label="Close modal"
@@ -66,9 +81,9 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
           {title}
         </h2>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="flex flex-col space-y-4 ">
-            <div>
+        <div className="grid grid-cols-1 gap-6 md:flex md:flex-row md:space-x-4 md:justify-center">
+          <div className="flex flex-col space-y-4 w-full md:w-2/2">
+            <div className=''>
               <div className="flex mb-4 space-x-2">
                 <label htmlFor="task-name" className="block text-md my-3 font-medium flex-shrink-0 text-gray-700">
                   Task title
@@ -87,7 +102,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                 </div>
               </div>
 
-              <div className="flex mb-3 space-x-3">
+              {/* <div className="flex mb-3 space-x-3">
                 <button className="text-gray-500 hover:text-gray-700 focus:outline-none" aria-label="Attach">
                   <img src={attachIcon} alt="Attach" className="w-4 h-4" />
                 </button>
@@ -104,23 +119,65 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                     </svg>
                   </button>
                 )}
-              </div>
+              </div> */}
 
               <div className="mb-4">
                 <label htmlFor="task-desc" className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  id="task-desc"
-                  name="description"
-                  value={task?.description || ''}
-                  onChange={onChange}
-                  rows="4"
-                  className={`mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm ${errors.description ? 'border-red-500' : ''}`}
-                  placeholder="Enter task description"
-                ></textarea>
+                {isDescriptionVisible && (
+                  <>
+                    {isEditingDescription ? (
+                      <>
+                        <TextEditor
+                          content={task?.description || ''}
+                          setContent={(content) => onChange({ target: { name: 'description', value: content } })}
+                          commentbtn={false}
+                          editbtn={false}
+                        />
+                        <div className="mt-2">
+                          <button
+                            onClick={() => setIsEditingDescription(false)}
+                            className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                          >
+                            Update
+                          </button>
+                          <button
+                            onClick={() => setIsEditingDescription(false)}
+                            className="px-4 py-1 ml-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="relative bg-white border border-gray-200 p-3 shadow-sm text-sm rounded-xl mt-2">
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-1">
+                            <p className="text-gray-700 break-all" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(task?.description || 'No description available') }}></p>
+                            <div className="space-x-3 mt-3">
+                              <button
+                                className="text-blue-600 hover:text-blue-800 mr-2"
+                                onClick={() => setIsEditingDescription(true)}
+                              >
+                                Edit
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+                {!isDescriptionVisible && (
+                  <button
+                    onClick={() => setIsDescriptionVisible(true)}
+                    className="px-4 py-1 mt-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Show Description
+                  </button>
+                )}
               </div>
 
-              <div className="mt-3">
-
+              <div className="mt-2">
                 <CommentsSection taskId={task?._id} />
               </div>
             </div>
@@ -232,19 +289,28 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                 ))}
               </select>
             </div>
-
+            <section>
+              <div className="my-2 text-right text-xs overflow-y-auto ...">
+                <p className="mb-1 text-gray-500">
+                  <strong className="text-sm text-gray-700">Created:</strong> {task?.timestamp ? new Date(task.timestamp).toLocaleString() : 'Not set'}
+                </p>
+                <p className="text-gray-500">
+                  <strong className="text-sm text-gray-700">Updated:</strong> {task?.updated ? new Date(task.updated).toLocaleString() : 'Not set'}
+                </p>
+              </div>
+            </section>
           </div>
         </div>
 
 
-        <div className="my-2 text-right text-xs overflow-y-auto ...">
+        {/* <div className="my-2 text-right text-xs overflow-y-auto ...">
           <p className="mb-1 text-gray-500">
             <strong className="text-sm text-gray-700">Created:</strong> {task?.timestamp ? new Date(task.timestamp).toLocaleString() : 'Not set'}
           </p>
           <p className="text-gray-500">
             <strong className="text-sm text-gray-700">Updated:</strong> {task?.updated ? new Date(task.updated).toLocaleString() : 'Not set'}
           </p>
-        </div>
+        </div> */}
 
         <div className="flex justify-end space-x-4 mt-6">
           <button
