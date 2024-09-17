@@ -5,20 +5,33 @@ import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { axiosPrivate } from '../CustomAxios/customAxios.js';
 import Cookies from 'js-cookie';
+import { toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
+import DeleteConfirmationModal from '../components/Models/DeleteConfirmModel.jsx';
+import { useSelector } from 'react-redux';
 
 const TaskBoardPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskMode, setTaskMode] = useState(null);
+  const [isOpenDeleteModel, setIsOpenDeleteModel] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const { sprintId, projectId } = useParams();
+  const { user } = useSelector((store) => store.login);
+
   const [task, setTask] = useState({
     _id: null,
+    userId: user._id,
     taskName: '',
     description: '',
     assignees: '',
     status: '',
-    SprintId: '',
+    sprintId: sprintId,
+    projectId: projectId,
     report: '',
   });
+
   const token = Cookies.get("User");
+
   const [tasks, setTasks] = useState({
     'ToDo': [],
     'In-Progress': [],
@@ -26,99 +39,106 @@ const TaskBoardPage = () => {
     'Done': [],
   });
 
-
-
   const [availableMembers, setAvailableMembers] = useState([]);
 
+  const fetchTasks = async () => {
+    try {
+      const response = await axiosPrivate.get('/api/tasks', {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        const tasksData = response.data.data.allTask;
+        console.log(tasksData);
+        
+        setTasks({
+          'ToDo': tasksData.filter(task => task.status === 'ToDo'),
+          'In-Progress': tasksData.filter(task => task.status === 'In-Progress'),
+          'On-Hold': tasksData.filter(task => task.status === 'On-Hold'),
+          'Done': tasksData.filter(task => task.status === 'Done'),
+        });
+      } else {
+        toast.error("Failed to fetch tasks: " + response.data.message);
+      }
+    } catch (err) {
+      toast.error('Error fetching tasks: ' + (err.response ? err.response.data.message : err.message));
+    }
+  };
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axiosPrivate.get('/api/tasks', {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 200) {
-          const tasksData = response.data.data.allTask;
-
-          setTasks({
-            'ToDo': tasksData.filter(task => task.status === 'ToDo'),
-            'In-Progress': tasksData.filter(task => task.status === 'In-Progress'),
-            'On-Hold': tasksData.filter(task => task.status === 'On-Hold'),
-            'Done': tasksData.filter(task => task.status === 'Done'),
-          });
-        } else {
-          alert("Failed to fetch tasks: " + response.data.message);
-        }
-      } catch (err) {
-        console.error('Error fetching tasks:', err);
-      }
-    };
-
-    const fetchMembers = async () => {
-      try {
-        const response = await axiosPrivate.get("/api/users/get-all-users", {
-          headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`
-          },
-        });
-        const responseData = response.data.users.map(item => ({
-          id: item._id,
-          name: item.name,
-          email: item.email,
-        }));
-        setAvailableMembers(responseData);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     fetchTasks();
+  }, [task,sprintId,projectId]);
+
+  const fetchMembers = async () => {
+    try {
+      const response = await axiosPrivate.get("/api/users/get-all-users", {
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`
+        },
+      });
+      const responseData = response.data.users.map(item => ({
+        id: item._id,
+        name: item.name,
+        email: item.email,
+      }));
+      setAvailableMembers(responseData);
+    } catch (err) {
+      toast.error('Error fetching members: ' + (err.response ? err.response.data.message : err.message));
+    }
+  };
+
+  useEffect(() => {
     fetchMembers();
   }, [token]);
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => ({ ...prevTask, [name]: value }));
   };
 
+  const handleDeleteConfirm = (task) => {
+    setTaskToDelete(task);
+    setIsOpenDeleteModel(true);
+  };
+
   const handleSubmit = async () => {
     try {
-      if (task._id) {
-        const response = await axiosPrivate.patch(`/api/tasks/${task._id}`, task, {
+      const taskToSubmit = { ...task };
+
+      if (taskToSubmit._id) {
+        // Update existing task
+        const response = await axiosPrivate.patch(`/api/tasks/${taskToSubmit._id}`, taskToSubmit, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
         });
         if (response.status === 200) {
           updateTaskInState(response.data.data.task);
-          // console.log('Updated task:', task);
+          toast.success("Task Updated");
         } else {
-          alert("Failed to update task: " + response.data.message);
+          toast.error("Failed to update task: " + response.data.message);
         }
       } else {
-        const response = await axiosPrivate.post('/api/tasks', task, {
+        // Create new task
+        const response = await axiosPrivate.post(`/api/tasks/${projectId}/${sprintId}`, taskToSubmit, {
           headers: {
             "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
         });
+
         if (response.status === 201) {
-          const newTask = response.data.data.task;
-          setTasks((prevTasks) => ({
-            ...prevTasks,
-            [newTask.status]: [...(prevTasks[newTask.status] || []), newTask],
-          }));
-          console.log('Created task:', newTask);
+          toast.success("Task Created");
+          fetchTasks(); 
         } else {
-          alert("Failed to create task: " + response.data.message);
+          toast.error("Failed to create task: " + response.data.message);
         }
       }
       resetTaskForm();
     } catch (error) {
-      console.error('Error saving task:', error);
+      toast.error('Error saving task: ' + (error.response ? error.response.data.message : error.message));
     }
   };
 
@@ -132,24 +152,26 @@ const TaskBoardPage = () => {
     });
   };
 
-  const handleDeleteTask = async (taskId, status) => {
-    try {
-      const response = await axiosPrivate.delete(`/api/tasks/${taskId}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-      if (response.status === 200) {
-        setTasks((prevTasks) => ({
-          ...prevTasks,
-          [status]: prevTasks[status].filter((task) => task._id !== taskId),
-        }));
-        console.log('Deleted task ID:', taskId);
-      } else {
-        alert("Failed to delete task: " + response.data.message);
+  const handleDeleteTask = async () => {
+    if (taskToDelete) {
+      try {
+        const response = await axiosPrivate.delete(`/api/tasks/${taskToDelete}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+
+        if (response.status === 200) {
+          fetchTasks(); // Refetch tasks to ensure the UI is updated
+          toast.success("Task Deleted");
+          setIsOpenDeleteModel(false);
+          setTaskToDelete(null);
+        } else {
+          toast.error("Failed to delete task: " + response.data.message);
+        }
+      } catch (error) {
+        toast.error('Error deleting task: ' + (error.response ? error.response.data.message : error.message));
       }
-    } catch (error) {
-      console.error('Error deleting task:', error);
     }
   };
 
@@ -163,17 +185,12 @@ const TaskBoardPage = () => {
       });
 
       if (response.status === 200) {
-        setTasks((prevTasks) => {
-          const updatedTasks = { ...prevTasks };
-          updatedTasks[task.status] = updatedTasks[task.status].filter((t) => t._id !== task._id);
-          updatedTasks[newStatus] = [...(updatedTasks[newStatus] || []), updatedTask];
-          return updatedTasks;
-        });
+        fetchTasks(); // Refetch tasks after moving the task
       } else {
-        alert("Failed to move task: " + response.data.message);
+        toast.error("Failed to move task: " + response.data.message);
       }
     } catch (error) {
-      console.error('Error moving task:', error);
+      toast.error('Error moving task: ' + (error.response ? error.response.data.message : error.message));
     }
   };
 
@@ -182,12 +199,14 @@ const TaskBoardPage = () => {
     setTaskMode(null);
     setTask({
       _id: null,
+      userId: user._id,
       taskName: '',
       description: '',
       assignees: '',
       status: '',
       report: '',
-      SprintId: ''
+      sprintId: sprintId, 
+      projectId: projectId
     });
   };
 
@@ -216,7 +235,7 @@ const TaskBoardPage = () => {
               status={status}
               tasks={tasks[status]}
               handleTaskClick={handleTaskClick}
-              handleDeleteTask={handleDeleteTask}
+              handleDeleteTask={handleDeleteConfirm}
               moveTask={moveTask}
             />
           ))}
@@ -231,8 +250,13 @@ const TaskBoardPage = () => {
             availableMembers={availableMembers}
           />
         )}
+        <DeleteConfirmationModal
+          isOpen={isOpenDeleteModel}
+          onClose={() => setIsOpenDeleteModel(false)}
+          onConfirm={handleDeleteTask}
+        />
         <button
-          className="fixed bottom-8 right-8 bg-blue-500 text-white p-4 rounded-xl shadow-lg hover:bg-blue-600 "
+          className="fixed bottom-8 right-8 bg-blue-500 text-white p-4 rounded-xl shadow-lg hover:bg-blue-600"
           onClick={handleCreateTaskClick}
         >
           Create Task

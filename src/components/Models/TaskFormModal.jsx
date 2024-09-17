@@ -244,12 +244,11 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                 Sprint
               </label>
               <input
-                type="text"
                 id="task-sprint"
                 name="SprintId"
                 className="mt-1 flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                value={task.SprintId || ''}
-                onChange={onChange}
+                value={task.sprintId ? task.sprintId.sprintname : 'No Sprint Assigned'}
+                readOnly
               />
             </div>
 
@@ -291,11 +290,15 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
             </div>
             <section>
               <div className="my-2 text-right text-xs overflow-y-auto ...">
+                <p className="mb-1 text-sm space-x-1">
+                  <strong className="font-bold">Created By :</strong>
+                  <span className="text-sm">{task.userId ? task.userId.name : 'No User Assigneed'}</span>
+                </p>
                 <p className="mb-1 text-gray-500">
                   <strong className="text-sm text-gray-700">Created:</strong> {task?.timestamp ? new Date(task.timestamp).toLocaleString() : 'Not set'}
                 </p>
                 <p className="text-gray-500">
-                  <strong className="text-sm text-gray-700">Updated:</strong> {task?.updated ? new Date(task.updated).toLocaleString() : 'Not set'}
+                  <strong className="text-sm text-gray-700">Updated:</strong> {task?.updatedAt ? new Date(task.updatedAt).toLocaleString() : 'Not set'}
                 </p>
               </div>
             </section>

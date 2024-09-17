@@ -4,8 +4,9 @@ import EditProjectModal from '../components/Models/EditProjectModal';
 import AddMembersModal from '../components/Models/AddMemberModal';
 import Cookies from 'js-cookie';
 import { axiosPrivate } from '../CustomAxios/customAxios';
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import DeleteConfirmationModal from '../components/Models/DeleteConfirmModel';
 // Mock data for projects and members
 const mockProjects = [
   {
@@ -33,6 +34,8 @@ const Project = () => {
   const [filterType, setFilterType] = useState('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [deleteModel, setdeleteModel] = useState(false)
+  const [projectTodelete, setprojectTodelete] = useState(null)
   const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
   const [selectedTeams, setSelectedTeams] = useState([]);
   const [availableMembers, setAvailableMembers] = useState([]);
@@ -45,6 +48,8 @@ const Project = () => {
     dueDate: '',
     status: '',
   });
+
+  const navigate = useNavigate()
   const [projects, setProjects] = useState(mockProjects);
   const [currentProject, setCurrentProject] = useState(null);
 
@@ -274,8 +279,11 @@ const Project = () => {
           withCredentials: true
         });
 
+
         if (projectResponse.status === 201) {
+          toast.success("Project Created ")
           setProjects([...projects, newProject]);
+
           closeModal();
         }
       }
@@ -285,18 +293,26 @@ const Project = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this project?")) {
+  const handleDeleteToProject = (project) => {
+    setprojectTodelete(project.id); // Make sure project.id is passed
+    setdeleteModel(true);
+  };
+
+
+  const handleDelete = async () => {
+    if (projectTodelete) {
       try {
-        const response = await axiosPrivate.delete(`/api/projects/${id}`, {
+        const response = await axiosPrivate.delete(`/api/projects/${projectTodelete}`, {
           headers: {
             "Content-Type": "application/json",
             "authorization": `Bearer ${token}`
           },
         });
         if (response.status === 200) {
-          setProjects(projects.filter((proj) => proj.id !== id));
-          alert("Project deleted successfully.");
+          setProjects(projects.filter((proj) => proj.id !== projectTodelete));
+          toast.success("Project deleted successfully.");
+          setdeleteModel(false);
+          setprojectTodelete(null);
         } else {
           alert("Something went wrong: " + response.data.message);
         }
@@ -347,11 +363,11 @@ const Project = () => {
         return;
       }
       if (!['active', 'inactive', 'completed'].includes(updateData.status)) {
-        alert("Project status must be either 'active', 'inactive', or 'completed'");
+        toast.warning("Project status must be either 'active', 'inactive', or 'completed'");
         return;
       }
       if (!updateData.owner) {
-        alert("Owner is required");
+        toast.warning("Owner is required");
         return;
       }
 
@@ -369,15 +385,15 @@ const Project = () => {
           setProjects(updatedProjects);
           closeAddMembersModal();
           getProjects();
-          alert("Project teams updated successfully.");
+          toast.success("Project teams updated successfully.");
         }
       } catch (err) {
         console.log(err);
         if (err.response && err.response.data && err.response.data.errors) {
           const errorMessages = err.response.data.errors.map(error => error.msg).join('\n');
-          alert("Failed to update project teams:\n" + errorMessages);
+          toast.error("Failed to update project teams:\n" + errorMessages);
         } else {
-          alert("Failed to update project teams: " + (err.response?.data?.message || err.message));
+          toast.error("Failed to update project teams: " + (err.response?.data?.message || err.message));
         }
       }
     }
@@ -413,7 +429,7 @@ const Project = () => {
         </div>
       </div>
 
-      <div className="text-right mr-10">
+      <div className="text-right mb-8">
         <button
           onClick={openModal}
           className="bg-blue-500 text-white p-3 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
@@ -422,33 +438,19 @@ const Project = () => {
         </button>
       </div>
 
-      <div className="flex space-x-4 mb-8">
-        <button
-          onClick={() => setFilterType('all')}
-          className={`p-2 rounded-lg ${filterType === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setFilterType('inactive')}
-          className={`p-2 rounded-lg ${filterType === 'inactive' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
-        >
-          Inactive
-        </button>
-        <button
-          onClick={() => setFilterType('active')}
-          className={`p-2 rounded-lg ${filterType === 'active' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
-        >
-          Active
-        </button>
-        <button
-          onClick={() => setFilterType('completed')}
-          className={`p-2 rounded-lg ${filterType === 'completed' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
-        >
-          Completed
-        </button>
+      <div className="flex space-x-3 mb-8">
+        {['all', 'inactive', 'active', 'completed'].map(type => (
+          <button
+            key={type}
+            onClick={() => setFilterType(type)}
+            className={`p-2 rounded-lg ${filterType === type ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600'}`}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </button>
+        ))}
       </div>
-      <div className="bg-white shadow-lg rounded-xl p-6">
+
+      <div className="bg-white shadow-lg rounded-xl p-3">
         <h2 className="text-xl font-semibold mb-4">Project List</h2>
         <table className="w-full table-auto">
           <thead>
@@ -468,48 +470,54 @@ const Project = () => {
                 <td className="py-3 px-6 text-left">{project.projectName}</td>
                 <td className="py-3 px-6 text-left">{project.description}</td>
                 <td className="py-3 px-6 text-left flex flex-row flex-wrap">
-                  {/* {console.log(project)} */}
-                  {Array.isArray(project.teams) && project.teams.map((team, index) => {
-                    // console.log('Team object:', team);
-                    return (
-                      <div key={`${team.id || index}`} className="text-sm mr-3">
-                        {team.teamName}
-                      </div>
-                    );
-                  })}
+                  {Array.isArray(project.teams) && project.teams.map((team, index) => (
+                    <div key={`${team.id || index}`} className="text-sm mr-3">
+                      {team.teamName}
+                    </div>
+                  ))}
                 </td>
                 <td className="py-3 px-6 text-left">
                   {availableMembers.find((m) => m.id === project.owner)?.name}
                 </td>
                 <td className="py-3 px-6 text-left">{new Date(project.dueDate).toLocaleDateString() || ''}</td>
                 <td className="py-3 px-6 text-left">{project.status}</td>
-                <td className="py-3 px-6 text-right">
+                <td className="flex py-2 px-3 text-right space-x-3">
                   <button
                     onClick={() => openEditModal(project)}
-                    className="bg-indigo-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 mr-1"
+                    className="bg-indigo-500 text-white py-1 px-3 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out"
                   >
                     Edit
                   </button>
                   <Link
                     to={`/dashboard/`}
                     onClick={() => handleViewDetails(project)}
-                    className="bg-indigo-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 mr-1"
+                    className="bg-indigo-500 text-white py-1 px-3 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out"
                   >
                     View
                   </Link>
                   <button
                     onClick={() => openAddMembersModal(project)}
-                    className="bg-indigo-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 mr-1"
+                    className="bg-indigo-500 text-white py-1 px-2 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out"
                   >
                     Add Teams
                   </button>
                   <button
-                    onClick={() => handleDelete(project.id)}
-                    className="bg-red-500 text-white py-1 px-4 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-rose-300"
+                    onClick={() => handleDeleteToProject(project)}
+                    className="bg-red-500 text-white py-1 px-3 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-rose-300 transition duration-150 ease-in-out"
                   >
                     Delete
                   </button>
+                  <button
+                    onClick={() => navigate(`/projects/${project.id}/sprints`)}
+                    className="bg-blue-500 text-white py-1 px-3 inline-flex rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-150 ease-in-out"
+                  >
+                   Go to Task
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
+    <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+    </svg>
+                  </button>
                 </td>
+
               </tr>
             ))}
           </tbody>
@@ -552,7 +560,13 @@ const Project = () => {
           onSubmit={handleAddMembersSubmit}
         />
       )}
+      <DeleteConfirmationModal
+        isOpen={deleteModel}
+        onClose={() => setdeleteModel(false)}
+        onConfirm={handleDelete}
+      />
     </div>
+
   );
 };
 

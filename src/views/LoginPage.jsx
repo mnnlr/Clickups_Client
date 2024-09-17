@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginAction } from "../redux/actions/loginAction";
+import { toast } from "react-toastify";
 
 export const LoginPage = () => {
   const [loginFormData, setLoginFormData] = useState(null);
@@ -68,7 +69,7 @@ export const LoginPage = () => {
       const result = await dispatch(loginAction(loginFormData));
       console.log('result', result);
       if (result?.payload?.token) {
-        alert('Login Successful');
+       toast.success('Login Successful');
         navigate('/dashboard');
     } else {
         alert(`Login failed: ${result.payload}`);
