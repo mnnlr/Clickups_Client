@@ -1,33 +1,77 @@
 import React, { useEffect, useState } from 'react';
+import { axiosPrivate } from '../../CustomAxios/customAxios';
+import { useSelector } from 'react-redux';
 
 export const DashboardTemplates = () => {
+    const [selectedProject, setSelectedProject] = useState("Select Project");
+    const [selectedTemplate, setSelectedTemplate] = useState("Select Template");
+    const [projects, setProjects] = useState([]);
+    const [templates, setTemplates] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
 
-    const [ProjectName, setProjectName] = useState("Select Project");
-    const [ToggleEdit, setToggleEdit] = useState(false);
+    const user = useSelector((state) => state.login);
 
-    const handleToggleEdit = () => {
-        setToggleEdit(!ToggleEdit);
-    }
+    useEffect(() => {
+        const fetchProjectsAndTemplates = async () => {
+            try {
+                const { data } = await axiosPrivate.get("/api/projects");
+                const projectData = data.Data.map((project) => ({
+                    id: project._id,
+                    name: project.projectName
+                }));
 
-    //----------------Handle Form Change-----------------
+                // Dummy template data
+                const templateData = [
+                    { id: 'Simple-Template', name: 'Simple Template' },
+                ];
+
+                setProjects(projectData);
+                setTemplates(templateData);
+            } catch (err) {
+                console.error("Error fetching projects and templates:", err);
+            }
+        };
+        fetchProjectsAndTemplates();
+    }, []);
+
+    const handleToggleEdit = () => setIsEditing(prev => !prev);
+
     const handleFormChange = (e) => {
-        return setProjectName(e.target.value);
-    }
-
-    //----------------Handle dashboard in backend-----------------
-    const handleToggleEditOnChange = (e) => {
-        e.preventDefault();
-        if (ProjectName === "Select Project") {
-            alert("Please enter Project Name")
-        } else {
-            setToggleEdit(!ToggleEdit);
-
-            //----------------Creating dashboard in backend here---------------
-            console.log(ProjectName)
+        const { name, value } = e.target;
+        if (name === "project") {
+            setSelectedProject(value);
+        } else if (name === "template") {
+            setSelectedTemplate(value);
         }
-        setProjectName("Select Project");
-    }
+    };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (selectedProject === "Select Project" || selectedTemplate === "Select Template") {
+            alert("Please select both Project and Template");
+            return;
+        }
+
+        try {
+            const response = await axiosPrivate.post("/api/dashboards", {
+                templateName: selectedTemplate,
+                dashboardProject: selectedProject,
+                owner: user.user._id,
+            }, {
+                headers: { "Content-Type": "application/json" },
+            })
+            if (response.data.success) {
+                alert("Dashboard created successfully");
+                console.log(selectedProject, selectedTemplate);
+            }
+        } catch (err) {
+            console.error("Error creating dashboard:", err);
+        } finally {
+            setIsEditing(false);
+            setSelectedProject("Select Project");
+            setSelectedTemplate("Select Template");
+        }
+    };
 
     return (
         <>
@@ -67,29 +111,42 @@ export const DashboardTemplates = () => {
                 </div>
             </div>
 
-            {/* selecting project form for Dashboard */}
-            {ToggleEdit && (
-                <div className='bg-gray-900 bg-opacity-50 w-full h-screen fixed top-0 left-0'>
-                    <div className="absolute top-0 left-0 w-full h-screen flex flex-col justify-center sm:py-12" >
+            {isEditing && (
+                <div className='bg-gray-900 bg-opacity-50 w-full h-screen fixed top-0 left-0 z-50'>
+                    <div className="absolute top-0 left-0 w-full h-screen flex flex-col justify-center sm:py-12">
                         <div className="p-10 xs:p-0 mx-auto md:w-auto">
                             <div className="bg-white shadow w-full rounded-lg divide-y divide-gray-200">
-                                <div className='flex flex-wrap flex-col text-start px-5 py-3 max-w-md '>
+                                <div className='flex flex-wrap flex-col text-start px-5 py-3 max-w-md'>
                                     <h1 className="font-bold text-xl pt-3">What data do you want to visualize?</h1>
                                     <p className='text-sm pt-1'>ClickUp Dashboards help you visualize data from your tasks. Select a location(s) to source your data from.</p>
                                 </div>
-                                <form onSubmit={handleToggleEditOnChange} className="px-14 py-10 space-y-4">
+                                <form onSubmit={handleSubmit} className="px-14 py-10 space-y-4">
                                     <label className="block">
                                         <span className="text-gray-700">Select Project:</span>
                                         <select
-                                            type="text"
-                                            value={ProjectName}
+                                            name="project"
+                                            value={selectedProject}
                                             onChange={handleFormChange}
                                             className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                                         >
-                                            <option >Select Project</option> {/* default option */}
-                                            <option >Marketing</option>
-                                            <option >MNNLR</option>
-                                            <option >HR</option>
+                                            <option>Select Project</option>
+                                            {projects.map((project) => (
+                                                <option key={project.id} value={project.id}>{project.name}</option>
+                                            ))}
+                                        </select>
+                                    </label>
+                                    <label className="block">
+                                        <span className="text-gray-700">Select Template:</span>
+                                        <select
+                                            name="template"
+                                            value={selectedTemplate}
+                                            onChange={handleFormChange}
+                                            className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                        >
+                                            <option>Select Template</option>
+                                            {templates.map((template) => (
+                                                <option key={template.id} value={template.id}>{template.name}</option>
+                                            ))}
                                         </select>
                                     </label>
                                     <button
@@ -108,10 +165,9 @@ export const DashboardTemplates = () => {
                                 </form>
                             </div>
                         </div>
-                    </div >
+                    </div>
                 </div>
             )}
         </>
-    )
-}
-
+    );
+};

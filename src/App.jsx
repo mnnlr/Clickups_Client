@@ -13,108 +13,72 @@ import { SignUpPage } from "./views/SignUpPage"
 import { DashboardPage } from "./views/DashboardPage"
 import PagenotFound from "./views/PagenotFound"
 import Project from "./views/Project"
-import Cookies from "js-cookie"
 import { DashboardForProjectPage } from "./views/DashboardForProjectPage"
-import { SideNavTopNav } from "./layouts/SideNavTopNav"
 import Check_auth from "./components/check_auth/Check_auth"
 import AuthLayout from "./views/AuthLayout";
 import Sprint from "./components/sprint/Sprint"
-import {io} from "socket.io-client"
-import { useSelector } from "react-redux"
-import { toast } from "react-toastify"
+import { SocketProvider } from "./components/socket-io/SocketContext"
 
 
 
 function App() {
 
-  const user = useSelector((state) => state.login);
+  // const user = useSelector((state) => state.login);
 
-  console.log("user",user.user._id);
-  useEffect(() => {
-    if (user && user.user && user.user._id) {
-      const socket = io('http://localhost:5000', {
-        query: { UserId: user.user._id },
-      });
-  
-      // Log a message when connected
-      socket.on('connect', () => {
-        console.log('Connected to the server');
-      });
-  
-      // Handle incoming notifications
-      socket.on('notification', (data) => {
-        console.log('Notification received:', data);
-        toast.info(data.message); // Optionally display toast notification
-      });
-  
-      return () => {
-        socket.disconnect();
-      };
-    }
-  }, [user]);
-  
+  // console.log("user",user.user._id);
+  // useEffect(() => {
+  //   if (user && user.user && user.user._id) {
+  //     const socket = io('http://localhost:5000', {
+  //       query: { UserId: user.user._id },
+  //     });
 
+  //     // Log a message when connected
+  //     socket.on('connect', () => {
+  //       console.log('Connected to the server');
+  //     });
 
-  
-  const userToken = Cookies.get('User')
+  //     // Handle incoming notifications
+  //     socket.on('notification', (data) => {
+  //       console.log('Notification received:', data);
+  //       toast.info(data.message); // Optionally display toast notification
+  //     });
+
+  //     return () => {
+  //       socket.disconnect();
+  //     };
+  //   }
+  // }, [user]);
 
   return (
-    <Router>
-      {/* {userToken ? (
-        <div className="App">
-          <div className="main-content">
-            <Routes>
-              <Route path="/" element={<SideNavTopNav />}>
-                <Route path="/*" element={<PagenotFound />} />
-                <Route index element={<Homepage />} />
-                <Route path="/tasks" element={<TaskBoard />} />
-                <Route path="/docs" element={<Document />} />
-                <Route path="/invite" element={<InviteMember />} />
-                <Route path="/workspace" element={<Workspace />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/project" element={<Project />} />
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/dashboard/project" element={<DashboardForProjectPage />} />
-              </Route>
-            </Routes>
-          </div>
-        </div>
-      ) : (
+    <SocketProvider>
+      <Router>
         <Routes>
-          <Route path="/" element={<NavFooter />}>
-            <Route index element={<HomePageBeforeLogin />} />
-            <Route path="/signin" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
+          <Route element={<Check_auth />}>
+            <Route path="/" element={<AuthLayout />}>
+              <Route path="home" element={<Homepage />} />
+              <Route path={"/:projectId/sprints/:sprintId/tasks" || "tasks"} element={<TaskBoard />} />
+              <Route path="/tasks" element={<TaskBoard />} />
+              <Route path="docs" element={<Document />} />
+              <Route path="invite" element={<InviteMember />} />
+              <Route path="workspace" element={<Workspace />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="project" element={<Project />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="/projects/:projectId/sprints" element={<Sprint />} />
+              <Route path="/dashboard/project" element={<DashboardForProjectPage />} />
+            </Route>
           </Route>
+          <Route>
+            <Route path="/" element={<NavFooter />}>
+              <Route index element={<HomePageBeforeLogin />} />
+              <Route path="signup" element={<SignUpPage />} />
+              <Route path="signin" element={<LoginPage />} />
+            </Route>
+          </Route>
+          <Route path="/*" element={<PagenotFound />} />
         </Routes>
-      )}
-       */}
-      <Routes>
-        <Route element={<Check_auth />}>
-          <Route path="/" element={<AuthLayout />}>
-            <Route path="home" element={<Homepage />} />
-          <Route path={"/:projectId/sprints/:sprintId/tasks"||"tasks"} element={<TaskBoard />} />
-          <Route path="/tasks" element={<TaskBoard />} />
-            <Route path="docs" element={<Document />} />
-            <Route path="invite" element={<InviteMember />} />
-            <Route path="workspace" element={<Workspace />} />
-            <Route path="profile" element={<ProfilePage />} />
-            <Route path="project" element={<Project />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="/projects/:projectId/sprints" element={<Sprint/>}/>
-            <Route path="/dashboard/project" element={<DashboardForProjectPage />} />
-          </Route>
-        </Route>
-        <Route>
-          <Route path="/" element={<NavFooter />}>
-            <Route index element={<HomePageBeforeLogin />} />
-            <Route path="signup" element={<SignUpPage />} />
-            <Route path="signin" element={<LoginPage />} />
-          </Route>
-        </Route>
-        <Route path="/*" element={<PagenotFound />} />
-      </Routes>
-    </Router >
+      </Router >
+    </SocketProvider>
   );
 }
 
