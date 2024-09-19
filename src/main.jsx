@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
@@ -18,22 +17,3 @@ createRoot(document.getElementById('root')).render(
       </Provider>
   </StrictMode>,
 )
-=======
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-import store from './redux/store.js'
-import { Provider } from 'react-redux'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css';
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <Provider store={store}>
-      <App />
-      <ToastContainer/>
-    </Provider>
-  </StrictMode>,
-)
->>>>>>> 5021c6d71957294c70dc404f0a3dcea3c2280e07
