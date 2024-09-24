@@ -17,6 +17,9 @@ const TopNav = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const getInitial = (name) => {
+    return name ? name.charAt(0).toUpperCase() : '';
+  };
 
   const [notifications, setNotifications] = useState([]);
 
@@ -25,7 +28,7 @@ const TopNav = () => {
       try {
         const response = await axiosPrivate.get(`/api/notification/${user._id}`);
         setNotifications(response.data.Data);
-        console.log(response);
+        //console.log(response);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -103,7 +106,7 @@ const TopNav = () => {
     
         <button
           onClick={handleToggle}
-          className="px-4 py-2 rounded-full dark:bg-gray-800 text-white bg-blue-500 dark:text-white"
+          className="px-2 py-2 rounded-full dark:bg-gray-800 text-white bg-blue-500 dark:text-white"
         >
           {darkMode ? <MdLightMode size={'20px'} /> : <MdDarkMode size={'20px'}/>}
         </button>
@@ -157,11 +160,9 @@ const TopNav = () => {
         {/* User Avatar */}
         <div className="relative">
           <button className="flex items-center justify-center w-10 h-10 rounded-full overflow-hidden border-2 border-white dark:border-gray-800 bg-gray-300 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-600 transition-all duration-300 ease-in-out" onClick={toggleProfile}>
-            <img
-              src={user?.avatar || "https://images.pexels.com/photos/1040881/pexels-photo-1040881.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"} // Fallback to a default image
-              alt="User Avatar"
-              className="w-full h-full object-cover"
-            />
+            <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-lg font-bold dark:text-gray-700">
+              {getInitial(user?.name)}
+            </div>
           </button>
           {isProfileOpen && (
             <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-gray-800 text-black dark:text-white rounded-lg shadow-lg z-30">
@@ -179,9 +180,9 @@ const TopNav = () => {
         </div>
 
         {/* Settings */}
-        <button className="hidden md:flex hover:text-yellow-400 dark:hover:text-yellow-300 transition-all duration-300 ease-in-out" onClick={() => console.log("Open Settings Page")}>
+        {/* <button className="hidden md:flex hover:text-yellow-400 dark:hover:text-yellow-300 transition-all duration-300 ease-in-out" onClick={() => console.log("Open Settings Page")}>
           <FaCog />
-        </button>
+        </button> */}
       </div>
     </nav>
   );

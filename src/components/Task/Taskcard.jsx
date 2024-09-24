@@ -13,7 +13,7 @@ const TaskCard = ({ task, handleTaskClick, handleDeleteTask, status }) => {
   return (
     <div
       ref={drag}
-      className={`bg-gray-200 dark:bg-gray-800 p-4 rounded-lg shadow-sm cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 relative ${isDragging ? 'opacity-50' : ''}`}
+      className={`bg-gray-200 dark:bg-gray-600 p-4 rounded-lg shadow-sm cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-700 relative ${isDragging ? 'opacity-50' : ''}`}
       onClick={() => handleTaskClick(task)}
     >
       <h3 className="font-medium text-sm text-gray-800 dark:text-gray-200">
@@ -22,8 +22,10 @@ const TaskCard = ({ task, handleTaskClick, handleDeleteTask, status }) => {
         </span>
       </h3>
 
-      <h3 className="font-medium text-md text-gray-800 dark:text-gray-200">{task.taskName}</h3>
-      <p className="text-md text-gray-600 dark:text-gray-400 mt-2 overflow-hidden text-ellipsis whitespace-nowrap">
+      <h3 className={`font-medium text-md ${task.status === 'Done' ? 'line-through text-gray-500' : 'text-gray-800 dark:text-gray-200'}`}>
+        {task.taskName}
+      </h3>
+      <p className={`text-md ${task.status === 'Done' ? 'line-through text-gray-400' : 'text-gray-600 dark:text-gray-400'} mt-2 overflow-hidden text-ellipsis whitespace-nowrap`}>
         {/* {task.description} */}
       </p>
 

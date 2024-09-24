@@ -217,6 +217,7 @@ const CommentsSection = ({ taskId }) => {
                             Cancel
                           </button>
                         </div> */}
+                        
                         <TextEditor
                           content={editText}
                           setContent={setEditText}

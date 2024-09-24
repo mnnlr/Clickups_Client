@@ -8,8 +8,7 @@ const DeleteConfirmationModal = ({
     confirmText = "Yes, I'm sure",
     cancelText = "No, cancel",
 }) => {
-    if (!isOpen) return null; // Don't render the modal if it's not open
-
+    if (!isOpen) return null; 
     return (
         <div
             id="deleteModal"

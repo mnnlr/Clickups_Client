@@ -21,27 +21,27 @@ export const SocketProvider = ({ children }) => {
             });
 
             newSocket.on('notification', (data) => {
-                console.log('Notification received:', data);
+               // console.log('Notification received:', data);
                 showToast(data.message, "info");
             });
 
             newSocket.on('teamMemberAdded', (notification) => {
-                console.log("Team member added:", notification);
+               // console.log("Team member added:", notification);
                 showToast(notification.message, "info");
             });
 
             newSocket.on('projectUpdated', (notification) => {
-                console.log("Project updated:", notification);
+                //console.log("Project updated:", notification);
                 showToast(notification.message, "info");
             });
 
             newSocket.on('taskUpdated', (notification) => {
-                console.log("Task updated:", notification);
+              //  console.log("Task updated:", notification);
                 showToast(notification.message, "info");
             });
 
             newSocket.on('sprintCreated', (notification) => {
-                console.log("Sprint created:", notification);
+              //  console.log("Sprint created:", notification);
                 showToast(notification.message, "info");
             });
 
