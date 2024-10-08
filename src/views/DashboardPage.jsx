@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { dashboardData } from '../redux/dashboards/dashboardSlice';
 import { DashboardTemplates } from '../components/dashboard/DashboardTemplates';
 import { UserDashboards } from '../components/dashboard/UserDashboards';
 import { axiosPrivate } from '../CustomAxios/customAxios';
 import { useSocket } from '../components/socket-io/SocketContext';
+import { useNavigate } from 'react-router-dom';
 
 export const DashboardPage = () => {
     const dispatch = useDispatch();
     const socket = useSocket();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchDashboardData = async () => {
@@ -59,21 +61,25 @@ export const DashboardPage = () => {
                 const response = await axiosPrivate.delete(`/api/dashboards/${dashboardId}`);
                 if (response.data.success) {
                     alert("Dashboard deleted successfully");
-                    console.log(response.data)
+                    console.log(response.data);
                 }
             }
         } catch (err) {
             console.log("Error deleting dashboard:", err);
         }
-    }
+    };
+
+    const handleClick = (projectId) => {
+        navigate(`/dashboard/${projectId}`);
+    };
 
     const DashboardData = useSelector((state) => state.dashboard.dashboards);
 
     return (
-        <div className="relative pt-16 pb-6 bg-gray-100 h-screen md:ml-16">
+        <div className="relative pt-16 pb-6 bg-gray-100 dark:bg-gray-800 h-screen md:ml-16">
             <section className="flex flex-col items-center justify-center px-5 py-10">
-                <h1 className="text-black text-3xl font-bold">Choose a Dashboard template</h1>
-                <p className="text-gray-500">Get started with a new Dashboard template which fits your exact needs.</p>
+                <h1 className="text-black dark:text-white text-3xl font-bold">Choose a Dashboard template</h1>
+                <p className="text-gray-500 dark:text-gray-300">Get started with a new Dashboard template which fits your exact needs.</p>
             </section>
             <DashboardTemplates />
             {Array.isArray(DashboardData) && DashboardData.length > 0 ? (
@@ -84,11 +90,12 @@ export const DashboardPage = () => {
                             dashboardType={data.templateName}
                             ownerName={data.owner?.name}
                             handleDeleteBtn={() => handleDeleteBtn(data._id)}
+                            handleDashboard={() => handleClick(data.dashboardProject?._id)}
                         />
                     </div>
                 ))
             ) : (
-                <p className="text-center text-gray-500">No dashboards available. Please create one!</p>
+                <p className="text-center text-gray-500 dark:text-gray-300">No dashboards available. Please create one!</p>
             )}
         </div>
     );

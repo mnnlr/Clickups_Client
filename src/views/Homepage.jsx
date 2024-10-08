@@ -37,7 +37,7 @@ const Homepage = () => {
       });
       if (response.status === 200) {
         const tasksData = response.data.data;
-        console.log(tasksData);
+       // console.log(tasksData);
         
         setTasks(tasksData);
        // console.log(tasksData);

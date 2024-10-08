@@ -493,13 +493,13 @@ const Project = () => {
                 >
                   Delete
                 </button>
-                <Link
-                    to={"/dashboard/"}
-                    onClick={() => handleViewDetails(project)}
+                <button
+                  
+                    onClick={() =>  navigate(`/dashboard/${project.id}`)}
                     className="bg-indigo-500 text-white py-1 px-3 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out"
                   >
                     View
-                  </Link>
+                  </button>
                 <button
                   onClick={() => openAddMembersModal(project)}
                   className="bg-green-500 text-white p-2 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-green-600 ml-2"

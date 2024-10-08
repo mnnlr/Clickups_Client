@@ -103,7 +103,7 @@ function App() {
             <Route path="project" element={<Project />} />
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="/projects/:projectId/sprints" element={<Sprint />} />
-            <Route path="/dashboard/project" element={<DashboardForProjectPage />} />
+            <Route path="/dashboard/:projectId" element={<DashboardForProjectPage />} />
           </Route>
         </Route>
         <Route>
