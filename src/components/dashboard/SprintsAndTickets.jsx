@@ -25,9 +25,16 @@ export const SprintsAndTickets = ({ sprints }) => {
         setSearchQuery(query);
     };
 
+    const matchesSearchQuery = (ticket) => {
+        return (
+            ticket.taskName.toLowerCase().includes(searchQuery) ||
+            (ticket.userId?.name && ticket.userId.name.toLowerCase().includes(searchQuery)) ||
+            ticket.status.toLowerCase().includes(searchQuery)
+        );
+    };
+
     return (
         <div className="">
-
             {/* Search Input */}
             <div className="col-span-2">
                 <div className="relative w-full md:w-full md:mb-5">
@@ -60,11 +67,7 @@ export const SprintsAndTickets = ({ sprints }) => {
                         {openSprints[sprint.sprintname] && (
                             <div className="grid grid-cols-3 gap-6 m-8">
                                 {sprint.taskIds
-                                    .filter((ticket) =>
-                                        ticket.taskName.toLowerCase().includes(searchQuery) ||
-                                        ticket.userId.toLowerCase().includes(searchQuery) ||
-                                        ticket.status.toLowerCase().includes(searchQuery)
-                                    )
+                                    .filter(matchesSearchQuery)
                                     .map((ticket) => (
                                         <div key={ticket._id}>
                                             <div className="p-6 rounded-xl bg-gray-100 shadow-lg transition-transform transform hover:scale-105 dark:bg-gray-800">
@@ -94,19 +97,14 @@ export const SprintsAndTickets = ({ sprints }) => {
                                                     </span>
                                                 </div>
                                                 <div className='flex'>
-                                                    <p className="text-right text-gray-600 font-bold mt-2 dark:text-gray-400">Created By: <span className='font-extralight'>{ticket.userId.name}</span></p>
+                                                    <p className="text-right text-gray-600 font-bold mt-2 dark:text-gray-400">Created By: <span className='font-extralight'>{ticket.userId?.name}</span></p>
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
 
                                 {/* No tickets found */}
-                                {sprint.taskIds.filter(
-                                    (ticket) =>
-                                        ticket.taskName.toLowerCase().includes(searchQuery) ||
-                                        ticket.userId.toLowerCase().includes(searchQuery) ||
-                                        ticket.status.toLowerCase().includes(searchQuery)
-                                ).length === 0 && (
+                                {sprint.taskIds.filter(matchesSearchQuery).length === 0 && (
                                     <p className="text-gray-500 text-center py-4 dark:text-gray-400">No tickets found.</p>
                                 )}
                             </div>

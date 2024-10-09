@@ -44,13 +44,13 @@ const TaskBoardPage = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await axiosPrivate.get('/api/tasks', {
-        headers: {
+      const response = await axiosPrivate.get(`/api/sprints/${sprintId}/task`, {
+        headers: { 
           "Authorization": `Bearer ${token}`,
         },
       });
       if (response.status === 200) {
-        const tasksData = response.data.data.allTask;
+        const tasksData = response.data.data;
         console.log(tasksData);
         
         setTasks({

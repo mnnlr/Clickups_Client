@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import SprintModal from './SprintModal'; 
 import DeleteConfirmationModal from '../Models/DeleteConfirmModel';
+import { showToast } from '../Toastconfig';
 
 function Sprint() {
   const [sprints, setSprints] = useState([]);
@@ -36,6 +37,12 @@ function Sprint() {
     } catch (err) {
       console.error('Error fetching sprints:', err.response ? err.response.data : err.message);
     }
+  };
+
+  const isSprintExpired = (endDate) => {
+    const currentDate = new Date();
+    const expiryDate = new Date(endDate);
+    return currentDate > expiryDate;
   };
 
   const handleSubmit = async (e) => {
@@ -86,7 +93,7 @@ function Sprint() {
         });
         console.log(res);
         
-        toast.success('Sprint deleted successfully');
+        showToast('Sprint deleted successfully',"success");
         fetchSprints();
         setDeleteModalOpen(false); // Close modal after deletion
         setSprintToDelete(null);
@@ -132,15 +139,19 @@ function Sprint() {
         <h2 className="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Sprints</h2>
         {sprints.length > 0 ? (
           sprints.map((sprint) => (
-            <div key={sprint._id} className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex justify-between items-center space-x-4">
+            <div key={sprint._id} className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg flex justify-between items-center space-x-4 ${isSprintExpired(sprint.endDate) ? 'opacity-50' : ''}`}>
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{sprint.sprintname}</h3>
-                <p className="text-gray-600 dark:text-gray-400">{sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : 'Not set'} - {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString() : 'Not set'}</p>
+                <p className="text-gray-600 dark:text-gray-400">
+                  {sprint.startDate ? new Date(sprint.startDate).toLocaleDateString() : 'Not set'} - {sprint.endDate ? new Date(sprint.endDate).toLocaleDateString() : 'Not set'}
+                </p>
+                {isSprintExpired(sprint.endDate) && <p className="text-red-500">Sprint Expired</p>}
               </div>
               <div className="flex space-x-4">
                 <button
                   onClick={() => handleEditSprint(sprint)}
                   className="bg-yellow-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-yellow-600 transition duration-200"
+                  disabled={isSprintExpired(sprint.endDate)}
                 >
                   Edit
                 </button>
@@ -153,6 +164,7 @@ function Sprint() {
                 <button
                   onClick={() => navigate(`/${projectId}/sprints/${sprint._id}/tasks`)}
                   className="bg-blue-600 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-700 transition duration-200"
+                  disabled={isSprintExpired(sprint.endDate)}
                 >
                   Go to Tasks
                 </button>

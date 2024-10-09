@@ -9,7 +9,7 @@ const Homepage = () => {
   const token = cookie.get('User')
   const navigate = useNavigate()
   const [tasks, setTasks] = useState([]);
-  const [CreateTasks,  setCreateTasks] = useState([]);
+  const [CreateTasks, setCreateTasks] = useState([]);
 
 
   const getGreeting = () => {
@@ -37,10 +37,10 @@ const Homepage = () => {
       });
       if (response.status === 200) {
         const tasksData = response.data.data;
-       // console.log(tasksData);
-        
+        // console.log(tasksData);
+
         setTasks(tasksData);
-       // console.log(tasksData);
+        // console.log(tasksData);
       } else {
         console.error("Failed to fetch tasks: " + response.data.message);
       }
@@ -58,8 +58,8 @@ const Homepage = () => {
       });
       if (response.status === 200) {
         const tasksData = response.data.data;
-       // console.log(tasksData);
-        
+        // console.log(tasksData);
+
         setCreateTasks(tasksData);
         console.log(tasksData);
       } else {
@@ -88,7 +88,7 @@ const Homepage = () => {
               <h2 className="text-2xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Assigned to Me</h2>
               <div className="space-y-4">
                 {tasks.map((task) => (
-                  <div key={task._id} onClick={() => navigate(`/${task.projectId}/sprints/${task._id}/tasks`)} className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                  <div key={task._id} className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
                     <h3 className="font-medium text-lg">{task.taskName}</h3>
                     <p className="text-gray-600 dark:text-gray-300 mt-2">Task ID: {task.kanId}</p>
                   </div>
@@ -98,31 +98,31 @@ const Homepage = () => {
           ) : (
             <div>
               <h2 className="text-2xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Assigned to Me</h2>
-              <div className="space-y-4"> 
-            <p className="text-gray-600 font-bold dark:text-gray-300">No tasks assigneed to you.</p> </div> 
+              <div className="space-y-4">
+                <p className="text-gray-600 font-bold dark:text-gray-300">No tasks assigneed to you.</p> </div>
             </div>
           )}
 
 
-          
-        { CreateTasks.length>0? (<section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+
+          {CreateTasks.length > 0 ? (<section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-4 text-green-600 dark:text-green-400">Created Task</h2>
-            <div className="space-y-4"> 
-           {CreateTasks.map((task)=>(
-            <div key={task._id} onClick={() => navigate(`/${task.projectId}/sprints/${task._id}/tasks`)} className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
-                <h3 className="font-medium text-lg">{task.taskName}</h3>
-                <p className="text-gray-600 dark:text-gray-300 mt-2">Task ID: {task.kanId}</p>                
-              </div>))}
+            <div className="space-y-4">
+              {CreateTasks.map((task) => (
+                <div key={task._id} className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                  <h3 className="font-medium text-lg">{task.taskName}</h3>
+                  <p className="text-gray-600 dark:text-gray-300 mt-2">Task ID: {task.kanId}</p>
+                </div>))}
             </div>
-          </section>): ( <div> 
+          </section>) : (<div>
             <h2 className="text-2xl font-semibold mb-4 text-green-600 dark:text-green-400">Created Task</h2>
-            <div className="space-y-4 "> 
-            <p className="text-gray-600 font-bold dark:text-gray-300">No tasks created to you.</p> </div> 
-            </div>
-         )}
+            <div className="space-y-4 ">
+              <p className="text-gray-600 font-bold dark:text-gray-300">No tasks created to you.</p> </div>
+          </div>
+          )}
 
           {/* My Projects Section */}
-       {/* <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+          {/* <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-4 text-indigo-600 dark:text-indigo-400">My Projects</h2>
             <div className="space-y-4">
               <div  className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
