@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { loginAction } from "../redux/actions/loginAction";
 import { toast } from "react-toastify";
 import { showToast } from "../components/Toastconfig";
+import Cookie from 'js-cookie';
 
 
 export const LoginPage = () => {
@@ -71,13 +72,14 @@ export const LoginPage = () => {
       const result = await dispatch(loginAction(loginFormData));
       console.log('result', result);
       if (result?.payload?.token) {
-      showToast("Login Successfull","success")
+        Cookie.set("tokenData", result?.payload?.token);
+        showToast("Login Successfull", "success")
         navigate('/dashboard');
-    } else {
+      } else {
         alert(`Login failed: ${result.payload}`);
-    }
+      }
     } catch (err) {
-        console.log(`Login failed: ${err}`);
+      console.log(`Login failed: ${err}`);
     }
   };
 
