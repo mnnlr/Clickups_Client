@@ -122,7 +122,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                       <TextEditor
                         content={task?.description || ''}
                         setContent={(content) => (
-                          console.log("Updating description to:", content),
+                          // console.log("Updating description to:", content),
                           onChange({ target: { name: 'description', value: content } })
                         )}
                         commentbtn={false}

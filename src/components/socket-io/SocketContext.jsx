@@ -9,9 +9,12 @@ export const SocketProvider = ({ children }) => {
     const { user } = useSelector((state) => state.login);
     const [socket, setSocket] = useState(null);
 
+    // const serverURL = "http://localhost:5173/";
+    const serverURL = "https://clickups-server.onrender.com";
+
     useEffect(() => {
         if (user && user._id) {
-            const newSocket = io('https://clickups-server.onrender.com', {
+            const newSocket = io(serverURL, {
                 query: { UserId: user._id },
             });
             setSocket(newSocket);

@@ -57,7 +57,7 @@ const TaskBoardPage = () => {
       });
       if (response.status === 200) {
         const tasksData = response.data.data;
-        console.log(tasksData);
+        // console.log(tasksData);
 
         setTasks({
           'ToDo': tasksData.filter(task => task.status === 'ToDo'),
