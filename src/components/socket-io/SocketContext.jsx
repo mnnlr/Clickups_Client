@@ -11,7 +11,7 @@ export const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         if (user && user._id) {
-            const newSocket = io('http://localhost:5000', {
+            const newSocket = io('https://clickups-server.onrender.com', {
                 query: { UserId: user._id },
             });
             setSocket(newSocket);
@@ -21,12 +21,12 @@ export const SocketProvider = ({ children }) => {
             });
 
             newSocket.on('notification', (data) => {
-               // console.log('Notification received:', data);
+                // console.log('Notification received:', data);
                 showToast(data.message, "info");
             });
 
             newSocket.on('teamMemberAdded', (notification) => {
-               // console.log("Team member added:", notification);
+                // console.log("Team member added:", notification);
                 showToast(notification.message, "info");
             });
 
@@ -36,12 +36,12 @@ export const SocketProvider = ({ children }) => {
             });
 
             newSocket.on('taskUpdated', (notification) => {
-              //  console.log("Task updated:", notification);
+                //  console.log("Task updated:", notification);
                 showToast(notification.message, "info");
             });
 
             newSocket.on('sprintCreated', (notification) => {
-              //  console.log("Sprint created:", notification);
+                //  console.log("Sprint created:", notification);
                 showToast(notification.message, "info");
             });
 

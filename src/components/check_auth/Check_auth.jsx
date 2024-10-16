@@ -19,7 +19,7 @@ const Check_auth = () => {
         const { data } = await axiosPrivate("/api/authenticate", {
           headers: {
             "Content-Type": "Application/json",
-            //  authorization: `Bearer ${userData?.user?.token}`,
+            // authorization: `Bearer ${userData?.user?.token}`,
           },
           withCredentials: true,
         });
@@ -40,9 +40,9 @@ const Check_auth = () => {
     };
   }, [navigate, userData?.user?.token]);
 
-  if(isLoading) return null;
+  if (isLoading) return null;
 
-  return userData?.user?._id ? <Outlet/> : <Navigate to='/signin'/>;
+  return userData?.user?._id ? <Outlet /> : <Navigate to='/signin' />;
 
 };
 
