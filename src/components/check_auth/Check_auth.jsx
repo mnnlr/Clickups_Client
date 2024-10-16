@@ -38,7 +38,7 @@ const Check_auth = () => {
     return () => {
       isMounted = false;
     };
-  }, [navigate, userData?.user?.token]);
+  }, [navigate]);
 
   if (isLoading) return null;
 
