@@ -63,8 +63,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
         <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
           {title}
         </h2>
-      { taskMode==='create' &&( 
-        <div className='flex space-x-3 mt-5 '>
+        <div className='flex space-x-3 mt-5 mb-8 '>
           <label className="block text-2xl my-3 font-medium flex-shrink-0 text-gray-700 dark:text-gray-100"> Task Title</label>
           <input
             type="text"
@@ -72,7 +71,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
             name="taskName"
             value={task.taskName || ''}
             onChange={onChange}
-            className="w-full border text-lg text-black rounded-lg p-2 dark:bg-gray-700 dark:text-white"
+            className="w-full border text-md text-black rounded-lg p-2 dark:bg-gray-700 dark:text-white"
             placeholder="Enter Task name "
           />
 
@@ -84,13 +83,12 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
               <button className="bg-green-100 text-green-500 px-4 py-2 rounded-full">Low</button>
             </div>
           </div> */}
-        </div>)}
+        </div>
 
         <div className="grid grid-cols-1 gap-6 md:flex md:flex-row md:space-x-4 md:justify-center">
           <div className="flex flex-col space-y-4 w-full md:w-2/2">
-            {taskMode === 'edit' && (
               <>
-                <div className="flex mb-4 space-x-2">
+                {/* <div className="flex mb-4 space-x-2">
                   <label htmlFor="task-name" className="block text-md my-3 font-medium flex-shrink-0 text-gray-700 dark:text-gray-100">
                     Task Title
                   </label>
@@ -106,7 +104,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                     />
                     {errors.taskName && <p className="text-red-500 text-sm mt-1">{errors.taskName}</p>}
                   </div>
-                </div>
+                </div> */}
                 <div className="mb-4">
                   <label htmlFor="task-desc" className="block text-sm font-medium text-gray-700 dark:text-white">Description</label>
                   {isDescriptionVisible && (
@@ -162,14 +160,13 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                     </button>
                   )}
                 </div>
-                <div className="mt-2">
+              { taskMode === 'edit'&&(  <div className="mt-2">
                   <CommentsSection taskId={task?._id} />
-                </div>
+                </div>)}
               </>
-            )}
           </div>
 
-          {taskMode === 'edit' && (
+        
             <div className="border border-gray-300 dark:border-blue-600 p-4 text-gray-800 dark:text-white">
               <div className="flex items-center mb-4">
                 <label htmlFor="task-assignee" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20 dark:text-white">
@@ -275,6 +272,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                   ))}
                 </select>
               </div>
+              { taskMode ==='edit' && (
               <section>
                 <div className="my-2 text-left text-xs overflow-y-auto text-gray-500 dark:text-gray-400">
                   <p className="mb-1 text-sm space-x-1">
@@ -290,10 +288,10 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                     <strong className="text-sm text-gray-700 dark:text-gray-300">Updated:</strong> {task?.updatedAt ? new Date(task.updatedAt).toLocaleString() : 'Not set'}
                   </p>
                 </div>
-              </section>
+              </section>  )}
             </div>
 
-          )}
+        
         </div>
 
         <div className="flex justify-end space-x-4 mt-6">

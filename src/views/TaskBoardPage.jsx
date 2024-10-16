@@ -44,15 +44,21 @@ const TaskBoardPage = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await axiosPrivate.get(`/api/sprints/${sprintId}/task`, {
-        headers: { 
+      let url;
+      if (sprintId) {
+        url = `/api/sprints/${sprintId}/task`
+      } else if (!sprintId) {
+        url = `/api/tasks/`
+      }
+      const response = await axiosPrivate.get(url, {
+        headers: {
           "Authorization": `Bearer ${token}`,
         },
       });
       if (response.status === 200) {
         const tasksData = response.data.data;
         console.log(tasksData);
-        
+
         setTasks({
           'ToDo': tasksData.filter(task => task.status === 'ToDo'),
           'In-Progress': tasksData.filter(task => task.status === 'In-Progress'),
@@ -108,6 +114,7 @@ const TaskBoardPage = () => {
     try {
       const taskToSubmit = { ...task };
 
+      // Check if updating or creating a task
       if (taskToSubmit._id) {
         // Update existing task
         const response = await axiosPrivate.patch(`/api/tasks/${taskToSubmit._id}`, taskToSubmit, {
@@ -115,6 +122,7 @@ const TaskBoardPage = () => {
             "Authorization": `Bearer ${token}`,
           },
         });
+
         if (response.status === 200) {
           updateTaskInState(response.data.data.task);
           toast.success("Task Updated");
@@ -123,7 +131,20 @@ const TaskBoardPage = () => {
         }
       } else {
         // Create new task
-        const response = await axiosPrivate.post(`/api/tasks/${projectId}/${sprintId}`, taskToSubmit, {
+        let url;
+
+        // Ensure projectId and sprintId are both provided
+        if (projectId && sprintId) {
+          url = `/api/tasks/${projectId}/${sprintId}`;
+        } else if (!projectId && !sprintId) {
+          url = `/api/tasks/individual`;
+        } else {
+          // Handle the case where only one of them is missing
+          const missingField = !projectId ? "Project ID" : "Sprint ID";
+          throw new Error(`${missingField} is required to create a task in a project or sprint.`);
+        }
+
+        const response = await axiosPrivate.post(url, taskToSubmit, {
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -131,14 +152,16 @@ const TaskBoardPage = () => {
         });
 
         if (response.status === 201) {
-          showToast("Task Created","success");
-          fetchTasks(); 
+          showToast("Task Created", "success");
+          fetchTasks();
         } else {
           toast.error("Failed to create task: " + response.data.message);
         }
       }
+
       resetTaskForm();
     } catch (error) {
+      // Improved error message for missing projectId and sprintId
       toast.error('Error saving task: ' + (error.response ? error.response.data.message : error.message));
     }
   };
@@ -206,7 +229,7 @@ const TaskBoardPage = () => {
       assignees: '',
       status: '',
       report: '',
-      sprintId: sprintId, 
+      sprintId: sprintId,
       projectId: projectId
     });
   };
