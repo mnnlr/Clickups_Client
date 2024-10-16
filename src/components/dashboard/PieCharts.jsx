@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 
 export const PieCharts = ({ sprints }) => {
-    const [selectedSprint, setSelectedSprint] = useState(sprints[0]?._id || '');
+    const [selectedSprint, setSelectedSprint] = useState('');
 
     const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+
+    // Set the default sprint when the 'sprints' prop changes
+    useEffect(() => {
+        if (sprints.length > 0) {
+            setSelectedSprint(sprints[0]._id); // Set the first sprint as default
+        }
+    }, [sprints]);
 
     const ticketsPerSprint = sprints.map(sprint => ({
         name: sprint.sprintname,
@@ -18,19 +25,23 @@ export const PieCharts = ({ sprints }) => {
 
     const ticketsByCreator = () => {
         const tasks = getSprintTasks();
-        return Object.entries(tasks.reduce((acc, ticket) => {
-            const creatorName = ticket.userId.name; // Access the user's name from userId
-            acc[creatorName] = (acc[creatorName] || 0) + 1;
-            return acc;
-        }, {})).map(([creator, count]) => ({ name: creator, value: count }));
+        return Object.entries(
+            tasks.reduce((acc, ticket) => {
+                const creatorName = ticket.userId.name; // Access the user's name from userId
+                acc[creatorName] = (acc[creatorName] || 0) + 1;
+                return acc;
+            }, {})
+        ).map(([creator, count]) => ({ name: creator, value: count }));
     };
 
     const ticketsByStatus = () => {
         const tasks = getSprintTasks();
-        return Object.entries(tasks.reduce((acc, ticket) => {
-            acc[ticket.status] = (acc[ticket.status] || 0) + 1;
-            return acc;
-        }, {})).map(([status, count]) => ({ name: status, value: count }));
+        return Object.entries(
+            tasks.reduce((acc, ticket) => {
+                acc[ticket.status] = (acc[ticket.status] || 0) + 1;
+                return acc;
+            }, {})
+        ).map(([status, count]) => ({ name: status, value: count }));
     };
 
     return (
@@ -72,28 +83,28 @@ export const PieCharts = ({ sprints }) => {
                     </PieChart>
                 </div>
 
-                <div className='grid grid-cols-2 gap-8'>
+                <div className="grid grid-cols-2 gap-8">
                     {/* Tickets by Status */}
                     <div className="bg-white dark:bg-gray-800 flex flex-col justify-center items-center p-6 rounded-lg shadow">
                         <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
                             Tickets by Status
                         </h3>
-                        <div className='flex'>
-                        <PieChart width={300} height={300}>
-                            <Pie
-                                data={ticketsByStatus()}
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                dataKey="value"
-                            >
-                                {ticketsByStatus().map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend verticalAlign="bottom" height={36} />
-                        </PieChart>
+                        <div className="flex">
+                            <PieChart width={300} height={300}>
+                                <Pie
+                                    data={ticketsByStatus()}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={100}
+                                    dataKey="value"
+                                >
+                                    {ticketsByStatus().map((_, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
                         </div>
                     </div>
 
@@ -102,22 +113,23 @@ export const PieCharts = ({ sprints }) => {
                         <h3 className="flex text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
                             Tickets Created by User
                         </h3>
-                        <div className='flex'>
-                        <PieChart width={300} height={300}>
-                            <Pie
-                                data={ticketsByCreator()}
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={100}
-                                dataKey="value"
-                            >
-                                {ticketsByCreator().map((_, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip />
-                            <Legend verticalAlign="bottom" height={36} />
-                        </PieChart></div>
+                        <div className="flex">
+                            <PieChart width={300} height={300}>
+                                <Pie
+                                    data={ticketsByCreator()}
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={100}
+                                    dataKey="value"
+                                >
+                                    {ticketsByCreator().map((_, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend verticalAlign="bottom" height={36} />
+                            </PieChart>
+                        </div>
                     </div>
                 </div>
             </div>
