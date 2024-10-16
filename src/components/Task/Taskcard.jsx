@@ -11,7 +11,7 @@ const TaskCard = ({ task, handleTaskClick, handleDeleteTask, status }) => {
   });
 
   const getInitial = (name) => {
-    if (!name) return '';
+    if (!name) return 'No User Assigneed';
     const nameParts = name.trim().split(' ');
     const initials = nameParts.map(part => part.charAt(0).toUpperCase());
     return initials.slice(0, 2).join(''); 
