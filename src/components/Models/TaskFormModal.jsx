@@ -87,8 +87,8 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
 
         <div className="grid grid-cols-1 gap-6 md:flex md:flex-row md:space-x-4 md:justify-center">
           <div className="flex flex-col space-y-4 w-full md:w-2/2">
-              <>
-                {/* <div className="flex mb-4 space-x-2">
+            <>
+              {/* <div className="flex mb-4 space-x-2">
                   <label htmlFor="task-name" className="block text-md my-3 font-medium flex-shrink-0 text-gray-700 dark:text-gray-100">
                     Task Title
                   </label>
@@ -105,174 +105,173 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                     {errors.taskName && <p className="text-red-500 text-sm mt-1">{errors.taskName}</p>}
                   </div>
                 </div> */}
-                <div className="mb-4">
-                  <label htmlFor="task-desc" className="block text-sm font-medium text-gray-700 dark:text-white">Description</label>
-                  {isDescriptionVisible && (
+              {/* Description Section */}
+              <div className="mb-4">
+                <label htmlFor="task-desc" className="block text-sm font-medium text-gray-700 dark:text-white">Description</label>
+
+                <div
+                  className={`relative bg-white border border-gray-200 p-3 shadow-sm text-sm rounded-xl mt-2 cursor-pointer ${isEditingDescription ? 'bg-gray-100' : ''}`}
+                  onClick={() => {
+                    if (!isEditingDescription) {
+                      setIsEditingDescription(true);
+                    }
+                  }}
+                >
+                  {isEditingDescription ? (
                     <>
-                      {isEditingDescription ? (
-                        <>
-                          <TextEditor
-                            content={task?.description || ''}
-                            setContent={(content) => onChange({ target: { name: 'description', value: content } })}
-                            commentbtn={false}
-                            editbtn={false}
-                          />
-                          <div className="mt-2">
-                            <button
-                              onClick={() => setIsEditingDescription(false)}
-                              className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                              Update
-                            </button>
-                            <button
-                              onClick={() => setIsEditingDescription(false)}
-                              className="px-4 py-1 ml-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="relative bg-white border border-gray-200 p-3 shadow-sm text-sm rounded-xl mt-2">
-                          <div className="flex items-start space-x-3">
-                            <div className="flex-1">
-                              <p className="text-gray-700 break-all" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(task?.description || 'No description available') }}></p>
-                              <div className="space-x-3 mt-3">
-                                <button
-                                  className="text-blue-600 hover:text-blue-800 mr-2"
-                                  onClick={() => setIsEditingDescription(true)}
-                                >
-                                  Edit
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      <TextEditor
+                        content={task?.description || ''}
+                        setContent={(content) => (
+                          console.log("Updating description to:", content),
+                          onChange({ target: { name: 'description', value: content } })
+                        )}
+                        commentbtn={false}
+                        editbtn={false}
+                      />
+                      <div className="mt-2 flex space-x-2">
+                        <button
+                          onClick={() => setIsEditingDescription(false)}
+                          className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        >
+                          Update
+                        </button>
+                        <button
+                          onClick={() => {
+                            onChange({
+                              target: {
+                                name: 'description',
+                                value: task.description, // Reset to original description
+                              }
+                            });
+                            setIsEditingDescription(false);
+                          }}
+                          className="px-4 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </>
-                  )}
-                  {!isDescriptionVisible && (
-                    <button
-                      onClick={() => setIsDescriptionVisible(true)}
-                      className="px-4 py-1 mt-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                      Show Description
-                    </button>
+                  ) : (
+                    <p
+                      className="text-gray-700 break-all"
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(task?.description || 'No description available') }}
+                    ></p>
                   )}
                 </div>
-              { taskMode === 'edit'&&(  <div className="mt-2">
-                  <CommentsSection taskId={task?._id} />
-                </div>)}
-              </>
+              </div>
+              {taskMode === 'edit' && (<div className="mt-2">
+                <CommentsSection taskId={task?._id} />
+              </div>)}
+            </>
           </div>
 
-        
-            <div className="border border-gray-300 dark:border-blue-600 p-4 text-gray-800 dark:text-white">
-              <div className="flex items-center mb-4">
-                <label htmlFor="task-assignee" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20 dark:text-white">
-                  Assignee
-                </label>
-                <select
-                  id="task-assignee"
-                  name="assignees"
-                  value={task?.assignees || ''}
-                  onChange={onChange}
-                  className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                >
-                  <option value="" disabled>
-                    Select an assignee
+
+          <div className="border border-gray-300 dark:border-blue-600 p-4 text-gray-800 dark:text-white">
+            <div className="flex items-center mb-4">
+              <label htmlFor="task-assignee" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20 dark:text-white">
+                Assignee
+              </label>
+              <select
+                id="task-assignee"
+                name="assignees"
+                value={task?.assignees || ''}
+                onChange={onChange}
+                className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+              >
+                <option value="" disabled>
+                  Select an assignee
+                </option>
+                {availableMembers.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name}
                   </option>
-                  {availableMembers.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                ))}
+              </select>
+            </div>
 
 
-              <div className="flex items-center mb-4">
-                <label htmlFor="task-status" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">Status</label>
-                <select
-                  id="task-status"
-                  name="status"
-                  value={task?.status || ''}
-                  onChange={onChange}
-                  className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                >
-                  <option value="ToDo">To Do</option>
-                  <option value="In-Progress">In Progress</option>
-                  <option value="On-Hold">On Hold</option>
-                  <option value="Done">Done</option>
-                </select>
-              </div>
+            <div className="flex items-center mb-4">
+              <label htmlFor="task-status" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">Status</label>
+              <select
+                id="task-status"
+                name="status"
+                value={task?.status || ''}
+                onChange={onChange}
+                className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+              >
+                <option value="ToDo">To Do</option>
+                <option value="In-Progress">In Progress</option>
+                <option value="On-Hold">On Hold</option>
+                <option value="Done">Done</option>
+              </select>
+            </div>
 
-              <div className="flex items-center mb-4">
-                <label htmlFor="task-priority" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">Priority</label>
-                <select
-                  id="task-priority"
-                  name="priority"
-                  value={task?.priority || ''}
-                  onChange={onChange}
-                  className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
+            <div className="flex items-center mb-4">
+              <label htmlFor="task-priority" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">Priority</label>
+              <select
+                id="task-priority"
+                name="priority"
+                value={task?.priority || ''}
+                onChange={onChange}
+                className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
 
-                  <option value="">None</option>
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                </select>
-              </div>
+                <option value="">None</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
 
-              <div className="flex items-center mb-4">
-                <label htmlFor="task-sprint" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">
-                  Sprint
-                </label>
-                <input
-                  id="task-sprint"
-                  name="SprintId"
-                  className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                  value={task.sprintId ? task.sprintId.sprintname : 'No Sprint Assigned'}
-                  readOnly
-                />
-              </div>
+            <div className="flex items-center mb-4">
+              <label htmlFor="task-sprint" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">
+                Sprint
+              </label>
+              <input
+                id="task-sprint"
+                name="SprintId"
+                className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+                value={task.sprintId ? task.sprintId.sprintname : 'No Sprint Assigned'}
+                readOnly
+              />
+            </div>
 
-              <div className="flex items-center mb-4">
-                <label htmlFor="task-due-date" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20 dark:text-white">
-                  Due Date
-                </label>
-                <input
-                  type="date"
-                  id="task-due-date"
-                  name="dueDate"
-                  className="mt-1  py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                  value={task?.dueDate ? new Date(task.dueDate).toISOString().substring(0, 10) : ''}
-                  onChange={handleDueDateChange}
-                />
-              </div>
+            <div className="flex items-center mb-4">
+              <label htmlFor="task-due-date" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20 dark:text-white">
+                Due Date
+              </label>
+              <input
+                type="date"
+                id="task-due-date"
+                name="dueDate"
+                className="mt-1  py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+                value={task?.dueDate ? new Date(task.dueDate).toISOString().substring(0, 10) : ''}
+                onChange={handleDueDateChange}
+              />
+            </div>
 
 
-              <div className="flex items-center mb-4">
-                <label htmlFor="task-reporter" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">
-                  Reporter
-                </label>
-                <select
-                  id="task-reporter"
-                  name="report"
-                  value={task?.report || ''}
-                  onChange={onChange}
-                  className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
-                >
-                  <option value="" disabled>
-                    Select a reporter
+            <div className="flex items-center mb-4">
+              <label htmlFor="task-reporter" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">
+                Reporter
+              </label>
+              <select
+                id="task-reporter"
+                name="report"
+                value={task?.report || ''}
+                onChange={onChange}
+                className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
+              >
+                <option value="" disabled>
+                  Select a reporter
+                </option>
+                {availableMembers.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name}
                   </option>
-                  {availableMembers.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              { taskMode ==='edit' && (
+                ))}
+              </select>
+            </div>
+            {taskMode === 'edit' && (
               <section>
                 <div className="my-2 text-left text-xs overflow-y-auto text-gray-500 dark:text-gray-400">
                   <p className="mb-1 text-sm space-x-1">
@@ -288,10 +287,10 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                     <strong className="text-sm text-gray-700 dark:text-gray-300">Updated:</strong> {task?.updatedAt ? new Date(task.updatedAt).toLocaleString() : 'Not set'}
                   </p>
                 </div>
-              </section>  )}
-            </div>
+              </section>)}
+          </div>
 
-        
+
         </div>
 
         <div className="flex justify-end space-x-4 mt-6">

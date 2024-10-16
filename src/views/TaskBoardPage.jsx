@@ -143,7 +143,7 @@ const TaskBoardPage = () => {
           const missingField = !projectId ? "Project ID" : "Sprint ID";
           throw new Error(`${missingField} is required to create a task in a project or sprint.`);
         }
-
+        // console.log(taskToSubmit)
         const response = await axiosPrivate.post(url, taskToSubmit, {
           headers: {
             "Authorization": `Bearer ${token}`,
