@@ -24,3 +24,14 @@ export const loginAction = createAsyncThunk(
     }
   }
 );
+
+export const logoutAction = createAsyncThunk("/auth/logout", async () => {
+  try {
+    const { data } = await axiosPrivate.post("/api/logout", {}, {
+      withCredentials: true,
+    });
+    return data;
+  } catch (err) {
+    return err.message;
+  }
+});

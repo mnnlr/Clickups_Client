@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { loginAction } from "../actions/loginAction";
+import { loginAction, logoutAction } from "../actions/loginAction";
 import Cookies from 'js-cookie';
+import { act } from "react";
 
 const initialState = {
     user: {},
@@ -18,9 +19,16 @@ const loginSlice = createSlice({
           Cookies.remove = 'User';
         },
         setUser: (state, action) => {
-            console.log('action from update user', action);
+            console.log('action from update user', action.payload);
             state.isLoading = false;
-            state.user = action.payload;
+
+            state.user = {
+                _id: action?.payload?._id?action?.payload?._id : state?.user?._id,
+                name: action?.payload?.name?action?.payload?.name: state?.user?.name,
+                email: action?.payload?.email?action?.payload?.email: state?.user?.email,
+                role:action?.payload?.role?action?.payload?.role: state?.user?.role,
+                accessToken: action?.payload?.accessToken? action?.payload?.accessToken: state?.user?.accessToken
+            }
         }
       },
       
@@ -30,14 +38,20 @@ const loginSlice = createSlice({
             state.isLoading = true
         })
         .addCase(loginAction.fulfilled, (state, action) => {
-            console.log('this is actin', action)
+            console.log('this is action login', action.payload)
             state.isLoading = false,
-            state.user = action?.payload
+            state.user = action?.payload?.Data
         })
         .addCase(loginAction.rejected, (state, action)=>{
             state.isLoading = false;
             state.error = action?.payload;
-        });
+        })
+        // logout action
+        .addCase(logoutAction.fulfilled, (state)=> {
+            state.isLoading = false;
+            state.user = null;
+            state.error= null;
+        })
     }
 });
 

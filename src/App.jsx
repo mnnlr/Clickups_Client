@@ -85,7 +85,6 @@ function App() {
 
 
 
-  const userToken = Cookies.get('User')
 
   return (
   <SocketProvider>

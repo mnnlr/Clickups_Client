@@ -6,35 +6,39 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const Check_auth = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const {user} = useSelector((state) => state.login);
+  const { user } = useSelector((state) => state.login);
   const dispatch = useDispatch();
+
   console.log("login", user);
+  // console.log('access tokoen', user.accessToken)
   const navigate = useNavigate();
   const privateAxios = useAxiosPrivate();
 
   useEffect(() => {
+  
     let isMounted = true;
     const response = async () => {
       try {
+        console.log("Sending authentication request with token:", user?.accessToken)
         const { data } = await privateAxios.get("/api/authenticate", {
           headers: {
             "Content-Type": "Application/json",
-            authorization: `Bearer ${user?.Data?.accessToken}`,
+            Authorization: `Bearer ${user?.accessToken}`,
           },
           withCredentials: true,
         });
 
-        console.log('the data from check_auth', data)
+        console.log("the data from check_auth", data);
         if (isMounted) {
-          setIsLoading(false);
           dispatch(setUser(data.Data));
+          console.log("Updated user after dispatch:", data.Data);
+          setIsLoading(false);
         }
       } catch (err) {
         navigate("/signin");
-        return console.log("error on authentication", err);
       }
     };
-    isMounted && response();
+    response();
     return () => {
       isMounted = false;
     };
@@ -42,8 +46,7 @@ const Check_auth = () => {
 
   if (isLoading) return null;
 
-  return user?._id ? <Outlet /> : <Navigate to='/signin' />;
-
+  return user?._id ? <Outlet /> : <Navigate to="/signin" />;
 };
 
 export default Check_auth;

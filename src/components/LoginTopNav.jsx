@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { logoutSuccess } from "../redux/authentication/loginSlice";
 import { axiosPrivate } from "../CustomAxios/customAxios";
 import { toggleDarkMode } from "../redux/Mode/ThemeSlice";
+import { logoutAction } from "../redux/actions/loginAction";
+import { showToast } from "./Toastconfig";
 
 const TopNav = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -53,9 +55,9 @@ const TopNav = () => {
 
   const handleLogoutBtn = async () => {
     try {
-      dispatch(logoutSuccess());
+      const {payload} = await dispatch(logoutAction());
       navigate('/signin');
-      window.location.reload();
+      showToast(payload.message);
     } catch (err) {
       console.error(`Error logging out: ${err}`);
     }

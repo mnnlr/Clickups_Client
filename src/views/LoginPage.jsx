@@ -1,14 +1,28 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector, } from "react-redux";
 import { loginAction } from "../redux/actions/loginAction";
 import { showToast } from "../components/Toastconfig";
 
 export const LoginPage = () => {
   const [loginFormData, setLoginFormData] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
+  const from = location.state?.from?.pathname || "/";
 
+  const {user,isLoading,error} = useSelector(state => state.login);
+
+
+  useEffect(()=>{
+    if(!isLoading&&user?._id){
+      return navigate(from, {replace: true})
+    }
+    if(!isLoading&&error){
+      showToast(error);
+    }
+  }, [isLoading, error, navigate, user?._id])
+  
   //----------------Handle Form Change-----------------
   const handleFormChange = (e) => {
     const { name, value } = e.target;
