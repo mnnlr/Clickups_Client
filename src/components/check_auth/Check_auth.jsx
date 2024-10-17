@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { axiosPrivate } from "../../CustomAxios/customAxios";
-import { updateUser } from "../../redux/authentication/loginSlice";
+import { setUser } from "../../redux/authentication/loginSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const Check_auth = () => {
-  const [authData, setAuthData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const userData = useSelector((state) => state.login);
+  const {user} = useSelector((state) => state.login);
   const dispatch = useDispatch();
-  console.log("login", userData);
+  console.log("login", user);
   const navigate = useNavigate();
+  const privateAxios = useAxiosPrivate();
 
   useEffect(() => {
     let isMounted = true;
     const response = async () => {
       try {
-        const { data } = await axiosPrivate.get("/api/authenticate", {
+        const { data } = await privateAxios.get("/api/authenticate", {
           headers: {
             "Content-Type": "Application/json",
-            authorization: `Bearer ${userData?.user?.token}`,
+            authorization: `Bearer ${user?.Data?.accessToken}`,
           },
           withCredentials: true,
         });
@@ -27,7 +27,7 @@ const Check_auth = () => {
         console.log('the data from check_auth', data)
         if (isMounted) {
           setIsLoading(false);
-          dispatch(updateUser(data.Data));
+          dispatch(setUser(data.Data));
         }
       } catch (err) {
         navigate("/signin");
@@ -42,7 +42,7 @@ const Check_auth = () => {
 
   if (isLoading) return null;
 
-  return userData?.user?._id ? <Outlet /> : <Navigate to='/signin' />;
+  return user?._id ? <Outlet /> : <Navigate to='/signin' />;
 
 };
 

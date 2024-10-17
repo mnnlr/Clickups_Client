@@ -17,9 +17,10 @@ const loginSlice = createSlice({
           state.token = null;
           Cookies.remove = 'User';
         },
-        updateUser: (state, action) => {
+        setUser: (state, action) => {
             console.log('action from update user', action);
-            state.user = action.payload
+            state.isLoading = false;
+            state.user = action.payload;
         }
       },
       
@@ -40,6 +41,6 @@ const loginSlice = createSlice({
     }
 });
 
-export const { logoutSuccess, updateUser } = loginSlice.actions;
+export const { logoutSuccess, setUser } = loginSlice.actions;
 
 export default loginSlice.reducer;

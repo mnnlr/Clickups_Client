@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { loginAction } from "../redux/actions/loginAction";
-import { toast } from "react-toastify";
 import { showToast } from "../components/Toastconfig";
-import Cookie from 'js-cookie';
-
 
 export const LoginPage = () => {
   const [loginFormData, setLoginFormData] = useState(null);
@@ -69,12 +66,11 @@ export const LoginPage = () => {
   const handleLoginSubmitBtn = async (e) => {
     e.preventDefault();
     try {
-      const result = await dispatch(loginAction(loginFormData));
-      console.log('result', result);
-      if (result?.payload?.token) {
-        Cookie.set("tokenData", result?.payload?.token);
-        showToast("Login Successfull", "success")
-        navigate('/dashboard');
+      const { payload } = await dispatch(loginAction(loginFormData));
+      console.log("result", payload);
+      if (payload?.success) {
+        showToast(payload?.message);
+        navigate("/dashboard");
       } else {
         alert(`Login failed: ${result.payload}`);
       }

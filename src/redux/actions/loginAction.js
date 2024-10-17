@@ -17,7 +17,7 @@ export const loginAction = createAsyncThunk(
         }
       );
       if(status === 200){
-          return data.Data;
+          return data;
         }
     } catch (err) {
         return rejectWithValue(err.response.data.message);
