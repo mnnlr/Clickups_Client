@@ -16,10 +16,10 @@ const Check_auth = () => {
     let isMounted = true;
     const response = async () => {
       try {
-        const { data } = await axiosPrivate("/api/authenticate", {
+        const { data } = await axiosPrivate.get("/api/authenticate", {
           headers: {
             "Content-Type": "Application/json",
-            // authorization: `Bearer ${userData?.user?.token}`,
+            authorization: `Bearer ${userData?.user?.token}`,
           },
           withCredentials: true,
         });

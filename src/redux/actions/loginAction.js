@@ -7,7 +7,7 @@ export const loginAction = createAsyncThunk(
     console.log('loginData', loginData);
     try {
       const { data, status } = await axiosPrivate.post(
-        "api/users/login",
+        "/api/users/login",
         loginData,
         {
           headers: {
