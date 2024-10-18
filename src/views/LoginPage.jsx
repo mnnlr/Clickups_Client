@@ -9,7 +9,7 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const {user,isLoading,error} = useSelector(state => state.login);
 
