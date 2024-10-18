@@ -5,7 +5,7 @@ import SideNav from "../components/LoginSideNav";
 
 const AuthLayout = () => {
   return (
-    <div className="App">
+    <div className="App font-LibreFont">
       <TopNav />
       <SideNav />
       <div className="main-content">

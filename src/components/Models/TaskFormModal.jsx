@@ -63,54 +63,31 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
         <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
           {title}
         </h2>
-        <div className='flex space-x-3 mt-5 mb-8 '>
-          <label className="block text-2xl my-3 font-medium flex-shrink-0 text-gray-700 dark:text-gray-100"> Task Title</label>
-          <input
-            type="text"
-            id="taskName"
-            name="taskName"
-            value={task.taskName || ''}
-            onChange={onChange}
-            className="w-full border text-md text-black rounded-lg p-2 dark:bg-gray-700 dark:text-white"
-            placeholder="Enter Task name "
-          />
-
-          {/* <div className="mb-4">
-            <label className="block font-semibold mb-2">Priority</label>
-            <div className="flex space-x-2">
-              <button className="bg-red-100 text-red-500 px-4 py-2 rounded-full">High</button>
-              <button className="bg-yellow-100 text-yellow-500 px-4 py-2 rounded-full">Medium</button>
-              <button className="bg-green-100 text-green-500 px-4 py-2 rounded-full">Low</button>
-            </div>
-          </div> */}
-        </div>
 
         <div className="grid grid-cols-1 gap-6 md:flex md:flex-row md:space-x-4 md:justify-center">
           <div className="flex flex-col space-y-4 w-full md:w-2/2">
             <>
-              {/* <div className="flex mb-4 space-x-2">
-                  <label htmlFor="task-name" className="block text-md my-3 font-medium flex-shrink-0 text-gray-700 dark:text-gray-100">
-                    Task Title
-                  </label>
-                  <div className="flex items-center flex-col md:flex-row">
-                    <input
-                      type="text"
-                      id="taskName"
-                      name="taskName"
-                      value={task.taskName || ''}
-                      onChange={onChange}
-                      className={`mt-1 block px-5 py-2 border w-full border-gray-300 text-md text-black shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white`}
-                      placeholder="Enter task name"
-                    />
-                    {errors.taskName && <p className="text-red-500 text-sm mt-1">{errors.taskName}</p>}
-                  </div>
-                </div> */}
-              {/* Description Section */}
+
+              {/* Edit Task Title */}
+              <div className='flex flex-col space-y-3'>
+                <label className="block text-md font-medium text-gray-700 dark:text-white"> Task Title</label>
+                <input
+                  type="text"
+                  id="taskName"
+                  name="taskName"
+                  value={task.taskName || ''}
+                  onChange={onChange}
+                  className="w-full focus:outline-1 border text-md text-black rounded-xl p-2 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter Task name "
+                />
+              </div>
+
+              {/* Edit Task Description */}
               <div className="mb-4">
-                <label htmlFor="task-desc" className="block text-sm font-medium text-gray-700 dark:text-white">Description</label>
+                <label htmlFor="task-desc" className="block mb-3 text-sm font-medium text-gray-700 dark:text-white">Description</label>
 
                 <div
-                  className={`relative bg-white border border-gray-200 p-3 shadow-sm text-sm rounded-xl mt-2 cursor-pointer ${isEditingDescription ? 'bg-gray-100' : ''}`}
+                  className={`w-full border text-md text-black rounded-xl px-2 py-5 dark:bg-gray-700 dark:text-white ${isEditingDescription ? 'bg-gray-100' : ''}`}
                   onClick={() => {
                     if (!isEditingDescription) {
                       setIsEditingDescription(true);
@@ -153,12 +130,14 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                     </>
                   ) : (
                     <p
-                      className="text-gray-700 break-all"
+                      className="break-all"
                       dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(task?.description || 'No description available') }}
                     ></p>
                   )}
                 </div>
               </div>
+
+              {/* Edit Task Comment */}
               {taskMode === 'edit' && (<div className="mt-2">
                 <CommentsSection taskId={task?._id} />
               </div>)}

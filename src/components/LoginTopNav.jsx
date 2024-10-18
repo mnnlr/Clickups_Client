@@ -55,7 +55,7 @@ const TopNav = () => {
 
   const handleLogoutBtn = async () => {
     try {
-      const {payload} = await dispatch(logoutAction());
+      const { payload } = await dispatch(logoutAction());
       navigate('/signin');
       showToast(payload.message);
     } catch (err) {
@@ -99,18 +99,18 @@ const TopNav = () => {
       <div className="flex items-center justify-center space-x-2 p-4 m-20">
         <Link to="/" className="flex items-center space-x-2">
           <span className="font-bold text-2xl dark:text-white">
-            MNNLR <span className="text-[#1D4ED8] dark:text-blue-500">Workspace</span>
+            MNNLR <span className="text-[#1D4ED8] font-serif dark:text-blue-500">Workspace</span>
           </span>
         </Link>
       </div>
 
       {/* Right Section: User Controls */}<div className="flex items-center space-x-4">
-    
+
         <button
           onClick={handleToggle}
           className="px-2 py-2 rounded-full dark:bg-gray-800 text-white bg-blue-500 dark:text-white"
         >
-          {darkMode ? <MdLightMode size={'20px'} /> : <MdDarkMode size={'20px'}/>}
+          {darkMode ? <MdLightMode size={'20px'} /> : <MdDarkMode size={'20px'} />}
         </button>
 
         {/* Notifications */}

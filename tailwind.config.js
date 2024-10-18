@@ -4,9 +4,14 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-   darkMode: 'class',
+  darkMode: 'class',
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        LXGWFont: ["LXGW WenKai TC", "cursive"],
+        LibreFont: ["Libre Franklin", "sans-serif"],
+      },
+    },
   },
   plugins: [],
 }

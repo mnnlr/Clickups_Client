@@ -10,7 +10,7 @@ export const UserDashboards = ({ dashboardName, dashboardType, ownerName, handle
                     <div className='mb-4 md:mb-0'>
                         <h1 className='text-2xl font-semibold text-gray-800 dark:text-gray-200 underline'>{dashboardName}</h1>
                         <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>{dashboardType}</p>
-                        <p className='text-sm font-medium text-gray-600 dark:text-gray-400'>{ownerName}</p>
+                        <p className='text-sm font-medium text-gray-600 font-LXGWFont dark:text-gray-400'>{ownerName}</p>
                     </div>
 
                     <div className='flex space-x-3'>

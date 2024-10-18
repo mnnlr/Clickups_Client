@@ -280,7 +280,7 @@ const TaskBoardPage = () => {
           onConfirm={handleDeleteTask}
         />
         <button
-          className="fixed bottom-8 right-8 bg-blue-500 dark:bg-blue-700 text-white p-4 rounded-xl shadow-lg hover:bg-blue-600 dark:hover:bg-blue-800"
+          className="fixed bottom-8 right-8 bg-blue-500 dark:bg-blue-700 text-white p-4 rounded-xl shadow-lg hover:bg-blue-600 font-semibold duration-300 ease-in-out dark:hover:bg-blue-800"
           onClick={handleCreateTaskClick}
         >
           Create Task

@@ -101,7 +101,7 @@ export const DashboardTemplates = () => {
                                     onClick={handleToggleEdit}
                                 >
                                     <div className="font-bold text-lg">Simple Dashboard</div>
-                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                    <div className="text-sm font-LXGWFont text-gray-500 dark:text-gray-400">
                                         Easily manage and prioritize daily tasks.
                                     </div>
                                 </div>

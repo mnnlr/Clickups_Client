@@ -243,7 +243,7 @@ const Project = () => {
         },
       });
       if (response.status === 200) {
-        showToast("Project updated successfully.","success");
+        showToast("Project updated successfully.", "success");
         setProjects(updatedProjects);
         closeEditModal();
       }
@@ -402,125 +402,128 @@ const Project = () => {
 
   return (
     <div className="relative p-6 bg-gray-100 dark:bg-gray-900 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
-    <div className="relative w-full max-w-md mx-auto mb-8">
-      <div className="flex items-center">
-        <input
-          type="text"
-          placeholder="Search Projects..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full p-3 pl-12 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-300 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100"
-        />
-        <svg
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-4.35-4.35"
+      <div className="relative w-full max-w-md mx-auto mb-8">
+        <div className="flex items-center">
+          <input
+            type="text"
+            placeholder="Search Projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full p-3 pl-12 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-300 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100"
           />
-        </svg>
+          <svg
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M11 4a7 7 0 100 14 7 7 0 000-14zM21 21l-4.35-4.35"
+            />
+          </svg>
+        </div>
       </div>
-    </div>
 
-    <div className="text-right mb-8">
-      <button
-        onClick={openModal}
-        className="bg-blue-500 text-white p-3 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600"
-      >
-        Create New Project
-      </button>
-    </div>
-
-    <div className="flex space-x-3 mb-8">
-      {['all', 'inactive', 'active', 'completed'].map(type => (
+      <div className="text-right mb-8">
         <button
-          key={type}
-          onClick={() => setFilterType(type)}
-          className={`p-2 rounded-lg ${filterType === type ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}
+          onClick={openModal}
+          className="bg-blue-500 font-semibold text-white p-3 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 duration-300 ease-in-out focus:ring-blue-300 dark:focus:ring-blue-600"
         >
-          {type.charAt(0).toUpperCase() + type.slice(1)}
+          Create New Project
         </button>
-      ))}
-    </div>
+      </div>
 
-    <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-3">
-      <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Project List</h2>
-      <table className="w-full table-auto">
-        <thead>
-          <tr className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase text-sm leading-normal">
-            <th className="py-3 px-6 text-left">Project Name</th>
-            <th className="py-3 px-6 text-left">Description</th>
-            <th className="py-3 px-6 text-left">Teams assigned</th>
-            <th className="py-3 px-6 text-left">Owner</th>
-            <th className="py-3 px-6 text-left">Due Date</th>
-            <th className="py-3 px-6 text-left">Status</th>
-            <th className="py-3 px-6 text-right">More Actions</th>
-          </tr>
-        </thead>
-        <tbody className="text-gray-600 dark:text-gray-300 text-sm font-light">
-          {filterProjects(projects).map((project) => (
-            <tr key={project.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
-              <td className="py-3 px-6 text-left">{project.projectName}</td>
-              <td className="py-3 px-6 text-left">{project.description}</td>
-              <td className="py-3 px-6 text-left flex flex-row flex-wrap">
-                {Array.isArray(project.teams) && project.teams.map((team, index) => (
-                  <div key={`${team.id || index}`} className="text-sm mr-3">
-                    {team.teamName}
-                  </div>
-                ))}
-              </td>
-              <td className="py-3 px-6 text-left">
-                {availableMembers.find((m) => m.id === project.owner)?.name}
-              </td>
-              <td className="py-3 px-6 text-left">{new Date(project.dueDate).toLocaleDateString() || ''}</td>
-              <td className="py-3 px-6 text-left">{project.status}</td>
-              <td className="py-2 px-3 text-right space-x-3">
-                <button
-                  onClick={() => openEditModal(project)}
-                  className="bg-blue-500 text-white p-2 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteToProject(project)}
-                  className="bg-red-500 text-white p-2 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-600 ml-2"
-                >
-                  Delete
-                </button>
-                <button
-                  
-                    onClick={() =>  navigate(`/dashboard/${project.id}`)}
-                    className="bg-indigo-500 text-white py-1 px-3 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out"
+      <div className="flex space-x-3 mb-8">
+        {['all', 'inactive', 'active', 'completed'].map(type => (
+          <button
+            key={type}
+            onClick={() => setFilterType(type)}
+            className={`p-2 rounded-lg ${filterType === type ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-3">
+        <h2 className="text-xl font-bold font-serif mb-4 text-gray-900 dark:text-gray-100">Project List</h2>
+        <table className="w-full table-auto">
+          <thead>
+            <tr className="bg-gray-200 dark:bg-gray-700 font-bold text-gray-600 dark:text-gray-300 uppercase text-md leading-normal">
+              <th className="py-3 px-6 text-left">Project Name</th>
+              <th className="py-3 px-6 text-left">Description</th>
+              <th className="py-3 px-6 text-left">Teams assigned</th>
+              <th className="py-3 px-6 text-left">Owner</th>
+              <th className="py-3 px-6 text-left">Due Date</th>
+              <th className="py-3 px-6 text-left">Status</th>
+              <th className="py-3 px-6 text-right">More Actions</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-600 dark:text-gray-300 text-sm font-light">
+            {filterProjects(projects).map((project) => (
+              <tr key={project.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
+                <td className="py-3 px-6 text-left">{project.projectName}</td>
+                <td className="py-3 px-6 text-left">{project.description}</td>
+                <td className="py-3 px-6 text-left flex flex-row flex-wrap">
+                  {Array.isArray(project.teams) && project.teams.map((team, index) => (
+                    <div key={`${team.id || index}`} className="text-sm mr-3">
+                      {team.teamName}
+                    </div>
+                  ))}
+                </td>
+                <td className="py-3 px-6 text-left">
+                  {availableMembers.find((m) => m.id === project.owner)?.name}
+                </td>
+                <td className="py-3 px-6 text-left">{new Date(project.dueDate).toLocaleDateString() || ''}</td>
+                <td className="py-3 px-6 text-left">{project.status}</td>
+                <td className="py-2 px-3 text-center space-x-3 flex flex-row items-end justify-end">
+                  <button
+                    onClick={() => handleDeleteToProject(project)}
+                    className="bg-red-500 font-mono font-bold text-white px-3 py-1 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-600 mr-5 duration-300 ease-in-out"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => openEditModal(project)}
+                    className="bg-blue-500 text-white text-center px-3 py-1 duration-300 ease-in-out mr-2 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => openAddMembersModal(project)}
+                    className="bg-green-500 text-white px-3 py-1 duration-300 ease-in-out rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-green-600 mr-2"
+                  >
+                    Add Members
+                  </button>
+                  <button
+
+                    onClick={() => navigate(`/dashboard/${project.id}`)}
+                    className="bg-indigo-500 text-white flex flex-row px-3 py-1 mr-2 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out"
                   >
                     View
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
+                      <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                    </svg>
                   </button>
-                <button
-                  onClick={() => openAddMembersModal(project)}
-                  className="bg-green-500 text-white p-2 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-green-600 ml-2"
-                >
-                  Add Members
-                </button>
-                <button
-                  onClick={() => navigate(`/projects/${project.id}/sprints`)}
-                  className="bg-blue-500 text-white py-1 px-3 inline-flex rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-150 ease-in-out"
-                >
-                  Go to Task
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
-                    <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                  <button
+                    onClick={() => navigate(`/projects/${project.id}/sprints`)}
+                    className="bg-blue-500 text-white px-3 py-1 inline-flex rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-150 ease-in-out"
+                  >
+                    Go to Task
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
+                      <path fill-rule="evenodd" d="M16.72 7.72a.75.75 0 0 1 1.06 0l3.75 3.75a.75.75 0 0 1 0 1.06l-3.75 3.75a.75.75 0 1 1-1.06-1.06l2.47-2.47H3a.75.75 0 0 1 0-1.5h16.19l-2.47-2.47a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {isModalOpen && (
         <CreateProjectModal

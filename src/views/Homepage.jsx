@@ -74,8 +74,8 @@ const Homepage = () => {
     <div className="relative p-6 bg-gray-100 dark:bg-gray-900 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20 text-gray-900 dark:text-gray-100">
 
       {/* Greeting Section */}
-      <header className="bg-blue-600 text-white p-4 dark:bg-blue-800">
-        <h1 className="text-3xl font-bold"> {getGreeting()}, <span>{user?.name}</span></h1>
+      <header className=" bg-blue-500 hover:bg-blue-600 duration-300 rounded-lg hover:rounded-2xl text-white p-4 dark:bg-blue-800">
+        <h1 className="text-3xl font-bold"> {getGreeting()}, <span className="font-LXGWFont">{user?.name}</span></h1>
       </header>
 
       {/* Main Content */}
@@ -97,9 +97,9 @@ const Homepage = () => {
             </section>
           ) : (
             <div>
-              <h2 className="text-2xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Assigned to Me</h2>
+              <h2 className="text-2xl font-semibold mb-4  text-blue-600 dark:text-blue-400">Assigned to Me</h2>
               <div className="space-y-4">
-                <p className="text-gray-600 font-bold dark:text-gray-300">No tasks assigneed to you.</p> </div>
+                <p className="text-gray-600 font-bold font-LXGWFont dark:text-gray-300">No tasks assigneed to you.</p> </div>
             </div>
           )}
 
@@ -117,7 +117,7 @@ const Homepage = () => {
           </section>) : (<div>
             <h2 className="text-2xl font-semibold mb-4 text-green-600 dark:text-green-400">Created Task</h2>
             <div className="space-y-4 ">
-              <p className="text-gray-600 font-bold dark:text-gray-300">No tasks created to you.</p> </div>
+              <p className="text-gray-600 font-bold font-LXGWFont dark:text-gray-300">No tasks created to you.</p> </div>
           </div>
           )}
 
