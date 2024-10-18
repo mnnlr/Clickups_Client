@@ -16,7 +16,6 @@ const loginSlice = createSlice({
         logoutSuccess: (state) => {
           state.user = null;
           state.token = null;
-          Cookies.remove = 'User';
         },
         setUser: (state, action) => {
             console.log('action from update user', action.payload);

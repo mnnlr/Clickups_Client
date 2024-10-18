@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { setUser } from "../../redux/authentication/loginSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const Check_auth = () => {
@@ -13,12 +13,19 @@ const Check_auth = () => {
   // console.log('access tokoen', user.accessToken)
   const navigate = useNavigate();
   const privateAxios = useAxiosPrivate();
+  const location = useLocation();
 
   useEffect(() => {
   
     let isMounted = true;
     const response = async () => {
       try {
+        if (!user?.accessToken) {
+          // If there is no token, navigate to signin
+          console.warn("No accessToken found, redirecting to /signin");
+          navigate("/signin", { state: { from: location } });
+          return;
+        }
         console.log("Sending authentication request with token:", user?.accessToken)
         const { data } = await privateAxios.get("/api/authenticate", {
           headers: {
@@ -35,18 +42,18 @@ const Check_auth = () => {
           setIsLoading(false);
         }
       } catch (err) {
-        navigate("/signin");
+        navigate("/signin", { state: { from: location } } );
       }
     };
-    response();
+    isMounted && response();
     return () => {
       isMounted = false;
     };
-  }, [navigate]);
+  }, [navigate, location]);
 
-  if (isLoading) return null;
+  if (isLoading) return <div>...loading</div>;
 
-  return user?._id ? <Outlet /> : <Navigate to="/signin" />;
+  return user?._id ? <Outlet /> : <Navigate to="/signin" replace state={{ from: location }}/>;
 };
 
 export default Check_auth;
