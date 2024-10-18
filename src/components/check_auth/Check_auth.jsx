@@ -20,12 +20,12 @@ const Check_auth = () => {
     let isMounted = true;
     const response = async () => {
       try {
-        if (!user?.accessToken) {
-          // If there is no token, navigate to signin
-          console.warn("No accessToken found, redirecting to /signin");
-          navigate("/signin", { state: { from: location } });
-          return;
-        }
+        // if (!user?.accessToken) {
+        //   // If there is no token, navigate to signin
+        //   console.log("No accessToken found, redirecting to /signin");
+        //   navigate("/signin", { state: { from: location } });
+        //   return;
+        // }
         console.log("Sending authentication request with token:", user?.accessToken)
         const { data } = await privateAxios.get("/api/authenticate", {
           headers: {
