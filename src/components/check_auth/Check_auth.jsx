@@ -9,14 +9,14 @@ const Check_auth = () => {
   const { user } = useSelector((state) => state.login);
   const dispatch = useDispatch();
 
-  console.log("login", user);
+  // console.log("login", user);
   // console.log('access tokoen', user.accessToken)
   const navigate = useNavigate();
   const privateAxios = useAxiosPrivate();
   const location = useLocation();
 
   useEffect(() => {
-  
+
     let isMounted = true;
     const response = async () => {
       try {
@@ -26,7 +26,7 @@ const Check_auth = () => {
         //   navigate("/signin", { state: { from: location } });
         //   return;
         // }
-        console.log("Sending authentication request with token:", user?.accessToken)
+        // console.log("Sending authentication request with token:", user?.accessToken)
         const { data } = await privateAxios.get("/api/authenticate", {
           headers: {
             "Content-Type": "Application/json",
@@ -35,14 +35,14 @@ const Check_auth = () => {
           withCredentials: true,
         });
 
-        console.log("the data from check_auth", data);
+        // console.log("the data from check_auth", data);
         if (isMounted) {
           dispatch(setUser(data.Data));
-          console.log("Updated user after dispatch:", data.Data);
+          // console.log("Updated user after dispatch:", data.Data);
           setIsLoading(false);
         }
       } catch (err) {
-        navigate("/signin", { state: { from: location } } );
+        navigate("/signin", { state: { from: location } });
       }
     };
     isMounted && response();
@@ -53,7 +53,7 @@ const Check_auth = () => {
 
   if (isLoading) return <div>...loading</div>;
 
-  return user?._id ? <Outlet /> : <Navigate to="/signin" replace state={{ from: location }}/>;
+  return user?._id ? <Outlet /> : <Navigate to="/signin" replace state={{ from: location }} />;
 };
 
 export default Check_auth;

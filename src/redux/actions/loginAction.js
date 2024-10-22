@@ -16,11 +16,11 @@ export const loginAction = createAsyncThunk(
           withCredentials: true,
         }
       );
-      if(status === 200){
-          return data;
-        }
+      if (status === 200) {
+        return data;
+      }
     } catch (err) {
-        return rejectWithValue(err.response.data.message);
+      return rejectWithValue(err.response.data.message);
     }
   }
 );

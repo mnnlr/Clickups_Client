@@ -483,26 +483,26 @@ const Project = () => {
                 <td className="py-2 px-3 text-center space-x-3 flex flex-row items-end justify-end">
                   <button
                     onClick={() => handleDeleteToProject(project)}
-                    className="bg-red-500 font-mono font-bold text-white px-3 py-1 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-600 mr-5 duration-300 ease-in-out"
+                    className="bg-red-500 font-mono font-bold text-white px-3 py-1 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-600 mr-5 duration-300 ease-in-out whitespace-nowrap"
                   >
                     Delete
                   </button>
                   <button
                     onClick={() => openEditModal(project)}
-                    className="bg-blue-500 text-white text-center px-3 py-1 duration-300 ease-in-out mr-2 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600"
+                    className="bg-blue-500 text-white text-center px-3 py-1 duration-300 ease-in-out mr-2 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 whitespace-nowrap"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => openAddMembersModal(project)}
-                    className="bg-green-500 text-white px-3 py-1 duration-300 ease-in-out rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-green-600 mr-2"
+                    className="bg-green-500 text-white px-3 py-1 duration-300 ease-in-out rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-green-600 mr-2 whitespace-nowrap"
                   >
                     Add Members
                   </button>
                   <button
 
                     onClick={() => navigate(`/dashboard/${project.id}`)}
-                    className="bg-indigo-500 text-white flex flex-row px-3 py-1 mr-2 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out"
+                    className="bg-indigo-500 text-white flex flex-row px-3 py-1 mr-2 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out whitespace-nowrap"
                   >
                     View
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
@@ -511,7 +511,7 @@ const Project = () => {
                   </button>
                   <button
                     onClick={() => navigate(`/projects/${project.id}/sprints`)}
-                    className="bg-blue-500 text-white px-3 py-1 inline-flex rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-150 ease-in-out"
+                    className="bg-blue-500 text-white px-3 py-1 inline-flex rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-150 ease-in-out whitespace-nowrap"
                   >
                     Go to Task
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 ml-1.5">
