@@ -17,6 +17,7 @@ const TaskBoardPage = () => {
   const [isOpenDeleteModel, setIsOpenDeleteModel] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const { sprintId, projectId } = useParams();
+  const [searchQuery, setSearchQuery] = useState('');
   const { user } = useSelector((store) => store.login);
 
   const [task, setTask] = useState({
@@ -42,13 +43,53 @@ const TaskBoardPage = () => {
 
   const [availableMembers, setAvailableMembers] = useState([]);
 
+  const handleSearch = (event) => {
+    const query = event.target.value;
+    setSearchQuery(query);
+  };
+
+  const filterTasks = () => {
+    if (!searchQuery) return tasks;
+  
+    const query = searchQuery.toLowerCase();
+    let filteredTasks = { 'ToDo': [], 'In-Progress': [], 'On-Hold': [], 'Done': [] };
+  
+    Object.keys(tasks).forEach((status) => {
+      filteredTasks[status] = tasks[status].filter((task) => {
+        const taskNameMatch = task.taskName && task.taskName.toLowerCase().includes(query);
+        const idMatch = task._id && task._id.toLowerCase().includes(query);
+        const kanIdMatch = task.kanId && task.kanId.toLowerCase().includes(query);
+        const statusMatch = task.status && task.status.toLowerCase().includes(query); 
+
+        const assigneesMatch = Array.isArray(task.assignees) 
+          ? task.assignees.some(assignee => 
+              (assignee.name && assignee.name.toLowerCase().includes(query)) || 
+              (assignee.email && assignee.email.toLowerCase().includes(query)))
+          : (task.assignees.name && task.assignees.name.toLowerCase().includes(query)) || 
+            (task.assignees.email && task.assignees.email.toLowerCase().includes(query));
+  
+        // Return true if any of the matches are true
+        return taskNameMatch || idMatch || assigneesMatch || kanIdMatch || statusMatch;
+      });
+    });
+  
+    return filteredTasks;
+  };
+  ;
+  
+  const filteredTasks = filterTasks(); 
+
+  // useEffect(() => {
+  //   console.log("Filtered Tasks:", filteredTasks);
+  // }, [filteredTasks]);
+
   const fetchTasks = async () => {
     try {
       let url;
       if (sprintId) {
-        url = `/api/sprints/${sprintId}/task`
+        url = `/api/sprints/${sprintId}/task`;
       } else if (projectId) {
-        url = `/api/project/individualTask/${projectId}/Tasks`
+        url = `/api/project/individualTask/${projectId}/Tasks`;
       }
       const response = await axiosPrivate.get(url, {
         headers: {
@@ -57,8 +98,6 @@ const TaskBoardPage = () => {
       });
       if (response.status === 200) {
         const tasksData = response.data.data;
-        // console.log(tasksData);
-
         setTasks({
           'ToDo': tasksData.filter(task => task.status === 'ToDo'),
           'In-Progress': tasksData.filter(task => task.status === 'In-Progress'),
@@ -69,7 +108,7 @@ const TaskBoardPage = () => {
         toast.error("Failed to fetch tasks: " + response.data.message);
       }
     } catch (err) {
-     console.log((err.response ? err.response.data.message : err.message));
+      console.log(err.response ? err.response.data.message : err.message);
     }
   };
 
@@ -116,12 +155,11 @@ const TaskBoardPage = () => {
 
       // Check if updating or creating a task
       if (taskToSubmit._id) {
-        // Update existing task
         let url;
         if (sprintId) {
-          url = `/api/tasks/${taskToSubmit._id}`
+          url = `/api/tasks/${taskToSubmit._id}`;
         } else if (projectId) {
-          url = `/api/project/individualTask/${taskToSubmit._id}`
+          url = `/api/project/individualTask/${taskToSubmit._id}`;
         }
         const response = await axiosPrivate.patch(url, taskToSubmit, {
           headers: {
@@ -136,7 +174,6 @@ const TaskBoardPage = () => {
           toast.error("Failed to update task: " + response.data.message);
         }
       } else {
-        // Create new task
         let url;
 
         // Ensure projectId and sprintId are both provided
@@ -145,11 +182,10 @@ const TaskBoardPage = () => {
         } else if (projectId) {
           url = `/api/project/individualTask/${projectId}/create`;
         } else {
-          // Handle the case where only one of them is missing
           const missingField = !projectId ? "Project ID" : "Sprint ID";
           throw new Error(`${missingField} is required to create a task in a project or sprint.`);
         }
-        // console.log(taskToSubmit)
+
         const response = await axiosPrivate.post(url, taskToSubmit, {
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -159,7 +195,7 @@ const TaskBoardPage = () => {
 
         if (response.status === 201) {
           showToast("Task Created", "success");
-          fetchTasks();
+          fetchTasks(); // Fetch tasks after creation
         } else {
           toast.error("Failed to create task: " + response.data.message);
         }
@@ -167,7 +203,6 @@ const TaskBoardPage = () => {
 
       resetTaskForm();
     } catch (error) {
-      // Improved error message for missing projectId and sprintId
       toast.error('Error saving task: ' + (error.response ? error.response.data.message : error.message));
     }
   };
@@ -187,9 +222,9 @@ const TaskBoardPage = () => {
       try {
         let url;
         if (sprintId) {
-          url = `/api/tasks/${taskToDelete}`
+          url = `/api/tasks/${taskToDelete}`;
         } else if (projectId) {
-          url = `/api/project/individualTask/${taskToDelete}`
+          url = `/api/project/individualTask/${taskToDelete}`;
         }
         const response = await axiosPrivate.delete(url, {
           headers: {
@@ -263,14 +298,23 @@ const TaskBoardPage = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <h1>frepi</h1>
       <div className="relative p-6 bg-gray-100 dark:bg-gray-900 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
+        {/* Search Bar */}
+        <div className="mb-4">
+          <input
+            type="text"
+            className="w-[370px] p-2 border border-gray-300 rounded-md shadow-sm dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+            placeholder="Search by Task Name, Assignee ,KanId"
+            value={searchQuery}
+            onChange={handleSearch}
+          />
+        </div>
         <div className="flex space-x-4 overflow-x-auto">
-          {Object.keys(tasks).map((status) => (
+          {Object.keys(filteredTasks).map((status) => (
             <TaskColumn
               key={status}
               status={status}
-              tasks={tasks[status]}
+              tasks={filteredTasks[status]} // Use filteredTasks here
               handleTaskClick={handleTaskClick}
               handleDeleteTask={handleDeleteConfirm}
               moveTask={moveTask}

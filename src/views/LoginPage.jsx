@@ -84,7 +84,7 @@ export const LoginPage = () => {
       console.log("result", payload);
       if (payload?.success) {
         showToast(payload?.message);
-        navigate("/tasks");
+        navigate("/home");
       } else {
         alert(`Login failed: ${result.payload}`);
       }
