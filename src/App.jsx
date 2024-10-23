@@ -93,8 +93,9 @@ function App() {
         <Route element={<Check_auth />}>
           <Route path="/" element={<AuthLayout />}>
             <Route path="home" element={<Homepage />} />
-            <Route path={"/:projectId/sprints/:sprintId/tasks" || "tasks"} element={<TaskBoard />} />
-            <Route path="/tasks" element={<TaskBoard />} />
+            <Route path={"/:projectId/sprints/:sprintId/tasks"} element={<TaskBoard />} />
+            <Route path={"/:projectId/sprints/:sprintId/tasks"} element={<TaskBoard />} />
+            <Route path="tasks/:projectId/individual" element={<TaskBoard />} />
             <Route path="docs" element={<Document />} />
             <Route path="invite" element={<InviteMember />} />
             <Route path="workspace" element={<Workspace />} />

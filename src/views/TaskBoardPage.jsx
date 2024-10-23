@@ -47,8 +47,8 @@ const TaskBoardPage = () => {
       let url;
       if (sprintId) {
         url = `/api/sprints/${sprintId}/task`
-      } else if (!sprintId) {
-        url = `/api/tasks/`
+      } else if (projectId) {
+        url = `/api/project/individualTask/${projectId}/Tasks`
       }
       const response = await axiosPrivate.get(url, {
         headers: {
@@ -69,7 +69,7 @@ const TaskBoardPage = () => {
         toast.error("Failed to fetch tasks: " + response.data.message);
       }
     } catch (err) {
-      toast.error('Error fetching tasks: ' + (err.response ? err.response.data.message : err.message));
+     console.log((err.response ? err.response.data.message : err.message));
     }
   };
 
@@ -117,7 +117,13 @@ const TaskBoardPage = () => {
       // Check if updating or creating a task
       if (taskToSubmit._id) {
         // Update existing task
-        const response = await axiosPrivate.patch(`/api/tasks/${taskToSubmit._id}`, taskToSubmit, {
+        let url;
+        if (sprintId) {
+          url = `/api/tasks/${taskToSubmit._id}`
+        } else if (projectId) {
+          url = `/api/project/individualTask/${taskToSubmit._id}`
+        }
+        const response = await axiosPrivate.patch(url, taskToSubmit, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
@@ -136,8 +142,8 @@ const TaskBoardPage = () => {
         // Ensure projectId and sprintId are both provided
         if (projectId && sprintId) {
           url = `/api/tasks/${projectId}/${sprintId}`;
-        } else if (!projectId && !sprintId) {
-          url = `/api/tasks/individual`;
+        } else if (projectId) {
+          url = `/api/project/individualTask/${projectId}/create`;
         } else {
           // Handle the case where only one of them is missing
           const missingField = !projectId ? "Project ID" : "Sprint ID";
@@ -179,7 +185,13 @@ const TaskBoardPage = () => {
   const handleDeleteTask = async () => {
     if (taskToDelete) {
       try {
-        const response = await axiosPrivate.delete(`/api/tasks/${taskToDelete}`, {
+        let url;
+        if (sprintId) {
+          url = `/api/tasks/${taskToDelete}`
+        } else if (projectId) {
+          url = `/api/project/individualTask/${taskToDelete}`
+        }
+        const response = await axiosPrivate.delete(url, {
           headers: {
             "Authorization": `Bearer ${token}`,
           },
@@ -251,6 +263,7 @@ const TaskBoardPage = () => {
 
   return (
     <DndProvider backend={HTML5Backend}>
+      <h1>frepi</h1>
       <div className="relative p-6 bg-gray-100 dark:bg-gray-900 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
         <div className="flex space-x-4 overflow-x-auto">
           {Object.keys(tasks).map((status) => (
