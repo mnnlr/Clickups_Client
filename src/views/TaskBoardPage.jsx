@@ -233,7 +233,7 @@ const TaskBoardPage = () => {
         });
 
         if (response.status === 200) {
-          fetchTasks(); // Refetch tasks to ensure the UI is updated
+          fetchTasks(); 
           toast.success("Task Deleted");
           setIsOpenDeleteModel(false);
           setTaskToDelete(null);
@@ -249,7 +249,13 @@ const TaskBoardPage = () => {
   const moveTask = async (task, newStatus) => {
     try {
       const updatedTask = { ...task, status: newStatus };
-      const response = await axiosPrivate.patch(`/api/tasks/${task._id}`, updatedTask, {
+      let url;
+      if (sprintId) {
+        url = `/api/tasks/${task._id}`;
+      } else if (projectId) {
+        url = `/api/project/individualTask/${task._id}`;
+      }
+      const response = await axiosPrivate.patch(url, updatedTask, {
         headers: {
           "Authorization": `Bearer ${token}`,
         },

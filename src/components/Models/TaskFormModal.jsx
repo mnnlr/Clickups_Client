@@ -35,6 +35,9 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
       onSubmit();
     }
   };
+// console.log(availableMembers);
+// console.log(task);
+
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -153,7 +156,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
               <select
                 id="task-assignee"
                 name="assignees"
-                value={task?.assignees || ''}
+                value={task?.assignees?._id || ''}
                 onChange={onChange}
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               >
@@ -236,7 +239,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
               <select
                 id="task-reporter"
                 name="report"
-                value={task?.report || ''}
+                value={task?.report?._id || ''}
                 onChange={onChange}
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               >
