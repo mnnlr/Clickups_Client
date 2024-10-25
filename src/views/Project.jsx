@@ -4,10 +4,11 @@ import EditProjectModal from '../components/Models/EditProjectModal';
 import AddMembersModal from '../components/Models/AddMemberModal';
 import Cookies from 'js-cookie';
 import { axiosPrivate } from '../CustomAxios/customAxios';
-import { Link, useNavigate } from 'react-router-dom';
+import { json, Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import DeleteConfirmationModal from '../components/Models/DeleteConfirmModel';
 import { showToast } from '../components/Toastconfig';
+
 // Mock data for projects and members
 const mockProjects = [
   {
@@ -39,6 +40,7 @@ const Project = () => {
   const [projectTodelete, setprojectTodelete] = useState(null)
   const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
   const [selectedTeams, setSelectedTeams] = useState([]);
+  const [selectedMembers, setSelectedMembers] = useState([]);
   const [availableMembers, setAvailableMembers] = useState([]);
   const [availableTeams, setAvailableTeams] = useState([]);
   const [projectData, setProjectData] = useState({
@@ -89,30 +91,51 @@ const Project = () => {
       const response = await axiosPrivate.get("/api/projects", {
         headers: {
           "Content-Type": "application/json",
-          "authorization": `Bearer ${token}`
+          "authorization": `Bearer ${token}`,
         },
       });
-      // console.log('Raw project data:', response.data.Data);
-      const responseData = response.data.Data.length === 0 ? mockProjects : response.data.Data.map((project) => {
-        // console.log('Processing project:', project);
-        return {
-          id: project._id,
-          projectName: project.projectName,
-          description: project.description,
-          teams: project.teams ? project.teams.map((team) => ({
-            id: team._id,
-            teamName: team.teamName
-          })) : [],
-          owner: project.owner._id,
-          dueDate: project.dueDate,
-          status: project.status,
-        };
-      });
+
+      const responseData = response.data.Data.length === 0
+        ? mockProjects
+        : response.data.Data.map((project) => {
+          console.log("Processing project:", project);
+
+          // Safely handle teams
+          const teams = project.teams ? {
+            teamIDs: Array.isArray(project.teams.teamIDs)
+              ? project.teams.teamIDs.map((team) => ({
+                id: team._id,
+                name: team.teamName,
+              }))
+              : [],  // Return empty array if teamIDs is not an array
+            memberIDs: Array.isArray(project.teams.memberIDs)
+              ? project.teams.memberIDs.map((member) => ({
+                id: member._id,
+                name: member.name,
+              }))
+              : [],  // Return empty array if memberIDs is not an array
+          } : {
+            teamIDs: [],
+            memberIDs: [],
+          };
+
+          return {
+            id: project._id,
+            projectName: project.projectName,
+            description: project.description,
+            teams: teams,  // Add the processed teams
+            owner: project.owner._id,  // Return more details if needed
+            dueDate: project.dueDate,
+            status: project.status,
+          };
+        });
+
       setProjects(responseData);
     } catch (err) {
-      console.error('Error fetching projects:', err);
+      console.error("Error fetching projects:", err);
     }
   };
+  // console.log(projects);
 
   const getTeams = async () => {
     try {
@@ -148,7 +171,8 @@ const Project = () => {
       dueDate: new Date(project.dueDate).toISOString().split('T')[0],
       status: project.status,
     });
-    setSelectedTeams(project.teams);
+    setSelectedTeams(project.teams.teamIDs || []);
+    setSelectedMembers(project.teams.memberIDs || []);
     setCurrentProject(project);
     setIsEditModalOpen(true);
   };
@@ -167,7 +191,9 @@ const Project = () => {
       owner: project.owner,
       teams: project.teams || []
     });
-    setSelectedTeams(project.teams || []);
+    console.log(project.teams);
+    setSelectedTeams(project.teams.teamIDs || []);
+    setSelectedMembers(project.teams.memberIDs || []);
     setIsAddMembersModalOpen(true);
   };
 
@@ -186,19 +212,46 @@ const Project = () => {
       status: '',
     });
     setSelectedTeams([]);
+    setSelectedMembers([]);
     setCurrentProject(null);
   };
 
   const handleAddTeam = (teamId) => {
-    if (!selectedTeams.some(team => team.id === teamId)) {
+    // console.log("selectedTeams: " + JSON.stringify(selectedTeams));
+    if (Array.isArray(selectedTeams) && !selectedTeams.some(team => team.id === teamId)) {
       const teamToAdd = availableTeams.find(team => team.id === teamId);
       setSelectedTeams([...selectedTeams, teamToAdd]);
     }
+    console.log("selectedTeams: " + selectedTeams)
+    // if (!selectedTeams.some(team => team.id === teamId)) {
+    //   const memberToAdd = availableMembers.find(member => member.id === teamId);
+    //   if (memberToAdd) {
+    //     setSelectedMembers([...selectedMembers, memberToAdd]);
+    //   }
+    // }
+
   };
+  console.log("selected members and teams: " + selectedMembers, selectedTeams)
+
+
+  const handleAddMember = (memberId) => {
+    console.log("selectedMembers: " + JSON.stringify(selectedMembers));
+    if (!selectedMembers?.some(member => member.id === memberId)) {
+      console.log("selectedMembers: " + selectedMembers);
+      const memberToAdd = availableMembers.find(member => member.id === memberId);
+      // console.log("memberToAdd" + JSON.stringify(memberToAdd));
+      setSelectedMembers([...selectedMembers, memberToAdd]);
+    }
+  }
 
   const handleRemoveTeam = (teamId) => {
     setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));
   };
+
+  const handleRemoveMember = (memberId) => {
+    // console.log("memberId: " + memberId);
+    setSelectedMembers(selectedMembers.filter((member) => member.id !== memberId));
+  }
 
   const handleSearchMember = (e) => {
     const query = e.target.value.toLowerCase();
@@ -351,9 +404,13 @@ const Project = () => {
         description: currentProject.description,
         status: currentProject.status,
         owner: currentProject.owner,
-        teams: selectedTeams.length > 0 ? selectedTeams.map(team => team.id) : []
+        teams: {
+          teamIDs: selectedTeams.length > 0 ? selectedTeams.map(team => team.id) : [],
+          memberIDs: selectedMembers.length > 0 ? selectedMembers.map(member => member.id) : []
+        }
       };
-      // console.log(updateData);
+
+      console.log(updateData);
       // Validate data before sending
       if (!updateData.projectName || updateData.projectName.length > 50) {
         alert("Project Name is required and cannot exceed 50 characters");
@@ -474,6 +531,16 @@ const Project = () => {
                       {team.teamName}
                     </div>
                   ))}
+                  {/* {project.teams?.teamIDs?.map((team) => (
+                    <div key={`${team.id || index}`} className="text-sm mr-3">
+                      {team.name}
+                    </div>
+                  ))}
+                  {project.teams?.memberIDs?.map((member) => {
+                    <div key={`${member.id || index}`} className="text-sm mr-3">
+                      {member.name}
+                    </div>
+                  })} */}
                 </td>
                 <td className="py-3 px-6 text-left">
                   {availableMembers.find((m) => m.id === project.owner)?.name}
@@ -493,14 +560,15 @@ const Project = () => {
                   >
                     Edit
                   </button>
+
                   <button
                     onClick={() => openAddMembersModal(project)}
                     className="bg-green-500 text-white px-3 py-1 duration-300 ease-in-out rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300 dark:focus:ring-green-600 mr-2 whitespace-nowrap"
                   >
                     Add Members
                   </button>
-                  <button
 
+                  <button
                     onClick={() => navigate(`/dashboard/${project.id}`)}
                     className="bg-indigo-500 text-white flex flex-row px-3 py-1 mr-2 rounded-lg shadow-md hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition duration-150 ease-in-out whitespace-nowrap"
                   >
@@ -557,8 +625,14 @@ const Project = () => {
           onAddTeam={handleAddTeam}
           onRemoveTeam={handleRemoveTeam}
           availableTeams={availableTeams}
+
           onClose={closeAddMembersModal}
           onSubmit={handleAddMembersSubmit}
+
+          availableMembers={availableMembers}
+          selectedMembers={selectedMembers}
+          onAddMember={handleAddMember}
+          onRemoveMember={handleRemoveMember}
         />
       )}
       <DeleteConfirmationModal

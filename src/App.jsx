@@ -87,36 +87,36 @@ function App() {
 
 
   return (
-  <SocketProvider>
-    <Router>
-      <Routes>
-        <Route element={<Check_auth />}>
-          <Route path="/" element={<AuthLayout />}>
-            <Route path="home" element={<Homepage />} />
-            <Route path={"/:projectId/sprints/:sprintId/tasks"} element={<TaskBoard />} />
-            <Route path={"/:projectId/sprints/:sprintId/tasks"} element={<TaskBoard />} />
-            <Route path="tasks/:projectId/individual" element={<TaskBoard />} />
-            <Route path="docs" element={<Document />} />
-            <Route path="invite" element={<InviteMember />} />
-            <Route path="workspace" element={<Workspace />} />
-            <Route path="profile" element={<ProfilePage />} />
-            <Route path="project" element={<Project />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="/projects/:projectId/sprints" element={<Sprint />} />
-            <Route path="/dashboard/:projectId" element={<DashboardForProjectPage />} />
+    <SocketProvider>
+      <Router>
+        <Routes>
+          <Route element={<Check_auth />}>
+            <Route path="/" element={<AuthLayout />}>
+              <Route path="home" element={<Homepage />} />
+              <Route path={"/:projectId/sprints/:sprintId/tasks"} element={<TaskBoard />} />
+              <Route path={"/:projectId/sprints/:sprintId/tasks"} element={<TaskBoard />} />
+              <Route path="tasks/:projectId/individual" element={<TaskBoard />} />
+              <Route path="docs" element={<Document />} />
+              <Route path="invite" element={<InviteMember />} />
+              <Route path="workspace" element={<Workspace />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="project" element={<Project />} />
+              <Route path="dashboard" element={<DashboardPage />} />
+              <Route path="/projects/:projectId/sprints" element={<Sprint />} />
+              <Route path="/dashboard/:projectId" element={<DashboardForProjectPage />} />
+            </Route>
           </Route>
-        </Route>
-        <Route>
-          <Route path="/" element={<NavFooter />}>
-            <Route index element={<HomePageBeforeLogin />} />
-            <Route path="signup" element={<SignUpPage />} />
-            <Route path="signin" element={<LoginPage />} />
+          <Route>
+            <Route path="/" element={<NavFooter />}>
+              <Route index element={<HomePageBeforeLogin />} />
+              <Route path="signup" element={<SignUpPage />} />
+              <Route path="signin" element={<LoginPage />} />
+            </Route>
           </Route>
-        </Route>
-        <Route path="/*" element={<PagenotFound />} />
-      </Routes>
-    </Router >
-  </SocketProvider>
+          <Route path="/*" element={<PagenotFound />} />
+        </Routes>
+      </Router >
+    </SocketProvider>
   );
 }
 
