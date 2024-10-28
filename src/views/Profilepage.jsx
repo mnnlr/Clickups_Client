@@ -231,8 +231,8 @@ const ProfilePage = () => {
     //     </div>
     //   </div>
     // </div>
-    <div className="relative p-6 bg-gray-50 min-h-screen flex justify-center items-center pt-16">
-      <div className="w-full max-w-4xl flex bg-white rounded-lg shadow-lg p-6">
+    <div className="relative dark:bg-gray-900 p-6 bg-gray-50 min-h-screen flex justify-center items-center pt-16">
+      <div className="w-full max-w-4xl flex dark:bg-gray-700 bg-white rounded-lg shadow-lg p-6">
         {/* Left Section: Profile Picture */}
         <div className="w-1/3 flex flex-col items-center relative">
           {formData?.profileImage ? <img
@@ -241,14 +241,14 @@ const ProfilePage = () => {
             className="w-32 h-32 rounded-full mb-4 shadow-md cursor-pointer"
             onClick={handleImageOptionsToggle}
           /> : <FaRegUserCircle size={100} />}
-          {isEditing && showImageOptions && (
+          {/* {isEditing && showImageOptions && (
             <div className="absolute top-36 left-12 bg-white shadow-lg rounded-md p-4 z-20">
               <button
                 onClick={() => {
                   setShowImageOptions(false);
                   window.open(formData.profileImage, "_blank");
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200 rounded-md"
+                className="block w-full text-left px-4 py-2  text-gray-800 hover:bg-gray-200 rounded-md"
               >
                 View Image
               </button>
@@ -271,17 +271,16 @@ const ProfilePage = () => {
               className="hidden"
               onChange={handleImageChange}
             />
-          )}
+          )} */}
         </div>
 
         {/* Right Section: Profile Details */}
         <div className="w-2/3 pl-8">
-          <h1 className="text-3xl font-semibold mb-2 text-gray-800">{user.name}</h1>
-          <p className="text-gray-500 mb-6">{user.email}</p>
+          <h1 className="text-3xl font-semibold mb-2 dark:text-white text-gray-800">{user.name}</h1>
+          <p className="text-gray-500 mb-6 dark:text-gray-300">{user.email}</p>
         </div>
       </div>
     </div>
-
   );
 };
 
