@@ -4,32 +4,17 @@ import EditProjectModal from '../components/Models/EditProjectModal';
 import AddMembersModal from '../components/Models/AddMemberModal';
 import Cookies from 'js-cookie';
 import { axiosPrivate } from '../CustomAxios/customAxios';
-import { json, Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import DeleteConfirmationModal from '../components/Models/DeleteConfirmModel';
 import { showToast } from '../components/Toastconfig';
-
-// Mock data for projects and members
-const mockProjects = [
-  {
-    id: 'proj1',
-    projectName: 'Project Alpha',
-    description: 'This is the first project.',
-    teams: ['team1', 'team2'],
-    owner: 'user1',
-    dueDate: '2024-09-15',
-    status: 'active',
-  },
-  {
-    id: 'proj2',
-    projectName: 'Project Beta',
-    description: 'This is the second project.',
-    teams: ['team2', 'team3'],
-    owner: 'user3',
-    dueDate: '2024-10-01',
-    status: 'completed',
-  },
-];
+import useGetMembers from '../project-utils-and-hooks/useGetMembers';
+import useGetProjects from '../project-utils-and-hooks/useGetProjects';
+import useGetTeams from '../project-utils-and-hooks/useGetTeams';
+import useUpdateProject from '../project-utils-and-hooks/useUpdateProject';
+import useCreateProject from '../project-utils-and-hooks/useCreateProject';
+import useHandleDelete from '../project-utils-and-hooks/useHandleDelete';
+import handleAddMembersSubmit from '../project-utils-and-hooks/handleAddMembersSubmit';
 
 const Project = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,8 +26,6 @@ const Project = () => {
   const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
   const [selectedTeams, setSelectedTeams] = useState([]);
   const [selectedMembers, setSelectedMembers] = useState([]);
-  const [availableMembers, setAvailableMembers] = useState([]);
-  const [availableTeams, setAvailableTeams] = useState([]);
   const [projectData, setProjectData] = useState({
     projectName: '',
     description: '',
@@ -53,108 +36,10 @@ const Project = () => {
   });
 
   const navigate = useNavigate()
-  const [projects, setProjects] = useState(mockProjects);
   const [currentProject, setCurrentProject] = useState(null);
 
+  // User Token
   const token = Cookies.get("User");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await getMembers();
-      await getTeams();
-      await getProjects();
-    };
-    fetchData();
-  }, [token]);
-
-  const getMembers = async () => {
-    try {
-      const response = await axiosPrivate.get("/api/users/get-all-users", {
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": `Bearer ${token}`
-        },
-      });
-      const responseData = response.data.users.map(item => ({
-        id: item._id,
-        name: item.name,
-        email: item.email,
-      }));
-      setAvailableMembers(responseData);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const getProjects = async () => {
-    try {
-      const response = await axiosPrivate.get("/api/projects", {
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": `Bearer ${token}`,
-        },
-      });
-
-      const responseData = response.data.Data.length === 0
-        ? mockProjects
-        : response.data.Data.map((project) => {
-          console.log("Processing project:", project);
-
-          // Safely handle teams
-          const teams = project.teams ? {
-            teamIDs: Array.isArray(project.teams.teamIDs)
-              ? project.teams.teamIDs.map((team) => ({
-                id: team._id,
-                name: team.teamName,
-              }))
-              : [],  // Return empty array if teamIDs is not an array
-            memberIDs: Array.isArray(project.teams.memberIDs)
-              ? project.teams.memberIDs.map((member) => ({
-                id: member._id,
-                name: member.name,
-              }))
-              : [],  // Return empty array if memberIDs is not an array
-          } : {
-            teamIDs: [],
-            memberIDs: [],
-          };
-
-          return {
-            id: project._id,
-            projectName: project.projectName,
-            description: project.description,
-            teams: teams,  // Add the processed teams
-            owner: project.owner._id,  // Return more details if needed
-            dueDate: project.dueDate,
-            status: project.status,
-          };
-        });
-
-      setProjects(responseData);
-    } catch (err) {
-      console.error("Error fetching projects:", err);
-    }
-  };
-  // console.log(projects);
-
-  const getTeams = async () => {
-    try {
-      const response = await axiosPrivate.get("/api/teams", {
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": `Bearer ${token}`
-        },
-      });
-      const responseData = response.data.teams.map(team => ({
-        id: team._id,
-        name: team.teamName,
-      }));
-      setAvailableTeams(responseData);
-      // console.log(responseData)
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
@@ -222,16 +107,10 @@ const Project = () => {
       const teamToAdd = availableTeams.find(team => team.id === teamId);
       setSelectedTeams([...selectedTeams, teamToAdd]);
     }
-    console.log("selectedTeams: " + selectedTeams)
-    // if (!selectedTeams.some(team => team.id === teamId)) {
-    //   const memberToAdd = availableMembers.find(member => member.id === teamId);
-    //   if (memberToAdd) {
-    //     setSelectedMembers([...selectedMembers, memberToAdd]);
-    //   }
-    // }
+    // console.log("selectedTeams: " + selectedTeams)
 
   };
-  console.log("selected members and teams: " + selectedMembers, selectedTeams)
+  // console.log("selected members and teams: " + selectedMembers, selectedTeams)
 
 
   const handleAddMember = (memberId) => {
@@ -271,110 +150,9 @@ const Project = () => {
     currentProject ? updateProject() : createProject();
   };
 
-  const updateProject = async () => {
-    const updatedProjects = projects.map((proj) =>
-      proj.id === currentProject.id
-        ? { ...projectData, id: currentProject.id, teams: selectedTeams }
-        : proj
-    );
-
-    const updateData = {
-      ...currentProject,
-      projectName: projectData.projectName,
-      description: projectData.description,
-      owner: projectData.owner,
-      dueDate: projectData.dueDate,
-      status: projectData.status,
-      teams: selectedTeams.map(team => team.id)
-    };
-
-    try {
-      const response = await axiosPrivate.patch(`/api/projects/${currentProject.id}`, updateData, {
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": `Bearer ${token}`
-        },
-      });
-      if (response.status === 200) {
-        showToast("Project updated successfully.", "success");
-        setProjects(updatedProjects);
-        closeEditModal();
-      }
-    } catch (err) {
-      console.log(err);
-      alert("Something went wrong: " + err.response.data.message);
-    }
-  };
-
-  const createProject = async () => {
-    const newProject = {
-      id: `proj${projects.length + 1}`,
-      ...projectData,
-      teams: selectedTeams,
-    };
-
-    const MembersIds = selectedTeams.map(id => ({ teamData: id }));
-
-    try {
-      if (projectData) {
-
-        const dataForBackend = {
-          projectName: projectData.projectName,
-          description: projectData.description,
-          dueDate: projectData.dueDate,
-          owner: projectData.owner,
-          status: projectData.status
-        };
-
-        const projectResponse = await axiosPrivate.post("/api/projects", dataForBackend, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true
-        });
-
-
-        if (projectResponse.status === 201) {
-          toast.success("Project Created ")
-          setProjects([...projects, newProject]);
-
-          closeModal();
-        }
-      }
-    } catch (err) {
-      console.log(err);
-      alert("Something went wrong: Try again. (Try: Project Description must be between 10 and 200 characters)");
-    }
-  };
-
   const handleDeleteToProject = (project) => {
     setprojectTodelete(project.id); // Make sure project.id is passed
     setdeleteModel(true);
-  };
-
-
-  const handleDelete = async () => {
-    if (projectTodelete) {
-      try {
-        const response = await axiosPrivate.delete(`/api/projects/${projectTodelete}`, {
-          headers: {
-            "Content-Type": "application/json",
-            "authorization": `Bearer ${token}`
-          },
-        });
-        if (response.status === 200) {
-          setProjects(projects.filter((proj) => proj.id !== projectTodelete));
-          toast.success("Project deleted successfully.");
-          setdeleteModel(false);
-          setprojectTodelete(null);
-        } else {
-          alert("Something went wrong: " + response.data.message);
-        }
-      } catch (err) {
-        console.log(err);
-        alert("Something went wrong: " + err.message);
-      }
-    }
   };
 
   const filterProjects = (projects) => {
@@ -390,72 +168,13 @@ const Project = () => {
     return filteredProjects;
   };
 
-  const handleAddMembersSubmit = async (e) => {
-    e.preventDefault();
-    if (currentProject) {
-      const updatedProjects = projects.map((proj) =>
-        proj.id === currentProject.id
-          ? { ...proj, teams: selectedTeams }
-          : proj
-      );
-
-      const updateData = {
-        projectName: currentProject.projectName,
-        description: currentProject.description,
-        status: currentProject.status,
-        owner: currentProject.owner,
-        teams: {
-          teamIDs: selectedTeams.length > 0 ? selectedTeams.map(team => team.id) : [],
-          memberIDs: selectedMembers.length > 0 ? selectedMembers.map(member => member.id) : []
-        }
-      };
-
-      console.log(updateData);
-      // Validate data before sending
-      if (!updateData.projectName || updateData.projectName.length > 50) {
-        alert("Project Name is required and cannot exceed 50 characters");
-        return;
-      }
-      if (!updateData.description || updateData.description.length < 10 || updateData.description.length > 200) {
-        alert("Project Description is required and must be between 10 and 200 characters");
-        return;
-      }
-      if (!['active', 'inactive', 'completed'].includes(updateData.status)) {
-        toast.warning("Project status must be either 'active', 'inactive', or 'completed'");
-        return;
-      }
-      if (!updateData.owner) {
-        toast.warning("Owner is required");
-        return;
-      }
-
-      try {
-        const response = await axiosPrivate.patch(`/api/projects/${currentProject.id}`,
-          updateData,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "authorization": `Bearer ${token}`
-            },
-          }
-        );
-        if (response.status === 200) {
-          setProjects(updatedProjects);
-          closeAddMembersModal();
-          getProjects();
-          toast.success("Project teams updated successfully.");
-        }
-      } catch (err) {
-        console.log(err);
-        if (err.response && err.response.data && err.response.data.errors) {
-          const errorMessages = err.response.data.errors.map(error => error.msg).join('\n');
-          toast.error("Failed to update project teams:\n" + errorMessages);
-        } else {
-          toast.error("Failed to update project teams: " + (err.response?.data?.message || err.message));
-        }
-      }
-    }
-  };
+  // Projects Utils
+  const { projects, setProjects, getProjects } = useGetProjects();
+  const { availableMembers } = useGetMembers();
+  const { availableTeams } = useGetTeams();
+  const { updateProject } = useUpdateProject({ projects, setProjects, closeEditModal, showToast, projectData, currentProject, selectedTeams });
+  const { createProject } = useCreateProject({ projects, projectData, selectedTeams, setProjects, closeModal });
+  const { handleDelete } = useHandleDelete({ projectTodelete, setProjects, setdeleteModel, setprojectTodelete });
 
   return (
     <div className="relative p-6 bg-gray-100 dark:bg-gray-900 h-screen ml-16 overflow-auto md:ml-16 lg:ml-20 pt-20">
@@ -526,21 +245,18 @@ const Project = () => {
                 <td className="py-3 px-6 text-left">{project.projectName}</td>
                 <td className="py-3 px-6 text-left">{project.description}</td>
                 <td className="py-3 px-6 text-left flex flex-row flex-wrap">
-                  {Array.isArray(project.teams) && project.teams.map((team, index) => (
+                  {project.teams?.teamIDs?.map((team, index) => (
                     <div key={`${team.id || index}`} className="text-sm mr-3">
-                      {team.teamName}
+                      {team.name},
                     </div>
                   ))}
-                  {/* {project.teams?.teamIDs?.map((team) => (
-                    <div key={`${team.id || index}`} className="text-sm mr-3">
-                      {team.name}
-                    </div>
-                  ))}
-                  {project.teams?.memberIDs?.map((member) => {
+                  {project.teams?.memberIDs?.map((member, index) => (
                     <div key={`${member.id || index}`} className="text-sm mr-3">
-                      {member.name}
+                      {member.name},
                     </div>
-                  })} */}
+                  ))}
+
+                  {/* {console.log("memberIDs: ", project.teams.memberIDs)} */}
                 </td>
                 <td className="py-3 px-6 text-left">
                   {availableMembers.find((m) => m.id === project.owner)?.name}
@@ -627,7 +343,7 @@ const Project = () => {
           availableTeams={availableTeams}
 
           onClose={closeAddMembersModal}
-          onSubmit={handleAddMembersSubmit}
+          onSubmit={(e) => handleAddMembersSubmit(e, currentProject, projects, selectedTeams, selectedMembers, setProjects, closeAddMembersModal, getProjects)}
 
           availableMembers={availableMembers}
           selectedMembers={selectedMembers}
