@@ -112,14 +112,13 @@ const Project = () => {
 
 
   const handleAddMember = (memberId) => {
-    // console.log("selectedMembers: " + JSON.stringify(selectedMembers));
-    if (!selectedMembers?.some(member => member.id === memberId)) {
-      console.log("selectedMembers: " + selectedMembers);
+    if (!selectedMembers.some(member => member.id === memberId)) {
       const memberToAdd = availableMembers.find(member => member.id === memberId);
-      // console.log("memberToAdd" + JSON.stringify(memberToAdd));
-      setSelectedMembers([...selectedMembers, memberToAdd]);
+      if (memberToAdd) {
+        setSelectedMembers([...selectedMembers, memberToAdd]); // Add full member data
+      }
     }
-  }
+  };
 
   const handleRemoveTeam = (teamId) => {
     setSelectedTeams(selectedTeams.filter((team) => team.id !== teamId));

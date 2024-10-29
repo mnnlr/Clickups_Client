@@ -40,6 +40,7 @@ export default function useGetProjects() {
                             ? project.teams.memberIDs.map((member) => ({
                                 id: member._id,
                                 name: member.name,
+                                email: member.email,
                             }))
                             : [],  // Return empty array if memberIDs is not an array
                     } : {
