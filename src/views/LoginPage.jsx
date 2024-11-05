@@ -11,18 +11,18 @@ export const LoginPage = () => {
   const dispatch = useDispatch();
   const from = location.state?.from?.pathname || "/dashboard";
 
-  const {user,isLoading,error} = useSelector(state => state.login);
+  const { user, isLoading, error } = useSelector(state => state.login);
 
 
-  useEffect(()=>{
-    if(!isLoading&&user?._id){
-      return navigate(from, {replace: true})
+  useEffect(() => {
+    if (!isLoading && user?._id) {
+      return navigate(from, { replace: true })
     }
-    if(!isLoading&&error){
+    if (!isLoading && error) {
       showToast(error);
     }
   }, [isLoading, error, navigate, user?._id])
-  
+
   //----------------Handle Form Change-----------------
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -84,7 +84,7 @@ export const LoginPage = () => {
       console.log("result", payload);
       if (payload?.success) {
         showToast(payload?.message);
-        navigate("/dashboard");
+        navigate("/home");
       } else {
         alert(`Login failed: ${result.payload}`);
       }

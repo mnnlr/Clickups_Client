@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { NavFooter } from "./layouts/NavFooter"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { HomePageBeforeLogin } from "./views/HomePageBeforeLogin"
@@ -120,4 +120,4 @@ function App() {
   );
 }
 
-export default App;
+export default App

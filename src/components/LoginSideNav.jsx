@@ -32,11 +32,11 @@ const SideNav = () => {
           {[
             { icon: FaHome, to: "/home", label: "Home" },
             { icon: MdSpaceDashboard, to: "/dashboard", label: "Dashboard" },
-            { icon: FaTasks, to: "/tasks", label: "Tasks" },
-            { icon: FaFileAlt, to: "/docs", label: "Documents" },
+            // { icon: FaTasks, to: "/tasks", label: "Tasks" },
+            // { icon: FaFileAlt, to: "/docs", label: "Documents" },
             { icon: projectIcon, to: "/project", label: "Projects" },
             { icon: FaUserPlus, to: "/invite", label: "Invite" },
-            { icon: FaBuilding, to: "/workspace", label: "Workspace" }
+            // { icon: FaBuilding, to: "/workspace", label: "Workspace" }
           ].map((item, index) => (
             <NavItem key={index} icon={item.icon} to={item.to} label={item.label} />
           ))}

@@ -45,6 +45,10 @@ function Sprint() {
     return currentDate > expiryDate;
   };
 
+  const handleNavigateToTask=()=>{
+    navigate(`/tasks/${projectId}/individual`)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -133,6 +137,13 @@ function Sprint() {
         className="bg-blue-600 text-white px-5 py-2 rounded-md shadow-md hover:bg-blue-700 transition duration-200 mb-6"
       >
         Create Sprint
+      </button>
+
+      <button
+        onClick={handleNavigateToTask}
+        className="bg-blue-600 text-white px-5 py-2 rounded-md shadow-md hover:bg-blue-700 transition duration-200 ml-4 mb-6"
+      >
+      Go to Individual Tasks
       </button>
 
       <div className="mt-10 space-y-6">

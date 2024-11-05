@@ -20,7 +20,7 @@ export const TextEditor = ({ content, setContent, commentSubmitBtn, commentbtn =
         <div>
             <Editor
                 value={content}
-                apiKey="clz07tkk58muxu1e8xg4x87nou5gawu07mfycuw2rpygdx53"
+                apiKey='clz07tkk58muxu1e8xg4x87nou5gawu07mfycuw2rpygdx53'
                 init={{
                     height: 150,
                     autosave_ask_before_unload: false,

@@ -79,7 +79,7 @@ export const DashboardPage = () => {
         <div className="relative pt-16 pb-6 bg-gray-100 dark:bg-gray-800 h-screen md:ml-16">
             <section className="flex flex-col items-center justify-center px-5 py-10">
                 <h1 className="text-black dark:text-white text-3xl font-bold">Choose a Dashboard template</h1>
-                <p className="text-gray-500 dark:text-gray-300">Get started with a new Dashboard template which fits your exact needs.</p>
+                <p className="text-gray-500 font-LXGWFont dark:text-gray-300">Get started with a new Dashboard template which fits your exact needs.</p>
             </section>
             <DashboardTemplates />
             {Array.isArray(DashboardData) && DashboardData.length > 0 ? (
