@@ -8,6 +8,7 @@ import Document from "./views/DocumentPage"
 import InviteMember from "./views/InviteMemberPage"
 import Workspace from "./views/Workspace"
 import ProfilePage from "./views/Profilepage"
+import Spaces from './views/Spaces';
 import { LoginPage } from "./views/LoginPage"
 import { SignUpPage } from "./views/SignUpPage"
 import { DashboardPage } from "./views/DashboardPage"
@@ -104,6 +105,7 @@ function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="/projects/:projectId/sprints" element={<Sprint />} />
               <Route path="/dashboard/:projectId" element={<DashboardForProjectPage />} />
+              <Route path="/workspace/:_id/:type" element={<Spaces />} />
             </Route>
           </Route>
           <Route>
