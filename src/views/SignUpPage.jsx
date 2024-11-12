@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import customAxios from '../CustomAxios/customAxios';
 
 export const SignUpPage = () => {
 
@@ -26,7 +27,7 @@ export const SignUpPage = () => {
                 try {
                     console.log(signinFormData);
 
-                    const response = await axios.post('https://clickups-server.onrender.com/api/users/signup', signinFormData, {
+                    const response = await customAxios.post('/api/users/signup', signinFormData, {
                         headers: {
                             'Content-Type': 'application/json'
                         },
