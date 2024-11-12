@@ -6,7 +6,7 @@ import CommentsSection from '../Commentsection';
 import { TextEditor } from '../TinyMCE_TextEditor/TextEditor';
 import DOMPurify from 'dompurify'; // for HTML sanitization
 
-const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembers }) => {
+const TaskForm = ({ task, onSelectUserChange, onChange, onSubmit, onCancel, taskMode, availableMembers }) => {
   const [errors, setErrors] = useState({});
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [isDescriptionVisible, setIsDescriptionVisible] = useState(true);
@@ -35,8 +35,8 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
       onSubmit();
     }
   };
-// console.log(availableMembers);
-// console.log(task);
+  // console.log(availableMembers);
+  // console.log(task);
 
 
   return (
@@ -157,7 +157,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                 id="task-assignee"
                 name="assignees"
                 value={task?.assignees?._id || ''}
-                onChange={onChange}
+                onChange={onSelectUserChange}
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               >
                 <option value="" disabled>
@@ -231,7 +231,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
               />
             </div>
 
-
+            {console.log('task: ', task)}
             <div className="flex items-center mb-4">
               <label htmlFor="task-reporter" className="block text-sm font-medium text-gray-700 flex-shrink-0 w-20  dark:text-white">
                 Reporter
@@ -240,7 +240,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                 id="task-reporter"
                 name="report"
                 value={task?.report?._id || ''}
-                onChange={onChange}
+                onChange={onSelectUserChange}
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               >
                 <option value="" disabled>
@@ -253,6 +253,7 @@ const TaskForm = ({ task, onChange, onSubmit, onCancel, taskMode, availableMembe
                 ))}
               </select>
             </div>
+
             {taskMode === 'edit' && (
               <section>
                 <div className="my-2 text-left text-xs overflow-y-auto text-gray-500 dark:text-gray-400">

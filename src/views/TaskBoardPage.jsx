@@ -50,34 +50,34 @@ const TaskBoardPage = () => {
 
   const filterTasks = () => {
     if (!searchQuery) return tasks;
-  
+
     const query = searchQuery.toLowerCase();
     let filteredTasks = { 'ToDo': [], 'In-Progress': [], 'On-Hold': [], 'Done': [] };
-  
+
     Object.keys(tasks).forEach((status) => {
       filteredTasks[status] = tasks[status].filter((task) => {
         const taskNameMatch = task.taskName && task.taskName.toLowerCase().includes(query);
         const idMatch = task._id && task._id.toLowerCase().includes(query);
         const kanIdMatch = task.kanId && task.kanId.toLowerCase().includes(query);
-        const statusMatch = task.status && task.status.toLowerCase().includes(query); 
+        const statusMatch = task.status && task.status.toLowerCase().includes(query);
 
-        const assigneesMatch = Array.isArray(task.assignees) 
-          ? task.assignees.some(assignee => 
-              (assignee.name && assignee.name.toLowerCase().includes(query)) || 
-              (assignee.email && assignee.email.toLowerCase().includes(query)))
-          : (task.assignees.name && task.assignees.name.toLowerCase().includes(query)) || 
-            (task.assignees.email && task.assignees.email.toLowerCase().includes(query));
-  
+        const assigneesMatch = Array.isArray(task.assignees)
+          ? task.assignees.some(assignee =>
+            (assignee.name && assignee.name.toLowerCase().includes(query)) ||
+            (assignee.email && assignee.email.toLowerCase().includes(query)))
+          : (task.assignees.name && task.assignees.name.toLowerCase().includes(query)) ||
+          (task.assignees.email && task.assignees.email.toLowerCase().includes(query));
+
         // Return true if any of the matches are true
         return taskNameMatch || idMatch || assigneesMatch || kanIdMatch || statusMatch;
       });
     });
-  
+
     return filteredTasks;
   };
   ;
-  
-  const filteredTasks = filterTasks(); 
+
+  const filteredTasks = filterTasks();
 
   // useEffect(() => {
   //   console.log("Filtered Tasks:", filteredTasks);
@@ -142,6 +142,11 @@ const TaskBoardPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTask((prevTask) => ({ ...prevTask, [name]: value }));
+  };
+
+  const handleSelectUserChange = (e) => {
+    const { name, value } = e.target;
+    setTask((prevTask) => ({ ...prevTask, [name]: { _id: value } }));
   };
 
   const handleDeleteConfirm = (task) => {
@@ -233,7 +238,7 @@ const TaskBoardPage = () => {
         });
 
         if (response.status === 200) {
-          fetchTasks(); 
+          fetchTasks();
           toast.success("Task Deleted");
           setIsOpenDeleteModel(false);
           setTaskToDelete(null);
@@ -331,6 +336,7 @@ const TaskBoardPage = () => {
           <TaskForm
             task={task}
             onChange={handleChange}
+            onSelectUserChange={handleSelectUserChange}
             onSubmit={handleSubmit}
             onCancel={handleCancel}
             taskMode={taskMode}

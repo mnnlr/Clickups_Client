@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FaHome, FaTasks, FaFileAlt, FaUserPlus, FaBuilding } from "react-icons/fa";
+import { PiFoldersFill } from "react-icons/pi";
 import { MdSpaceDashboard } from "react-icons/md";
 import { Link } from "react-router-dom";
 
@@ -35,8 +36,8 @@ const SideNav = () => {
             // { icon: FaTasks, to: "/tasks", label: "Tasks" },
             // { icon: FaFileAlt, to: "/docs", label: "Documents" },
             { icon: projectIcon, to: "/project", label: "Projects" },
-            { icon: FaUserPlus, to: "/invite", label: "Invite" },
-            { icon: FaBuilding, to: "/workspace", label: "Workspace" }
+            // { icon: FaUserPlus, to: "/invite", label: "Invite" },
+            { icon: PiFoldersFill, to: "/workspace", label: "Workspace" }
           ].map((item, index) => (
             <NavItem key={index} icon={item.icon} to={item.to} label={item.label} />
           ))}
