@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from '../Models/Modal';
 import { AiTwotoneMail } from "react-icons/ai";
 import { FaRegUser } from "react-icons/fa";
+import { IoPersonAdd, IoPersonRemove } from "react-icons/io5";
 
 const AddMembersModal = ({
   availableMembers,
@@ -60,7 +61,7 @@ const AddMembersModal = ({
           {/* Conditional rendering for search results */}
           {searchQuery && (
             <div className='mt-2'>
-              <p className="font-medium text-gray-700 dark:text-gray-300 text-sm">Search Results:</p>
+              <p className="font-medium text-gray-700 dark:text-gray-300 text-sm mb-2">Search Results:</p>
               <div className="flex flex-wrap">
                 {/* {combinedTeams.map((team, index) => (
                   <div
@@ -75,15 +76,23 @@ const AddMembersModal = ({
                 {combinedMembers.map((member, index) => (
                   <div
                     key={`${member.id}-${index}`}
-                    onClick={() => onAddMember(member.id)}
                     className={`cursor-pointer p-2 bg-gray-200 flex flex-col dark:bg-gray-700 rounded-md mr-2 mb-2 ${selectedMembers.includes(member.id) ? 'bg-blue-500 text-white' : ''}`}
                   >
-                    <div className='flex flex-row items-center gap-2 mb-1'>
-                      <FaRegUser /> {member.name}
+                    <div className='flex  items-center gap-2 mb-1'>
+                     <button
+                        type="button"
+                        onClick={() => onAddMember(member.id)}
+                        className=" text-sm  font-semibold rounded-md"
+                      >
+                        <IoPersonAdd size={15} />
+                      </button> {member.name}
+                      
                     </div>
                     <div className='flex flex-row items-center gap-2'>
                       <AiTwotoneMail /> {member.email}
+
                     </div>
+
                   </div>
                 ))}
               </div>
@@ -112,23 +121,22 @@ const AddMembersModal = ({
             {selectedMembersArray.map((selectedMember, index) => (
               <div
                 key={`${selectedMember.id}-${index}`}
-                className="flex items-center p-1 bg-blue-500 text-white rounded-md mr-1 mb-1 text-sm"
+                className="flex items-center p-1 bg-blue-400 text-white rounded-md mr-1 mb-1 text-sm"
               >
                 <span className='mr-1'>
                   <div className='flex flex-row items-center gap-2 mb-1'>
-                    <FaRegUser /> {selectedMember.name}
+                  <button
+                  type="button"
+                  onClick={() => onRemoveMember(selectedMember.id)}
+                  className=" text-sm  font-semibold rounded-md "
+                >
+                  <IoPersonRemove size={15} />
+                </button> {selectedMember.name}
                   </div>
                   <div className='flex flex-row items-center gap-2'>
                     <AiTwotoneMail /> {selectedMember.email}
                   </div>
                 </span>
-                <button
-                  type="button"
-                  onClick={() => onRemoveMember(selectedMember.id)}
-                  className="ml-1 text-sm bg-gray-300 dark:bg-gray-600 font-semibold px-2 py-1 rounded-md text-center text-red-500"
-                >
-                  Remove
-                </button>
               </div>
             ))}
           </div>

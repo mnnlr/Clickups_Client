@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SearchBox from './Search';
 import AddMembersModal from '../components/Models/AddMemberModal';
-import customAxios from '../CustomAxios/customAxios';
+import customAxios, { axiosPrivate } from '../CustomAxios/customAxios';
 import Cookies from 'js-cookie';
 import Modal from '../components/Models/Modal';
 import { useSelector } from 'react-redux';
@@ -24,10 +24,31 @@ const AllWorkspaces = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [filterWorkspace, setFilterWorkspace] = useState([]);
+  const [availableMembers, setAvailableMembers] = useState([]);
   const { user } = useSelector((store) => store.login);
   const navigate = useNavigate();
   const location = useLocation();
   const token = Cookies.get("User");
+  
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  
+ 
+
+  const handleAddMember = (memberId) => {
+    if (!selectedMembers.some(member => member.id === memberId)) {
+      const memberToAdd = availableMembers.find(member => member.id === memberId);
+      if (memberToAdd) {
+        setSelectedMembers([...selectedMembers, memberToAdd]); 
+      }
+    }
+  };
+
+  const handleRemoveMember = (memberId) => {
+    // console.log("memberId: " + memberId);
+    setSelectedMembers(selectedMembers.filter((member) => member.id !== memberId));
+  }
+
+
   
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
   
@@ -49,6 +70,7 @@ const AllWorkspaces = () => {
 
   useEffect(() => {
     fetchWorkspaces()
+    fetchMembers()
   }, []);
 
   
@@ -66,10 +88,31 @@ const AllWorkspaces = () => {
     }
   }, [search]);
 
+  const fetchMembers = async () => {
+    try {
+      const response = await axiosPrivate.get("/api/users/get-all-users", {
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": `Bearer ${token}`
+        },
+      });
+      const responseData = response.data.users.map(item => ({
+        id: item._id,
+        name: item.name,
+        email: item.email,
+      }));
+      console.log(responseData);
+      
+      setAvailableMembers(responseData);
+    } catch (err) {
+      console.log('Error fetching members: ' + (err.response ? err.response.data.message : err.message));
+    }
+  };
+
 
   const handleDeleteWorkspace = async (workspaceId) => {
     try {
-      const response = await customAxios.delete(`/api/workspaces/${workspaceId}`, {
+      const response = await axiosPrivate.delete(`/api/workspaces/${workspaceId}`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -122,7 +165,9 @@ const AllWorkspaces = () => {
     if (newWorkspaceName.trim()) {
       const newWorkspace = {
         workspaceName: newWorkspaceName,
-        workspaceCreatedBy: user._id
+        workspaceCreatedBy: user._id,
+        workspaceDocuments: [], 
+        workspaceMembers: [],
       };
 
       try {
@@ -380,7 +425,13 @@ const AllWorkspaces = () => {
 
         {/* Add Members Modal */}
         {isAddMembersModalOpen && (
-          <AddMembersModal onClose={closeAddMembersModal} />
+          <AddMembersModal  availableMembers={availableMembers}
+          selectedMembers={selectedMembers}
+          onAddMember={handleAddMember}
+          onRemoveMember={handleRemoveMember}
+          onClose={closeAddMembersModal}
+          onSubmit={() => console.log('Members added', selectedMembers)}
+        />
         )}
       </div>
     </div>
