@@ -425,7 +425,9 @@ const AllWorkspaces = () => {
 
         {/* Add Members Modal */}
         {isAddMembersModalOpen && (
-          <AddMembersModal  availableMembers={availableMembers}
+          <AddMembersModal 
+          title={"Add Members to Workspace"}
+         availableMembers={availableMembers}
           selectedMembers={selectedMembers}
           onAddMember={handleAddMember}
           onRemoveMember={handleRemoveMember}

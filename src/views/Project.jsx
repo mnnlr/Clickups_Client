@@ -340,6 +340,7 @@ const Project = () => {
 
       {isAddMembersModalOpen && (
         <AddMembersModal
+          title={"Add Teams to Project"}
           selectedTeams={selectedTeams}
           onAddTeam={handleAddTeam}
           onRemoveTeam={handleRemoveTeam}

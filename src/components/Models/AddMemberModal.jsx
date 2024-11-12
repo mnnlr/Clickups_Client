@@ -1,7 +1,6 @@
 import React from 'react';
 import Modal from '../Models/Modal';
 import { AiTwotoneMail } from "react-icons/ai";
-import { FaRegUser } from "react-icons/fa";
 import { IoPersonAdd, IoPersonRemove } from "react-icons/io5";
 
 const AddMembersModal = ({
@@ -9,6 +8,7 @@ const AddMembersModal = ({
   selectedMembers,
   onAddMember,
   onRemoveMember,
+  title,
 
   availableTeams,
   selectedTeams,
@@ -45,7 +45,7 @@ const AddMembersModal = ({
   ];
 
   return (
-    <Modal title="Add Teams to Project" onClose={onClose}>
+    <Modal title={title} onClose={onClose}>
       <form className="space-y-2" onSubmit={onSubmit}>
         <div className="mb-2">
 
@@ -100,7 +100,7 @@ const AddMembersModal = ({
           )}
         </div>
         <div className="mb-2">
-          <p className="font-medium text-gray-700 dark:text-gray-300 text-sm">Selected Teams & Members:</p>
+          <p className="font-medium text-gray-700 dark:text-gray-300 text-sm ">Selected Teams & Members:</p>
           <div className="flex flex-wrap mt-1">
             {/* {selectedTeamsArray.map((selectedTeam, index) => (
               <div
