@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import CreateProjectModal from '../components/Models/CreateProjectModal';
 import EditProjectModal from '../components/Models/EditProjectModal';
 import AddMembersModal from '../components/Models/AddMemberModal';
-import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import DeleteConfirmationModal from '../components/Models/DeleteConfirmModel';
 import { showToast } from '../components/Toastconfig';

@@ -79,14 +79,14 @@ const AddMembersModal = ({
                     className={`cursor-pointer p-2 bg-gray-200 flex flex-col dark:bg-gray-700 rounded-md mr-2 mb-2 ${selectedMembers.includes(member.id) ? 'bg-blue-500 text-white' : ''}`}
                   >
                     <div className='flex  items-center gap-2 mb-1'>
-                     <button
+                      <button
                         type="button"
                         onClick={() => onAddMember(member.id)}
                         className=" text-sm  font-semibold rounded-md"
                       >
                         <IoPersonAdd size={15} />
                       </button> {member.name}
-                      
+
                     </div>
                     <div className='flex flex-row items-center gap-2'>
                       <AiTwotoneMail /> {member.email}
@@ -125,13 +125,13 @@ const AddMembersModal = ({
               >
                 <span className='mr-1'>
                   <div className='flex flex-row items-center gap-2 mb-1'>
-                  <button
-                  type="button"
-                  onClick={() => onRemoveMember(selectedMember.id)}
-                  className=" text-sm  font-semibold rounded-md "
-                >
-                  <IoPersonRemove size={15} />
-                </button> {selectedMember.name}
+                    <button
+                      type="button"
+                      onClick={() => onRemoveMember(selectedMember.id)}
+                      className=" text-sm  font-semibold rounded-md "
+                    >
+                      <IoPersonRemove size={15} />
+                    </button> {selectedMember.name}
                   </div>
                   <div className='flex flex-row items-center gap-2'>
                     <AiTwotoneMail /> {selectedMember.email}

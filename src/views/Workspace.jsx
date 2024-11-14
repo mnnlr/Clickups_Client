@@ -2,64 +2,62 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import SearchBox from './Search';
 import AddMembersModal from '../components/Models/AddMemberModal';
-import customAxios, { axiosPrivate } from '../CustomAxios/customAxios';
-import Cookies from 'js-cookie';
 import Modal from '../components/Models/Modal';
 import { useSelector } from 'react-redux';
 import { MdModeEditOutline, MdOutlineDeleteForever } from "react-icons/md";
 import { FaUserPlus } from "react-icons/fa6";
-
+import { fetchAllWorkspace } from '../utils/fetchingAPIsForWorkspace/fetchAllWorkspace';
+import { fetchAllUsers } from '../utils/fetchingAPIsForWorkspace/fetchAllUsers';
+import { handleDeleteWorkspace } from '../utils/fetchingAPIsForWorkspace/handleDeleteWorkspace';
+import { handleAddWorkspace } from '../utils/fetchingAPIsForWorkspace/handleAddWorkspace';
+import { handleSaveChanges } from '../utils/fetchingAPIsForWorkspace/handleSaveChanges';
+import { PiDotsThreeCircleDuotone, PiDotsThreeDuotone } from "react-icons/pi";
+import ClickOutsideWrapper from '../utils/ClickOutsideWrapper';
 
 const AllWorkspaces = () => {
-  const [workspaces, setWorkspaces] = useState([
-    { _id: 1, workspaceName: 'Nike', type: 'Team', createdAt: 'Oct 17, 2019',workspaceCreatedBy:"Manoj" },
-    { _id: 2, workspaceName: 'Pepsi', type: 'Personal', createdAt: 'Feb 5, 2020' },
-    { _id: 3, workspaceName: 'Disney', type: 'Team', createdAt: 'Jul 12, 2018' },
-    { _id: 4, workspaceName: 'Apple', type: 'Personal', createdAt: 'Dec 1, 2021' },
-    { _id: 5, workspaceName: 'Tesla', type: 'Team', createdAt: 'Jan 20, 2022' },
-  ]);
   const [isAddMembersModalOpen, setIsAddMembersModalOpen] = useState(false);
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
-  const [workspaceType, setWorkspaceType] = useState('');
+  const [workspaceType, setWorkspaceType] = useState('Team');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [filterWorkspace, setFilterWorkspace] = useState([]);
   const [availableMembers, setAvailableMembers] = useState([]);
   const { user } = useSelector((store) => store.login);
   const navigate = useNavigate();
   const location = useLocation();
-  const token = Cookies.get("User");
-  
-  const [selectedMembers, setSelectedMembers] = useState([]);
-  
- 
 
-  const handleAddMember = (memberId) => {
-    if (!selectedMembers.some(member => member.id === memberId)) {
-      const memberToAdd = availableMembers.find(member => member.id === memberId);
-      if (memberToAdd) {
-        setSelectedMembers([...selectedMembers, memberToAdd]); 
-      }
-    }
+  const [selectedMembers, setSelectedMembers] = useState([]);
+  const [allWorkspaces, setAllWorkspaces] = useState([]);
+  const [filterWorkspace, setFilterWorkspace] = useState([]);
+
+  // const handleAddMember = (memberId) => {
+  //   if (!selectedMembers.some(member => member.id === memberId)) {
+  //     const memberToAdd = availableMembers.find(member => member.id === memberId);
+
+  //     if (memberToAdd) {
+  //       setSelectedMembers([...selectedMembers, memberToAdd]);
+  //     }
+  //   }
+  // };
+
+  const handleAddMember = (id) => {
+    console.log("Member added with ID:", id);
   };
 
+
   const handleRemoveMember = (memberId) => {
-    // console.log("memberId: " + memberId);
     setSelectedMembers(selectedMembers.filter((member) => member.id !== memberId));
   }
 
-
-  
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
-  
+
   const toggleDropdown = (index, e) => {
     e.stopPropagation();
     setIsDropdownOpen(isDropdownOpen === index ? null : index);
   };
-  
+
   const [isEditMode, setIsEditMode] = useState(false);
   const [workspaceToEdit, setWorkspaceToEdit] = useState(null);
-  
+
   const handleEditWorkspace = (workspace) => {
     setWorkspaceToEdit(workspace);
     setNewWorkspaceName(workspace.workspaceName);
@@ -69,86 +67,25 @@ const AllWorkspaces = () => {
   };
 
   useEffect(() => {
-    fetchWorkspaces()
-    fetchMembers()
-  }, []);
+    fetchAllWorkspace(setAllWorkspaces);
+    fetchAllUsers(setAvailableMembers)
+  }, [allWorkspaces]);
 
-  
   useEffect(() => {
     setIsDropdownOpen(null);
   }, [location]);
 
- useEffect(() => {
-    if (Array.isArray(workspaces)) {
+  useEffect(() => {
+    if (search === '') {
+      setFilterWorkspace(allWorkspaces)
+    } else if (Array.isArray(allWorkspaces)) {
       setFilterWorkspace(
-        workspaces.filter((space) =>
+        allWorkspaces.filter((space) =>
           space.workspaceName.toLowerCase().includes(search.toLowerCase())
         )
       );
     }
-  }, [search]);
-
-  const fetchMembers = async () => {
-    try {
-      const response = await axiosPrivate.get("/api/users/get-all-users", {
-        headers: {
-          "Content-Type": "application/json",
-          "authorization": `Bearer ${token}`
-        },
-      });
-      const responseData = response.data.users.map(item => ({
-        id: item._id,
-        name: item.name,
-        email: item.email,
-      }));
-      console.log(responseData);
-      
-      setAvailableMembers(responseData);
-    } catch (err) {
-      console.log('Error fetching members: ' + (err.response ? err.response.data.message : err.message));
-    }
-  };
-
-
-  const handleDeleteWorkspace = async (workspaceId) => {
-    try {
-      const response = await axiosPrivate.delete(`/api/workspaces/${workspaceId}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (response.status === 200) {
-        setWorkspaces((prevWorkspaces) =>
-          prevWorkspaces.filter((workspace) => workspace._id !== workspaceId)
-        );
-        console.log('Workspace deleted successfully');
-      }
-    } catch (error) {
-      console.error('Error deleting workspace:', error);
-    }
-  };
-
-
-
-  const fetchWorkspaces = async () => {
-    try {
-      const response = await customAxios.get('/api/workspaces/', {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
-      if (response.status === 200) {
-       
-        console.log(response.data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching workspaces:', error);
-    }
-  };
-  
+  }, [search, allWorkspaces]);
 
   const openModal = () => setIsModalOpen(true);
 
@@ -156,40 +93,6 @@ const AllWorkspaces = () => {
     setNewWorkspaceName('');
     setWorkspaceType('');
     setIsModalOpen(false);
-  };
-
- 
-  
-
-  const addWorkspace = async () => {
-    if (newWorkspaceName.trim()) {
-      const newWorkspace = {
-        workspaceName: newWorkspaceName,
-        workspaceCreatedBy: user._id,
-        workspaceDocuments: [], 
-        workspaceMembers: [],
-      };
-
-      try {
-        const response = await customAxios.post('/api/workspaces/', newWorkspace, {
-          headers: {
-            'Content-Type': 'application/json',
-            "Authorization": `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 200) {
-          setWorkspaces((prevWorkspaces) => [...prevWorkspaces, response.data]);
-          setNewWorkspaceName('');
-          setWorkspaceType('');
-          closeModal();
-        } else {
-          throw new Error('Failed to add workspace');
-        }
-      } catch (error) {
-        console.error('Error adding workspace:', error);
-      }
-    }
   };
 
   const switchWorkspace = (workspace) => {
@@ -209,37 +112,6 @@ const AllWorkspaces = () => {
 
   const closeAddMembersModal = () => {
     setIsAddMembersModalOpen(false);
-  };
-
-
-  const handleSaveChanges = async () => {
-    if (workspaceToEdit) {
-      const updatedWorkspace = {
-        workspaceName: newWorkspaceName
-      };
-
-      try {
-        const response = await customAxios.put(`/api/workspaces/${workspaceToEdit._id}`, updatedWorkspace, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (response.status === 200) {
-          setWorkspaces((prevWorkspaces) =>
-            prevWorkspaces.map(workspace =>
-              workspace._id === workspaceToEdit._id ? response.data : workspace
-            )
-          );
-          closeModal();
-        } else {
-          throw new Error('Failed to update workspace');
-        }
-      } catch (error) {
-        console.error('Error updating workspace:', error);
-      }
-    }
   };
 
   return (
@@ -272,54 +144,41 @@ const AllWorkspaces = () => {
         <div className="grid grid-cols-3 gap-6">
           {filterWorkspace.map((workspace, index) => (
             <div
-              key={workspace._id}
+              key={`${workspace._id}-${index}`}
               className="bg-white dark:bg-gray-800 rounded-lg p-6 relative cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 dark:hover:bg-gray-700 transform hover:scale-105 hover:shadow-lg"
-
             >
-              <span className="absolute top-2 left-2 bg-blue-100 text-blue-500 text-xs px-2 py-1 rounded">
-                {workspace.type}
-              </span>
-              <div className="flex items-center mb-4" onClick={() => switchWorkspace(workspace)}>
-                <img
-                  alt={`${workspace.workspaceName} logo`}
-                  className="rounded-full mr-4"
-                  height="40"
-                  src="https://storage.googleapis.com/a1aa/image/WgMPA8Y3tkKQJ9Jl5DaJjDTZfgT1I1unvjelHl6Pz22lc7tTA.jpg"
-                  width="40"
-                />
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{workspace.workspaceName}</h2>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Created: {workspace.workspaceCreatedBy}</p>
-              <div className="flex items-center mb-4">
-                <img
-                  alt="user avatar"
-                  className="rounded-full"
-                  height="20"
-                  src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
-                  width="20"
-                />
-                <img
-                  alt="user avatar"
-                  className="rounded-full -ml-1"
-                  height="20"
-                  src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
-                  width="20"
-                />
-                <img
-                  alt="user avatar"
-                  className="rounded-full -ml-1"
-                  height="20"
-                  src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
-                  width="20"
-                />
-                <img
-                  alt="user avatar"
-                  className="rounded-full -ml-1"
-                  height="20"
-                  src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
-                  width="20"
-                />
-                <span className="text-gray-400 ml-2">+4 </span>
+              <div onClick={() => switchWorkspace(workspace)}>
+                <span className="absolute top-2 left-2 bg-blue-100 text-blue-500 text-xs px-2 py-1 rounded">
+                  {workspace.type || "Team"}
+                </span>
+                <div className="flex items-center mb-4">
+                  <img
+                    alt={`${workspace.workspaceName || 'Not found'} logo`}
+                    className="rounded-full mr-4"
+                    height="40"
+                    src="https://storage.googleapis.com/a1aa/image/WgMPA8Y3tkKQJ9Jl5DaJjDTZfgT1I1unvjelHl6Pz22lc7tTA.jpg"
+                    width="40"
+                  />
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{workspace?.workspaceName}</h2>
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">Created: {workspace?.workspaceCreatedBy?.name}</p>
+                <div className="flex items-center mb-4">
+                  <img
+                    alt="user avatar"
+                    className="rounded-full"
+                    height="20"
+                    src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
+                    width="20"
+                  />
+                  <img
+                    alt="user avatar"
+                    className="rounded-full -ml-1"
+                    height="20"
+                    src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
+                    width="20"
+                  />
+                  <span className="text-gray-400 ml-2">+4 </span>
+                </div>
               </div>
               <div className="absolute top-2 right-2">
                 <button
@@ -328,11 +187,8 @@ const AllWorkspaces = () => {
                   className="text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300"
                   onClick={(e) => toggleDropdown(index, e)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6" />
-                  </svg>
+                  <PiDotsThreeCircleDuotone size={30} />
                 </button>
-
                 {isDropdownOpen === index && (
                   <div className="absolute right-0 mt-2 w-12 bg-white dark:bg-gray-800 shadow-lg rounded-lg transition-all duration-300 opacity-100">
                     <ul>
@@ -354,7 +210,7 @@ const AllWorkspaces = () => {
                       </li>
                       <li>
                         <button
-                          onClick={() => handleDeleteWorkspace(workspace._id)}
+                          onClick={() => handleDeleteWorkspace(setAllWorkspaces, workspace._id)}
                           className="block px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                         >
                           <MdOutlineDeleteForever size={20} />
@@ -413,7 +269,11 @@ const AllWorkspaces = () => {
               </div>
               <button
                 type="button"
-                onClick={isEditMode ? handleSaveChanges : addWorkspace}
+                onClick={(e) => isEditMode ?
+                  handleSaveChanges(e, workspaceToEdit, newWorkspaceName, setAllWorkspaces, closeModal)
+                  :
+                  handleAddWorkspace(e, newWorkspaceName, user, setAllWorkspaces, setNewWorkspaceName, setWorkspaceType, closeModal)
+                }
                 className="p-2 w-full bg-blue-600 text-white rounded-lg transition-colors duration-300 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50"
                 disabled={!newWorkspaceName || !workspaceType}
               >
@@ -425,15 +285,15 @@ const AllWorkspaces = () => {
 
         {/* Add Members Modal */}
         {isAddMembersModalOpen && (
-          <AddMembersModal 
-          title={"Add Members to Workspace"}
-         availableMembers={availableMembers}
-          selectedMembers={selectedMembers}
-          onAddMember={handleAddMember}
-          onRemoveMember={handleRemoveMember}
-          onClose={closeAddMembersModal}
-          onSubmit={() => console.log('Members added', selectedMembers)}
-        />
+          <AddMembersModal
+            title={"Add Members to Workspace"}
+            availableMembers={availableMembers}
+            selectedMembers={selectedMembers}
+            onAddMember={handleAddMember}
+            onRemoveMember={handleRemoveMember}
+            onClose={closeAddMembersModal}
+            onSubmit={() => console.log('Members added', selectedMembers)}
+          />
         )}
       </div>
     </div>
