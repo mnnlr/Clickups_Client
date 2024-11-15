@@ -1,31 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
+import { useSelector } from "react-redux";
 
-export const TextEditor = ({ content, setContent, commentSubmitBtn, commentbtn = true, editbtn = false, editSubmitBtn, editingCommentId, inputVisible }) => {
-
+export const TextEditor = ({ setHeight, content, setContent, commentSubmitBtn, commentbtn = true, editbtn = false, editSubmitBtn, editingCommentId, inputVisible }) => {
     const [showBtn, setShowBtn] = useState(commentbtn);
     const [showEditBtn, setShowEditBtn] = useState(editbtn);
+    const theme = useSelector((state) => state.darkMode.darkMode);
 
     useEffect(() => {
-        // console.log(btn);
         setShowBtn(commentbtn);
     }, [commentbtn]);
 
     useEffect(() => {
-        // console.log(editbtn);
         setShowEditBtn(editbtn);
     }, [editbtn]);
 
     return (
         <div>
             <Editor
+                key={theme} // Reinitialize editor when theme changes
                 value={content}
                 apiKey='clz07tkk58muxu1e8xg4x87nou5gawu07mfycuw2rpygdx53'
                 init={{
-                    height: 150,
+                    height: setHeight || 150,
                     autosave_ask_before_unload: false,
                     powerpaste_allow_local_images: true,
-                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
                     image_caption: true,
                     noneditable_noneditable_class: 'mceNonEditable',
                     toolbar_mode: 'sliding',
@@ -33,6 +32,8 @@ export const TextEditor = ({ content, setContent, commentSubmitBtn, commentbtn =
                     contextmenu: 'link image imagetools table configurepermanentpen',
                     resize: true,
                     menubar: false,
+                    skin: theme ? "oxide-dark" : "oxide",
+                    content_css: theme ? "dark" : "default",
                     plugins: [
                         'lists', 'link', 'image', 'charmap', 'emoticons', 'code', 'fullscreen', 'mentions'
                     ],
@@ -73,7 +74,6 @@ export const TextEditor = ({ content, setContent, commentSubmitBtn, commentbtn =
                     </button>
                 </div>
             ) : null}
-            {/* {content} */}
         </div>
     );
 };

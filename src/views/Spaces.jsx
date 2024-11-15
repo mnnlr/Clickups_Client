@@ -4,6 +4,9 @@ import { DocumentIcon, PlusIcon, PencilIcon } from '@heroicons/react/24/solid';
 import SearchBox from './Search';
 import AddMember from './AddUser';
 import Modal from '../components/Models/Modal'; // Assuming Modal is the same component for both edit and create
+import { TextEditor } from '../components/TinyMCE_TextEditor/TextEditor';
+import { GrUpdate } from "react-icons/gr";
+import DOMPurify from 'dompurify';
 
 const templates = {
   1: [ // Workspace type 1
@@ -18,7 +21,7 @@ const templates = {
 const Workspaces = () => {
   const { _id, type } = useParams();
   const [userDocs, setUserDocs] = useState([]);
-  const [selectedDocContent, setSelectedDocContent] = useState(1);
+  const [selectedDocContent, setSelectedDocContent] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false); // Modal for Permissions
@@ -28,6 +31,7 @@ const Workspaces = () => {
   const [filteredDocs, setFilteredDocs] = useState([]);
   const { state } = useLocation();
   const [openDropdowns, setOpenDropdowns] = useState({});
+  const [editDocBtn, setEditDocBtn] = useState(true);
 
   const [permissions, setPermissions] = useState({
     canEdit: false,
@@ -49,8 +53,9 @@ const Workspaces = () => {
     );
   }, [search, userDocs]);
 
-  const handleDocClick = (docContent) => {
-    setSelectedDocContent(docContent);
+  const handleDocClick = (doc) => {
+    setSelectedDoc(doc);
+    setSelectedDocContent(doc.content);
   };
 
   const handleAddDocument = () => {
@@ -147,26 +152,53 @@ const Workspaces = () => {
     setIsPermissionsModalOpen(false);
   };
 
+  const exportToDocx = () => {
+    const content = selectedDocContent;
+    const convertedContent = `<html><body>${content}</body></html>`;
+
+    const blob = new Blob([convertedContent], {
+      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    });
+
+    // Create a download link
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'document.docx';
+    link.click();
+  };
+
+  const onUpdate = () => {
+    setEditDocBtn(true);
+    exportToDocx();
+  }
+
   return (
-    <div className="p-6 mt-16 md:ml-20 sd:ml-0 dark:bg-gray-900 dark:text-white">
+    <div className="p-1 mt-16 md:ml-20 sd:ml-0 h-100vh dark:bg-gray-900 dark:text-white">
       {/* Workspace Header */}
       <div className="flex flex-wrap items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 border-b-2">
         <h1 className="text-xl font-semibold m-2">
-          {state.workspaceName}'s {type} Workspace
+          {state.workspaceName}'s Workspace
         </h1>
         <div className="flex items-center space-x-4">
           <AddMember />
-          <button className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-            <PencilIcon className="h-4 w-4 mr-2" />
-            Edit
-          </button>
+          {editDocBtn ?
+            <button onClick={() => setEditDocBtn(false)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+              <PencilIcon className="h-4 w-4 mr-2" />
+              Edit
+            </button>
+            :
+            <button onClick={onUpdate} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+              <GrUpdate className="h-4 w-4 mr-2" />
+              Update
+            </button>
+          }
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex flex-wrap justify-center">
         {/* Document List */}
-        <div className="static md:h-[calc(80vh)] sd:h-[calc(100%)] w-full md:max-w-[20rem] p-4 pt-0 rounded-none bg-gray-50 dark:bg-gray-800 shadow-none shadow-blue-gray-900/5 flex-shrink-0">
+        <div className="static md:h-[calc(92vh)] sd:h-[calc(100%)] w-full md:max-w-[20rem] p-4 pt-0 rounded-none bg-gray-50 dark:bg-gray-800 shadow-none shadow-blue-gray-900/5 flex-shrink-0">
           <div className="mt-3">
             <SearchBox search={search} handleSearch={handleSearch} />
           </div>
@@ -189,7 +221,7 @@ const Workspaces = () => {
               <li
                 key={index}
                 className="bg-gray-100 dark:bg-gray-700 p-2 mt-2 mb-0 cursor-pointer flex justify-between items-center"
-                onClick={() => handleDocClick(doc.content)}
+                onClick={() => handleDocClick(doc)}
               >
                 <span className="text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                   {doc.name}
@@ -220,7 +252,7 @@ const Workspaces = () => {
                         <li>
                           <button
                             onClick={() => handleEdit(doc)}
-                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
                             Edit
                           </button>
@@ -228,7 +260,7 @@ const Workspaces = () => {
                         <li>
                           <button
                             onClick={() => handlePermission(doc)}
-                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
                             Permissions
                           </button>
@@ -236,7 +268,7 @@ const Workspaces = () => {
                         <li>
                           <button
                             onClick={() => handleDelete(doc)}
-                            className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
                             Delete
                           </button>
@@ -253,11 +285,20 @@ const Workspaces = () => {
         {/* Document Content */}
         <div className="md:ml-8 sd:ml-0 p-4 sd:border-0 md:border-l-2 border-gray-200 dark:border-gray-700 flex-grow">
           <h6 className="text-lg text-blue-gray-600 mb-4">Document Content</h6>
-          <div className="bg-white dark:bg-gray-800 p-4 border rounded-md shadow-sm sd:max-h-[calc(100%)] md:max-h-[calc(70vh)] overflow-y-auto">
-            {selectedDocContent ? (
-              <p>{selectedDocContent}</p>
+          <div className="bg-white dark:bg-gray-800 p-4 border rounded-md shadow-sm sd:max-h-[calc(100%)] md:max-h-[calc(85vh)] overflow-y-auto">
+            {selectedDoc ? (
+              !editDocBtn ? (
+                < TextEditor
+                  setHeight={710}
+                  commentbtn={false}
+                  content={selectedDocContent}
+                  setContent={setSelectedDocContent}
+                />
+              ) : (
+                <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedDocContent || 'No Content') }} ></p>
+              )
             ) : (
-              <p className="text-gray-500 dark:text-gray-400">Select a document to view its content.</p>
+              <p>No Document Selected</p>
             )}
           </div>
         </div>
@@ -303,84 +344,84 @@ const Workspaces = () => {
 
       {/* Modal for Permissions */}
       {isPermissionsModalOpen && (
-  <Modal title="Manage Permissions" onClose={handleClosePermissionsModal}>
-    <div className="space-y-4">
-      {/* Permissions Section */}
-      <div className="space-y-2">
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            checked={permissions.canEdit}
-            onChange={() => handleTogglePermission('canEdit')}
-            className="mr-2 h-5 w-5"
-          />
-          <label className="text-sm font-medium">Can Edit</label>
-        </div>
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            checked={permissions.canView}
-            onChange={() => handleTogglePermission('canView')}
-            className="mr-2 h-5 w-5"
-          />
-          <label className="text-sm font-medium">Can View</label>
-        </div>
-      </div>
-
-      {/* Members Section */}
-      <div>
-        <h6 className="text-lg font-semibold mb-2">Members</h6>
-        <div className="space-y-2">
-          {permissions.members.length > 0 ? (
-            permissions.members.map((member, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <span className="text-sm text-gray-700 dark:text-gray-300">{member}</span>
-                <button
-                  onClick={() => handleRemoveMember(member)}
-                  className="text-red-500 text-sm hover:underline"
-                >
-                  Remove
-                </button>
+        <Modal title="Manage Permissions" onClose={handleClosePermissionsModal}>
+          <div className="space-y-4">
+            {/* Permissions Section */}
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={permissions.canEdit}
+                  onChange={() => handleTogglePermission('canEdit')}
+                  className="mr-2 h-5 w-5"
+                />
+                <label className="text-sm font-medium">Can Edit</label>
               </div>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">No members added yet.</p>
-          )}
-        </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={permissions.canView}
+                  onChange={() => handleTogglePermission('canView')}
+                  className="mr-2 h-5 w-5"
+                />
+                <label className="text-sm font-medium">Can View</label>
+              </div>
+            </div>
 
-        {/* Add Member Button */}
-        <div className="mt-4">
-          <h6 className="text-sm font-medium">Add Member</h6>
-          <div className="space-y-2">
-            <button
-              onClick={() => handleAddMember('new_member')}
-              className="flex justify-between items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
-            >
-              <span>Add New Member</span>
-            </button>
+            {/* Members Section */}
+            <div>
+              <h6 className="text-lg font-semibold mb-2">Members</h6>
+              <div className="space-y-2">
+                {permissions.members.length > 0 ? (
+                  permissions.members.map((member, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{member}</span>
+                      <button
+                        onClick={() => handleRemoveMember(member)}
+                        className="text-red-500 text-sm hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No members added yet.</p>
+                )}
+              </div>
+
+              {/* Add Member Button */}
+              <div className="mt-4">
+                <h6 className="text-sm font-medium">Add Member</h6>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleAddMember('new_member')}
+                    className="flex justify-between items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+                  >
+                    <span>Add New Member</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Section with Save and Cancel buttons */}
+            <div className="flex justify-end space-x-4 mt-6">
+              <button
+                onClick={handleClosePermissionsModal}
+                className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePermissionsSave}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+              >
+                Save Permissions
+              </button>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Footer Section with Save and Cancel buttons */}
-      <div className="flex justify-end space-x-4 mt-6">
-        <button
-          onClick={handleClosePermissionsModal}
-          className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handlePermissionsSave}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
-        >
-          Save Permissions
-        </button>
-      </div>
+        </Modal>
+      )}
     </div>
-  </Modal>
-)}
-  </div>
   );
 };
 

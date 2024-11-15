@@ -55,11 +55,11 @@ const AllWorkspaces = () => {
   };
 
   const handleRemoveMember = (memberId) => {
-     console.log("memberId: " + memberId);
+    console.log("memberId: " + memberId);
     setSelectedMembers(selectedMembers.filter((member) => member.id !== memberId));
   }
 
-console.log("Selected Members",selectedMembers);
+  console.log("Selected Members", selectedMembers);
 
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
@@ -357,11 +357,17 @@ console.log("Selected Members",selectedMembers);
                 <button
                   aria-haspopup="true"
                   aria-expanded={isDropdownOpen === index ? 'true' : 'false'}
-                  className="text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-300"
+                  className="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 dark:focus:ring-gray-600"
                   onClick={(e) => toggleDropdown(index, e)}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 9l6 6 6-6" />
+                  <svg
+                    className="w-5 h-5"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    viewBox="0 0 16 3"
+                  >
+                    <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
                   </svg>
                 </button>
 
