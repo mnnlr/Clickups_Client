@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, json } from 'react-router-dom';
 import SearchBox from './Search';
 import AddMembersModal from '../components/Models/AddMemberModal';
 import customAxios, { axiosPrivate } from '../CustomAxios/customAxios';
@@ -45,23 +45,84 @@ const AllWorkspaces = () => {
     return initials.slice(0, 2).join('');
   };
 
-  const handleAddMember = (memberId) => {
+  const handleAddMemberClick = (workspace) => {
+   setWorkspaceToEdit(workspace)
+   console.log(workspace);
+  setSelectedMembers(workspace.workspaceMembers||[])
+   setIsAddMembersModalOpen(true); 
+  };
+  
+  const handleAddMember = async (memberId) => {
+   const workspaceId = workspaceToEdit._id; 
+    if (!workspaceToEdit) {
+      console.error('No workspace to edit!');
+      return; // Prevent further execution if workspaceToEdit is null
+    }
+  
+   
+  
+    // Ensure the member is not already in selected members
     if (!selectedMembers.some(member => member.id === memberId)) {
       const memberToAdd = availableMembers.find(member => member.id === memberId);
       if (memberToAdd) {
         setSelectedMembers([...selectedMembers, memberToAdd]);
-      }
+     
+
+    try {
+      const response = await customAxios.patch(`/api/workspaces/${workspaceId}/add`,{ memberId:memberToAdd.id}, {
+  
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,  // Make sure you have the auth token here
+        },
+      
+      });
+      console.log(response);
+    
+    
+  
+    } catch (error) {
+      console.error('Error adding member to workspace:', error);
+      // Handle error state (e.g., show a notification to the user)
     }
   };
-
-  const handleRemoveMember = (memberId) => {
-    console.log("memberId: " + memberId);
-    setSelectedMembers(selectedMembers.filter((member) => member.id !== memberId));
+   }
+    }
+    
+  const handleRemoveMember = async (memberId) => {
+  const workspaceId = workspaceToEdit._id;
+  if (!workspaceToEdit) {
+    console.error('No workspace to edit!');
+    return; // Prevent further execution if workspaceToEdit is null
   }
+
+  console.log("Removing memberId: " + memberId);
+
+  // Remove from selected members
+  
+     console.log("memberId: " + memberId);
+    setSelectedMembers(selectedMembers.filter((member) => member.id !== memberId));
+  
+
+
+  try {
+    const response = await customAxios.patch(`/api/workspaces/${workspaceId}/remove`, { memberId: memberId }, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,  
+      },
+    });
+
+    console.log('Member removed successfully', response);
+  } catch (error) {
+    console.error('Error removing member from workspace:', error);
+  }
+};
+
 
   console.log("Selected Members", selectedMembers);
 
-
+  
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
 
   const toggleDropdown = (index, e) => {
@@ -83,7 +144,7 @@ const AllWorkspaces = () => {
   useEffect(() => {
     fetchWorkspaces()
     fetchMembers()
-  }, []);
+  }, [selectedMembers]);
 
 
   useEffect(() => {
@@ -170,43 +231,50 @@ const AllWorkspaces = () => {
     setNewWorkspaceName('');
     setWorkspaceType('');
     setIsModalOpen(false);
-    setSelectedMembers([]);
+ 
   };
-
 
 
 
   const addWorkspace = async () => {
-    if (newWorkspaceName.trim()) {
-      const newWorkspace = {
-        workspaceName: newWorkspaceName,
-        workspaceCreatedBy: user._id,
-        workspaceDocuments: [],
-        workspaceMembers: selectedMembers.map((member) => member.id),
-      };
 
-      try {
+    const newWorkspace = {
+        workspaceName: newWorkspaceName,     
+        workspaceCreatedBy: user._id,        
+        workspaceDocuments: [],             
+        workspaceMembers: [],            
+    };
+
+    if (newWorkspaceName.trim() === '') {
+        console.error('Workspace name is required.');
+        return;  
+    }
+
+    try {
+      
         const response = await customAxios.post('/api/workspaces/', newWorkspace, {
-          headers: {
-            'Content-Type': 'application/json',
-            "Authorization": `Bearer ${token}`,
-          },
+            headers: {
+                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${token}`,
+            },
         });
 
         if (response.status === 200) {
-          setWorkspaces((prevWorkspaces) => [...prevWorkspaces, response.data]);
-          setNewWorkspaceName('');
-          setWorkspaceType('');
-          closeModal();
-          fetchWorkspaces();
+            setWorkspaces((prevWorkspaces) => [...prevWorkspaces, response.data]);
+
+            setNewWorkspaceName('');
+            setWorkspaceType('');
+            
+            closeModal();
+
+            fetchWorkspaces();
         } else {
-          throw new Error('Failed to add workspace');
+            throw new Error('Failed to add workspace');
         }
-      } catch (error) {
-        console.error('Error adding workspace:', error);
-      }
+    } catch (error) {
+        console.error('Error adding workspace:', error.response ? error.response.data : error.message);
     }
-  };
+};
 
   const switchWorkspace = (workspace) => {
     navigate(`/workspace/${workspace._id}/${workspace.type}`, {
@@ -219,9 +287,7 @@ const AllWorkspaces = () => {
     setSearch(e.target.value);
   };
 
-  const AddMember = () => {
-    setIsAddMembersModalOpen(true);
-  };
+  
 
   const closeAddMembersModal = () => {
     setIsAddMembersModalOpen(false);
@@ -229,10 +295,11 @@ const AllWorkspaces = () => {
 
 
   const handleSaveChanges = async () => {
+    console.log(workspaceToEdit._id);
+    
     if (workspaceToEdit) {
       const updatedWorkspace = {
         workspaceName: newWorkspaceName,
-        workspaceMembers: selectedMembers.map((member) => member._id),
       };
 
       try {
@@ -309,50 +376,20 @@ const AllWorkspaces = () => {
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{workspace?.workspaceName}</h2>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-3"><span className='text-md font-bold '>Created By:</span> {workspace?.workspaceCreatedBy?.name}</p>
-              <div className="flex items-center mb-4">
-                {/* {workspace.workspaceMembers && workspace.workspaceMembers.length > 0 ? (
+
+              <div className="flex items-center mt-4">
+                {workspace.workspaceMembers && workspace.workspaceMembers.length > 0 ? (
                   workspace.workspaceMembers.map((member, index) => (
-                    <img
-                      key={index}
-                      alt="user avatar"
-                      className="rounded-full -ml-1"
-                      height="20"
-                      src={member.avatar || "https://via.placeholder.com/20"}
-                      width="20"
-                    />
+                   <div key={index}
+                  className=" rounded-full py-1 px-2 -ml-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold shadow-md shadow-black">{getInitial(member?.name)}</div> 
+
                   ))
                 ) : (
                   <span className="text-gray-400 ml-2">No members</span>
                 )}
-                <span className="text-gray-400 ml-2">+{workspace.workspaceMembers.length}</span> */}
+                <span className="text-gray-400 ml-2">+{workspace.workspaceMembers.length}</span>
               </div>
-              <div className="flex items-center mb-4">
-                {/* <div
-                  className=" rounded-full py-1 px-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold">{getInitial(workspace?.workspaceMembers?.name)}</div> */}
-
-                <img
-                  alt="user avatar"
-                  className="rounded-full -ml-1"
-                  height="20"
-                  src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
-                  width="20"
-                />
-                <img
-                  alt="user avatar"
-                  className="rounded-full -ml-1"
-                  height="20"
-                  src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
-                  width="20"
-                />
-                <img
-                  alt="user avatar"
-                  className="rounded-full -ml-1"
-                  height="20"
-                  src="https://storage.googleapis.com/a1aa/image/PzjG2aSlcALqKB1k2qYk0llOfaWaSfwftL3QfPCYRIE99lAPB.jpg"
-                  width="20"
-                />
-                <span className="text-gray-400 ml-2">+4 </span>
-              </div>
+            
               <div className="absolute top-2 right-2">
                 <button
                   aria-haspopup="true"
@@ -384,7 +421,7 @@ const AllWorkspaces = () => {
                       </li>
                       <li>
                         <button
-                          onClick={() => AddMember(workspace)}
+                          onClick={() => handleAddMemberClick(workspace)}
                           className="block px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                         >
                           <FaUserPlus size={20} />
@@ -467,12 +504,13 @@ const AllWorkspaces = () => {
             title={"Add Members to Workspace"}
             availableMembers={availableMembers}
             selectedMembers={selectedMembers}
-            onAddMember={handleAddMember}
-            onRemoveMember={handleRemoveMember}
-            onClose={closeAddMembersModal}
-            onSubmit={() => {
-
+            onAddMember={(memberId) =>{ handleAddMember(memberId)
+              console.log(memberId);
+              
+              
             }}
+            onRemoveMember={(memberId)=>handleRemoveMember(memberId)}
+            onClose={closeAddMembersModal}
           />
         )}
       </div>
