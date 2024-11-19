@@ -81,7 +81,10 @@ const AddMembersModal = ({
                     <div className='flex  items-center gap-2 mb-1'>
                       <button
                         type="button"
-                        onClick={() => onAddMember(member.id)}
+                        onClick={() => {onAddMember(member.id)
+                          console.log("Add:",member._id);
+                          
+                        }}
                         className=" text-sm  font-semibold rounded-md"
                       >
                         <IoPersonAdd size={15} />
@@ -127,7 +130,10 @@ const AddMembersModal = ({
                   <div className='flex flex-row items-center gap-2 mb-1'>
                     <button
                       type="button"
-                      onClick={() => onRemoveMember(selectedMember.id)}
+                      onClick={() =>{ onRemoveMember(selectedMember._id)
+                        console.log("Remove",selectedMember._id);
+                        
+                      }}
                       className=" text-sm  font-semibold rounded-md "
                     >
                       <IoPersonRemove size={15} />
