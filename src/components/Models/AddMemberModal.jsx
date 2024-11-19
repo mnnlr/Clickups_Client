@@ -82,7 +82,7 @@ const AddMembersModal = ({
                       <button
                         type="button"
                         onClick={() => {onAddMember(member.id)
-                          console.log("Add:",member._id);
+                          // console.log("Add:",member._id);
                           
                         }}
                         className=" text-sm  font-semibold rounded-md"
@@ -131,7 +131,7 @@ const AddMembersModal = ({
                     <button
                       type="button"
                       onClick={() =>{ onRemoveMember(selectedMember._id)
-                        console.log("Remove",selectedMember._id);
+                        // console.log("Remove",selectedMember._id);
                         
                       }}
                       className=" text-sm  font-semibold rounded-md "
