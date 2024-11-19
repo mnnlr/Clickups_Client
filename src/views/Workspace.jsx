@@ -376,10 +376,12 @@ const AllWorkspaces = () => {
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-3"><span className='text-md font-bold '>Created By:</span> {workspace?.workspaceCreatedBy?.name}</p>
 
-              <div className="flex items-center mt-4">
-                {workspace.workspaceMembers && workspace.workspaceMembers.length > 0 ? (
+              <div className="flex items-center mt-4"                        
+                 onClick={() => handleAddMemberClick(workspace)}
+              >
+                {workspace?.workspaceMembers && workspace?.workspaceMembers?.length > 0 ? (
                   workspace.workspaceMembers.map((member, index) => (
-                   <div key={index}
+                   <div key={index} 
                   className=" rounded-full py-1 px-2 -ml-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold shadow-md shadow-black">{getInitial(member?.name)}</div> 
 
                   ))
