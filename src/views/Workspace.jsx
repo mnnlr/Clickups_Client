@@ -73,7 +73,7 @@ const AllWorkspaces = () => {
   
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,  // Make sure you have the auth token here
+          'Authorization': `Bearer ${token}`,  
         },
       
       });
@@ -83,30 +83,29 @@ const AllWorkspaces = () => {
   
     } catch (error) {
       console.error('Error adding member to workspace:', error);
-      // Handle error state (e.g., show a notification to the user)
     }
   };
    }
     }
     
   const handleRemoveMember = async (memberId) => {
+    
   const workspaceId = workspaceToEdit._id;
   if (!workspaceToEdit) {
     console.error('No workspace to edit!');
     return; // Prevent further execution if workspaceToEdit is null
   }
 
-  console.log("Removing memberId: " + memberId);
+  // console.log("Removing memberId: " + memberId);
 
-  // Remove from selected members
-  
-     console.log("memberId: " + memberId);
-    setSelectedMembers(selectedMembers.filter((member) => member.id !== memberId));
+
+    // console.log("memberId: " + memberId);
+    setSelectedMembers(selectedMembers.filter((member) => member._id !== memberId));
   
 
 
   try {
-    const response = await customAxios.patch(`/api/workspaces/${workspaceId}/remove`, { memberId: memberId }, {
+    const response = await customAxios.patch(`/api/workspaces/${workspaceId}/remove`, { memberId: memberId}, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,  
@@ -505,7 +504,7 @@ const AllWorkspaces = () => {
             availableMembers={availableMembers}
             selectedMembers={selectedMembers}
             onAddMember={(memberId) =>{ handleAddMember(memberId)
-              console.log(memberId);
+              console.log("memberid:",memberId);
               
               
             }}

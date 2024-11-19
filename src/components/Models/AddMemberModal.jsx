@@ -41,7 +41,7 @@ const AddMembersModal = ({
   const selectedMembersArray = Array.isArray(selectedMembers) ? selectedMembers : [];
   const combinedMembers = [
     ...filteredMembers,
-    ...selectedMembersArray.filter(selectedMember => !filteredMembers.some(member => member.id === selectedMember.id))
+    ...selectedMembersArray.filter(selectedMember => !filteredMembers.some(member => member._id === selectedMember._id))
   ];
 
   return (
@@ -130,10 +130,16 @@ const AddMembersModal = ({
                   <div className='flex flex-row items-center gap-2 mb-1'>
                     <button
                       type="button"
-                      onClick={() =>{ onRemoveMember(selectedMember._id)
-                        // console.log("Remove",selectedMember._id);
-                        
-                      }}
+                      onClick={() => {
+                        if (selectedMember?.id) {
+                            console.log("ID:", selectedMember.id);
+                            onRemoveMember(selectedMember.id);
+                        } else {
+                          onRemoveMember(selectedMember._id);
+                            console.log(" Member _id:",selectedMember._id);
+                        }
+                    }}
+                    
                       className=" text-sm  font-semibold rounded-md "
                     >
                       <IoPersonRemove size={15} />
