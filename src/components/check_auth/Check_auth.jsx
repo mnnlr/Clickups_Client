@@ -3,6 +3,7 @@ import { setUser } from "../../redux/authentication/loginSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import './loader.css';
 
 const Check_auth = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -51,7 +52,10 @@ const Check_auth = () => {
     };
   }, [navigate, location]);
 
-  if (isLoading) return <div>...loading</div>;
+  if (isLoading) return <div className="flex justify-center items-center min-h-screen">
+    <span className="loader"></span>
+  </div>
+
 
   return user?._id ? <Outlet /> : <Navigate to="/signin" replace state={{ from: location }} />;
 };
