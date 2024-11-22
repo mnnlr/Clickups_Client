@@ -90,7 +90,7 @@ const TaskForm = ({ task, onSelectUserChange, onChange, onSubmit, onCancel, task
                 <label htmlFor="task-desc" className="block mb-3 text-sm font-medium text-gray-700 dark:text-white">Description</label>
 
                 <div
-                  className={`w-full border text-md text-black rounded-xl px-2 py-5 dark:bg-gray-700 dark:text-white ${isEditingDescription ? 'bg-gray-100' : ''}`}
+                  className={`w-full border  overflow-y-auto max-h-[160px] text-md text-black rounded-xl px-2 py-5 dark:bg-gray-700 dark:text-white ${isEditingDescription ? 'bg-gray-100' : ''}`}
                   onClick={() => {
                     if (!isEditingDescription) {
                       setIsEditingDescription(true);
