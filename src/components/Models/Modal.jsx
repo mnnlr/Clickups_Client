@@ -3,7 +3,7 @@ import React from "react";
 const Modal = ({ title, children, onClose }) => {
   return (
     <div className="fixed inset-0 px-96 flex justify-center items-center z-50 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-800 w-full h-[150px] rounded-lg shadow-lg">
+      <div className="bg-white dark:bg-gray-800 w-full rounded-lg shadow-lg">
         <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{title}</h2>
           <button
