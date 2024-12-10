@@ -46,82 +46,82 @@ const AllWorkspaces = () => {
   };
 
   const handleAddMemberClick = (workspace) => {
-   setWorkspaceToEdit(workspace)
-   console.log(workspace);
-  setSelectedMembers(workspace.workspaceMembers||[])
-   setIsAddMembersModalOpen(true); 
+    setWorkspaceToEdit(workspace)
+    console.log(workspace);
+    setSelectedMembers(workspace.workspaceMembers || [])
+    setIsAddMembersModalOpen(true);
   };
-  
+
   const handleAddMember = async (memberId) => {
-   const workspaceId = workspaceToEdit._id; 
+    const workspaceId = workspaceToEdit._id;
     if (!workspaceToEdit) {
       console.error('No workspace to edit!');
       return; // Prevent further execution if workspaceToEdit is null
     }
-  
-   
-  
+
+
+
     // Ensure the member is not already in selected members
     if (!selectedMembers.some(member => member.id === memberId)) {
       const memberToAdd = availableMembers.find(member => member.id === memberId);
       if (memberToAdd) {
         setSelectedMembers([...selectedMembers, memberToAdd]);
-     
 
-    try {
-      const response = await customAxios.patch(`/api/workspaces/${workspaceId}/add`,{ memberId:memberToAdd.id}, {
-  
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,  
-        },
-      
-      });
-      console.log(response);
-    
-    
-  
-    } catch (error) {
-      console.error('Error adding member to workspace:', error);
+
+        try {
+          const response = await customAxios.patch(`/api/workspaces/${workspaceId}/add`, { memberId: memberToAdd.id }, {
+
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+
+          });
+          console.log(response);
+
+
+
+        } catch (error) {
+          console.error('Error adding member to workspace:', error);
+        }
+      };
     }
-  };
-   }
-    }
-    
-  const handleRemoveMember = async (memberId) => {
-    
-  const workspaceId = workspaceToEdit._id;
-  if (!workspaceToEdit) {
-    console.error('No workspace to edit!');
-    return; // Prevent further execution if workspaceToEdit is null
   }
 
-  // console.log("Removing memberId: " + memberId);
+  const handleRemoveMember = async (memberId) => {
+
+    const workspaceId = workspaceToEdit._id;
+    if (!workspaceToEdit) {
+      console.error('No workspace to edit!');
+      return; // Prevent further execution if workspaceToEdit is null
+    }
+
+    // console.log("Removing memberId: " + memberId);
 
 
     // console.log("memberId: " + memberId);
     setSelectedMembers(selectedMembers.filter((member) => member._id !== memberId));
-  
 
 
-  try {
-    const response = await customAxios.patch(`/api/workspaces/${workspaceId}/remove`, { memberId: memberId}, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,  
-      },
-    });
 
-    console.log('Member removed successfully', response);
-  } catch (error) {
-    console.error('Error removing member from workspace:', error);
-  }
-};
+    try {
+      const response = await customAxios.patch(`/api/workspaces/${workspaceId}/remove`, { memberId: memberId }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      console.log('Member removed successfully', response);
+    } catch (error) {
+      console.error('Error removing member from workspace:', error);
+    }
+  };
 
 
   console.log("Selected Members", selectedMembers);
 
-  
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
 
   const toggleDropdown = (index, e) => {
@@ -230,7 +230,7 @@ const AllWorkspaces = () => {
     setNewWorkspaceName('');
     setWorkspaceType('');
     setIsModalOpen(false);
- 
+
   };
 
 
@@ -238,42 +238,42 @@ const AllWorkspaces = () => {
   const addWorkspace = async () => {
 
     const newWorkspace = {
-        workspaceName: newWorkspaceName,     
-        workspaceCreatedBy: user._id,        
-        workspaceDocuments: [],             
-        workspaceMembers: [],            
+      workspaceName: newWorkspaceName,
+      workspaceCreatedBy: user._id,
+      workspaceDocuments: [],
+      workspaceMembers: [],
     };
 
     if (newWorkspaceName.trim() === '') {
-        console.error('Workspace name is required.');
-        return;  
+      console.error('Workspace name is required.');
+      return;
     }
 
     try {
-      
-        const response = await customAxios.post('/api/workspaces/', newWorkspace, {
-            headers: {
-                'Content-Type': 'application/json',
-                "Authorization": `Bearer ${token}`,
-            },
-        });
 
-        if (response.status === 200) {
-            setWorkspaces((prevWorkspaces) => [...prevWorkspaces, response.data]);
+      const response = await customAxios.post('/api/workspaces/', newWorkspace, {
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": `Bearer ${token}`,
+        },
+      });
 
-            setNewWorkspaceName('');
-            setWorkspaceType('');
-            
-            closeModal();
+      if (response.status === 200) {
+        setWorkspaces((prevWorkspaces) => [...prevWorkspaces, response.data]);
 
-            fetchWorkspaces();
-        } else {
-            throw new Error('Failed to add workspace');
-        }
+        setNewWorkspaceName('');
+        setWorkspaceType('');
+
+        closeModal();
+
+        fetchWorkspaces();
+      } else {
+        throw new Error('Failed to add workspace');
+      }
     } catch (error) {
-        console.error('Error adding workspace:', error.response ? error.response.data : error.message);
+      console.error('Error adding workspace:', error.response ? error.response.data : error.message);
     }
-};
+  };
 
   const switchWorkspace = (workspace) => {
     navigate(`/workspace/${workspace._id}/${workspace.type}`, {
@@ -286,7 +286,7 @@ const AllWorkspaces = () => {
     setSearch(e.target.value);
   };
 
-  
+
 
   const closeAddMembersModal = () => {
     setIsAddMembersModalOpen(false);
@@ -295,7 +295,7 @@ const AllWorkspaces = () => {
 
   const handleSaveChanges = async () => {
     console.log(workspaceToEdit._id);
-    
+
     if (workspaceToEdit) {
       const updatedWorkspace = {
         workspaceName: newWorkspaceName,
@@ -376,13 +376,13 @@ const AllWorkspaces = () => {
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-3"><span className='text-md font-bold '>Created By:</span> {workspace?.workspaceCreatedBy?.name}</p>
 
-              <div className="flex items-center mt-4"                        
-                 onClick={() => handleAddMemberClick(workspace)}
+              <div className="flex items-center mt-4"
+                onClick={() => handleAddMemberClick(workspace)}
               >
                 {workspace?.workspaceMembers && workspace?.workspaceMembers?.length > 0 ? (
                   workspace.workspaceMembers.map((member, index) => (
-                   <div key={index} 
-                  className=" rounded-full py-1 px-2 -ml-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold shadow-md shadow-black">{getInitial(member?.name)}</div> 
+                    <div key={index}
+                      className=" rounded-full py-1 px-2 -ml-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold shadow-md shadow-black">{getInitial(member?.name)}</div>
 
                   ))
                 ) : (
@@ -390,7 +390,7 @@ const AllWorkspaces = () => {
                 )}
                 <span className="text-gray-400 ml-2">+{workspace.workspaceMembers.length}</span>
               </div>
-            
+
               <div className="absolute top-2 right-2">
                 <button
                   aria-haspopup="true"
@@ -505,12 +505,13 @@ const AllWorkspaces = () => {
             title={"Add Members to Workspace"}
             availableMembers={availableMembers}
             selectedMembers={selectedMembers}
-            onAddMember={(memberId) =>{ handleAddMember(memberId)
-              console.log("memberid:",memberId);
-              
-              
+            onAddMember={(memberId) => {
+              handleAddMember(memberId)
+              console.log("memberid:", memberId);
+
+
             }}
-            onRemoveMember={(memberId)=>handleRemoveMember(memberId)}
+            onRemoveMember={(memberId) => handleRemoveMember(memberId)}
             onClose={closeAddMembersModal}
           />
         )}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PlusIcon } from "@heroicons/react/24/solid";
 import { useLocation } from 'react-router-dom';
 
@@ -6,16 +6,18 @@ function AddUser() {
     const [isFormVisible, setIsFormVisible] = useState(false);
 
     const handleAddUser = () => {
-        setIsFormVisible(false); 
+        setIsFormVisible(false);
     };
 
     const handleCancel = () => {
-        setIsFormVisible(false); 
+        setIsFormVisible(false);
     };
 
     const { state } = useLocation();
 
-    console.log(state)
+    useEffect(() => {
+        console.log(state)
+    }, [state]);
 
     return (
         <div>
@@ -28,8 +30,8 @@ function AddUser() {
                     width="30"
                 />
                 <div className='bg-red-100 rounded-full p-2 z-0 z-0 ml-6 cursor-pointer'
-                onClick={() => setIsFormVisible(true)}>
-                    <PlusIcon className='h-4 w-4'/>
+                    onClick={() => setIsFormVisible(true)}>
+                    <PlusIcon className='h-4 w-4' />
                 </div>
             </div>
 

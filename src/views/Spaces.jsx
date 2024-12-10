@@ -7,6 +7,12 @@ import Modal from '../components/Models/Modal'; // Assuming Modal is the same co
 import { TextEditor } from '../components/TinyMCE_TextEditor/TextEditor';
 import { GrUpdate } from "react-icons/gr";
 import DOMPurify from 'dompurify';
+import { useSelector } from 'react-redux';
+import { CreateDocument } from '../document-utils-and-hooks/CreateDocument.js';
+import GetDocuments from '../document-utils-and-hooks/GetDocuments.js';
+import UpdateDocument from '../document-utils-and-hooks/UpdateDocument.js';
+import { showToast } from '../components/Toastconfig';
+import DeleteDocument from '../document-utils-and-hooks/DeleteDocument.js';
 
 const templates = {
   1: [ // Workspace type 1
@@ -19,7 +25,7 @@ const templates = {
 };
 
 const Workspaces = () => {
-  const { _id, type } = useParams();
+  const { _id } = useParams();
   const [userDocs, setUserDocs] = useState([]);
   const [selectedDocContent, setSelectedDocContent] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -39,16 +45,23 @@ const Workspaces = () => {
     members: []
   });
 
+  const user = useSelector((state) => state.login.user);
+
   useEffect(() => {
-    if (templates[_id]) {
-      setUserDocs(templates[_id]);
-    }
+    GetDocuments().then((docsData) => {
+      showToast("Documents fetched successfully.", "success");
+      setUserDocs(docsData);
+    }).catch((error) => {
+      showToast("Failed to fetch documents.", "error");
+      console.error("Error fetching documents:", error);
+    });
   }, [_id]);
 
   useEffect(() => {
+    // console.log("docs: ", userDocs)
     setFilteredDocs(
       userDocs.filter((doc) =>
-        doc.name.toLowerCase().includes(search.toLowerCase())
+        doc.documentTitle.toLowerCase().includes(search.toLowerCase())
       )
     );
   }, [search, userDocs]);
@@ -58,14 +71,47 @@ const Workspaces = () => {
     setSelectedDocContent(doc.content);
   };
 
-  const handleAddDocument = () => {
+  const handleAddDocument = async () => {
+
     if (newDocName.trim()) {
-      const newDocument = { id: Date.now(), name: newDocName, content: '', permissions: { canEdit: false, canView: true, members: [] } };
-      setUserDocs([...userDocs, newDocument]);
-      setNewDocName('');
-      setIsCreateModalOpen(false);
+      // const newDocument = { id: Date.now(), name: newDocName, content: '', permissions: { canEdit: false, canView: true, members: [] } };
+      const newDocumentData = {
+        documentTitle: newDocName,
+        createdBy: user._id,
+        workspaceId: _id,
+        permissions: {
+          canEdit: false,
+          canView: true,
+        },
+      };
+
+      try {
+        const res = await CreateDocument({ newDocumentData });
+
+        const newDocument = {
+          _id: res._id,
+          documentTitle: res.documentTitle,
+          content: res.content,
+          permissions: res.permissions,
+        };
+
+        if (res) {
+          showToast("Document created successfully.", "success");
+          setUserDocs([...userDocs, newDocument]);
+          setNewDocName('');
+          setIsCreateModalOpen(false);
+          console.log("New document created: ", res);
+        } else {
+          showToast("Failed to create document.", "error");
+          console.error('Failed to create document.');
+        }
+      } catch (error) {
+        showToast("Something went wrong while creating document.", "error");
+        console.error('Error in handleAddDocument:', error);
+      }
     }
   };
+
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -74,20 +120,29 @@ const Workspaces = () => {
 
   const handleEdit = (doc) => {
     setSelectedDoc(doc);
-    setNewDocName(doc.name);
+    setNewDocName(doc.documentTitle);
     setIsEditModalOpen(true);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (newDocName.trim() && selectedDoc) {
-      setUserDocs(
-        userDocs.map((doc) =>
-          doc.id === selectedDoc.id ? { ...doc, name: newDocName } : doc
-        )
-      );
-      setIsEditModalOpen(false);
-      setSelectedDoc(null);
-      setNewDocName('');
+      const updatedDocData = {
+        documentTitle: newDocName.trim(),
+      }
+      const res = await UpdateDocument({ docId: selectedDoc._id, updatedData: updatedDocData });
+      if (res) {
+        showToast("Document updated successfully.", "success");
+        setUserDocs(
+          userDocs.map((doc) =>
+            doc._id === selectedDoc._id ? { ...doc, documentTitle: newDocName.trim() } : doc
+          )
+        );
+        setIsEditModalOpen(false);
+        setSelectedDoc(null);
+        setNewDocName('');
+      } else {
+        showToast("Failed to update document.", "error");
+      }
     }
   };
 
@@ -100,7 +155,7 @@ const Workspaces = () => {
   const handlePermissionsSave = () => {
     setUserDocs(
       userDocs.map((doc) =>
-        doc.id === selectedDoc.id ? { ...doc, permissions } : doc
+        doc._id === selectedDoc._id ? { ...doc, permissions } : doc
       )
     );
     setIsPermissionsModalOpen(false);
@@ -127,8 +182,9 @@ const Workspaces = () => {
     });
   };
 
-  const handleDelete = (doc) => {
-    setUserDocs(userDocs.filter((d) => d.id !== doc.id));
+  const handleDelete = async (doc) => {
+    await DeleteDocument({ docId: doc._id, workspaceId: _id });
+    setUserDocs(userDocs.filter((d) => d.id !== doc._id));
   };
 
   const toggleDropdown = (docId) => {
@@ -169,7 +225,7 @@ const Workspaces = () => {
 
   const onUpdate = () => {
     setEditDocBtn(true);
-    exportToDocx();
+    // exportToDocx();
   }
 
   return (
@@ -224,13 +280,13 @@ const Workspaces = () => {
                 onClick={() => handleDocClick(doc)}
               >
                 <span className="text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
-                  {doc.name}
+                  {doc.documentTitle}
                 </span>
 
                 {/* Dropdown Menu */}
                 <div className="relative inline-block text-left">
                   <button
-                    onClick={() => toggleDropdown(doc.id)}
+                    onClick={() => toggleDropdown(doc._id)}
                     className="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
                     type="button"
                   >
@@ -246,7 +302,7 @@ const Workspaces = () => {
                   </button>
 
                   {/* Dropdown menu */}
-                  {openDropdowns[doc.id] && (
+                  {openDropdowns[doc._id] && (
                     <div className="z-10 absolute right-0 mt-2 w-44 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600">
                       <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                         <li>
@@ -284,7 +340,7 @@ const Workspaces = () => {
 
         {/* Document Content */}
         <div className="md:ml-8 sd:ml-0 p-4 sd:border-0 md:border-l-2 border-gray-200 dark:border-gray-700 flex-grow">
-          <h6 className="text-lg text-blue-gray-600 mb-4">Document Content</h6>
+          {/* <h6 className="text-lg text-blue-gray-600 mb-4">Document Content</h6> */}
           <div className="bg-white dark:bg-gray-800 p-4 border rounded-md shadow-sm sd:max-h-[calc(100%)] md:max-h-[calc(85vh)] overflow-y-auto">
             {selectedDoc ? (
               !editDocBtn ? (
