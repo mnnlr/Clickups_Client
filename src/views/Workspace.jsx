@@ -242,12 +242,12 @@ const AllWorkspaces = () => {
       workspaceDocuments: [],
       workspaceMembers: []
     };
-  
+
     if (newWorkspaceName.trim() === '') {
       console.error('Workspace name is required.');
       return;
     }
-  
+
     try {
       const response = await customAxios.post('/api/workspaces/', newWorkspace, {
         headers: {
@@ -255,15 +255,15 @@ const AllWorkspaces = () => {
           "Authorization": `Bearer ${token}`,
         },
       });
-  
+
       if (response.status === 200 || response.status === 201) {
         console.log('Workspace created successfully:', response.data);
-  
+
         setWorkspaces((prevWorkspaces) => [...prevWorkspaces, response.data]);
         setNewWorkspaceName('');
-        setWorkspaceType(''); 
-        fetchWorkspaces();  
-        closeModal(); 
+        setWorkspaceType('');
+        fetchWorkspaces();
+        closeModal();
       } else {
         throw new Error('Failed to add workspace');
       }
@@ -271,7 +271,7 @@ const AllWorkspaces = () => {
       console.error('Error creating workspace:', error);
     }
   };
-  
+
   const switchWorkspace = (workspace) => {
     navigate(`/workspace/${workspace._id}/${workspace.type}`, {
       state: { workspaceName: workspace.workspaceName },
