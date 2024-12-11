@@ -236,45 +236,42 @@ const AllWorkspaces = () => {
 
 
   const addWorkspace = async () => {
-
     const newWorkspace = {
       workspaceName: newWorkspaceName,
       workspaceCreatedBy: user._id,
       workspaceDocuments: [],
-      workspaceMembers: [],
+      workspaceMembers: []
     };
-
+  
     if (newWorkspaceName.trim() === '') {
       console.error('Workspace name is required.');
       return;
     }
-
+  
     try {
-
       const response = await customAxios.post('/api/workspaces/', newWorkspace, {
         headers: {
           'Content-Type': 'application/json',
           "Authorization": `Bearer ${token}`,
         },
       });
-
-      if (response.status === 200) {
+  
+      if (response.status === 200 || response.status === 201) {
+        console.log('Workspace created successfully:', response.data);
+  
         setWorkspaces((prevWorkspaces) => [...prevWorkspaces, response.data]);
-
         setNewWorkspaceName('');
-        setWorkspaceType('');
-
-        closeModal();
-
-        fetchWorkspaces();
+        setWorkspaceType(''); 
+        fetchWorkspaces();  
+        closeModal(); 
       } else {
         throw new Error('Failed to add workspace');
       }
     } catch (error) {
-      console.error('Error adding workspace:', error.response ? error.response.data : error.message);
+      console.error('Error creating workspace:', error);
     }
   };
-
+  
   const switchWorkspace = (workspace) => {
     navigate(`/workspace/${workspace._id}/${workspace.type}`, {
       state: { workspaceName: workspace.workspaceName },
