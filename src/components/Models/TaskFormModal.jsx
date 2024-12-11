@@ -133,7 +133,7 @@ const TaskForm = ({ task, onSelectUserChange, onChange, onSubmit, onCancel, task
                   ) : (
                     <p
                       className="break-all"
-                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(task?.description || 'No description available') }}
+                      dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(task?.description || "No description available. (Don't add Images here add in comments.)") }}
                     ></p>
                   )}
                 </div>
