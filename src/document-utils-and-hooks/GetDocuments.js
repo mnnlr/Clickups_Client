@@ -1,6 +1,6 @@
 import { axiosPrivate } from "../CustomAxios/customAxios";
 import Cookies from "js-cookie";
-export default async function GetDocuments() {
+export default async function GetDocuments(workspaceId) {
     const token = Cookies.get("User");
     try {
         const response = await axiosPrivate.get('/api/workspace/documents', {
@@ -10,7 +10,9 @@ export default async function GetDocuments() {
             },
         });
         if (response.data.success) {
-            return response.data.data;
+            const documents = response.data.data.filter(doc => doc.workspaceId === workspaceId);
+            // console.log(documents);
+            return documents;
         } else {
             console.error(response);
             return null;

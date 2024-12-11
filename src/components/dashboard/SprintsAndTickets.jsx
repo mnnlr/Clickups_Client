@@ -66,7 +66,7 @@ export const SprintsAndTickets = ({ sprints, individualTasks }) => {
                         {individualTasks
                             .filter(matchesSearchQuery)
                             .map((task) => (
-                                <div key={task._id} className="p-6 rounded-xl bg-gray-100 shadow-lg hover:scale-105 transform transition dark:bg-gray-800">
+                                <div key={task._id} className="p-6 rounded-xl bg-gray-200 shadow-lg hover:scale-105 transform transition dark:bg-gray-800">
                                     <div className="flex justify-between items-center mb-4">
                                         <div>
                                             <p className="text-2xl font-semibold text-gray-800 dark:text-gray-200">{task.taskName}</p>
@@ -162,7 +162,7 @@ export const SprintsAndTickets = ({ sprints, individualTasks }) => {
                                 {/* No tickets found */}
                                 {sprint.taskIds.filter(matchesSearchQuery).length === 0 && (
                                     <div className='flex'>
-                                    <p className="text-gray-500 text-center py-4 dark:text-gray-400 text-lg font-bold">No tickets found.</p>
+                                        <p className="text-gray-500 text-center py-4 dark:text-gray-400 text-lg font-bold">No tickets found.</p>
                                     </div>
                                 )}
                             </div>

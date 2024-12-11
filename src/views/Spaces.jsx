@@ -13,6 +13,7 @@ import GetDocuments from '../document-utils-and-hooks/GetDocuments.js';
 import UpdateDocument from '../document-utils-and-hooks/UpdateDocument.js';
 import { showToast } from '../components/Toastconfig';
 import DeleteDocument from '../document-utils-and-hooks/DeleteDocument.js';
+import { ExportToDoc } from '../document-utils-and-hooks/ExportToDoc.jsx';
 
 const templates = {
   1: [ // Workspace type 1
@@ -48,7 +49,7 @@ const Workspaces = () => {
   const user = useSelector((state) => state.login.user);
 
   useEffect(() => {
-    GetDocuments().then((docsData) => {
+    GetDocuments(_id).then((docsData) => {
       showToast("Documents fetched successfully.", "success");
       setUserDocs(docsData);
     }).catch((error) => {
@@ -208,24 +209,23 @@ const Workspaces = () => {
     setIsPermissionsModalOpen(false);
   };
 
-  const exportToDocx = () => {
-    const content = selectedDocContent;
-    const convertedContent = `<html><body>${content}</body></html>`;
+  // const exportToDocx = () => {
+  //   const content = selectedDocContent;
+  //   const convertedContent = `<html><body>${content}</body></html>`;
 
-    const blob = new Blob([convertedContent], {
-      type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    });
+  //   const blob = new Blob([convertedContent], {
+  //     type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  //   });
 
-    // Create a download link
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'document.docx';
-    link.click();
-  };
+  //   // Create a download link
+  //   const link = document.createElement('a');
+  //   link.href = URL.createObjectURL(blob);
+  //   link.download = 'document.docx';
+  //   link.click();
+  // };
 
   const onUpdate = () => {
     setEditDocBtn(true);
-    // exportToDocx();
   }
 
   return (
@@ -248,6 +248,8 @@ const Workspaces = () => {
               Update
             </button>
           }
+
+          <button onClick={() => <ExportToDoc selectedDocContent={selectedDocContent} />} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Export to .docx</button>
         </div>
       </div>
 
