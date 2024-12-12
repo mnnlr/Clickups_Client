@@ -13,7 +13,8 @@ import GetDocuments from '../document-utils-and-hooks/GetDocuments.js';
 import UpdateDocument from '../document-utils-and-hooks/UpdateDocument.js';
 import { showToast } from '../components/Toastconfig';
 import DeleteDocument from '../document-utils-and-hooks/DeleteDocument.js';
-import { ExportToDoc } from '../document-utils-and-hooks/ExportToDoc.jsx';
+import { ExportToDoc } from '../document-utils-and-hooks/ExportToDoc.js';
+import ClickOutsideWrapper from '../utils/ClickOutsideWrapper.jsx';
 
 const templates = {
   1: [ // Workspace type 1
@@ -184,8 +185,13 @@ const Workspaces = () => {
   };
 
   const handleDelete = async (doc) => {
-    await DeleteDocument({ docId: doc._id, workspaceId: _id });
-    setUserDocs(userDocs.filter((d) => d.id !== doc._id));
+    const res = await DeleteDocument({ docId: doc._id, workspaceId: _id });
+    if (res) {
+      showToast("Document deleted successfully.", "success");
+      setUserDocs(userDocs.filter((d) => d.id === doc._id));
+    } else {
+      showToast("Failed to delete document.", "error");
+    }
   };
 
   const toggleDropdown = (docId) => {
@@ -209,21 +215,6 @@ const Workspaces = () => {
     setIsPermissionsModalOpen(false);
   };
 
-  // const exportToDocx = () => {
-  //   const content = selectedDocContent;
-  //   const convertedContent = `<html><body>${content}</body></html>`;
-
-  //   const blob = new Blob([convertedContent], {
-  //     type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  //   });
-
-  //   // Create a download link
-  //   const link = document.createElement('a');
-  //   link.href = URL.createObjectURL(blob);
-  //   link.download = 'document.docx';
-  //   link.click();
-  // };
-
   const onUpdate = () => {
     setEditDocBtn(true);
   }
@@ -238,10 +229,12 @@ const Workspaces = () => {
         <div className="flex items-center space-x-4">
           <AddMember />
           {editDocBtn ?
-            <button onClick={() => setEditDocBtn(false)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
-              <PencilIcon className="h-4 w-4 mr-2" />
-              Edit
-            </button>
+            selectedDoc ?
+              <button onClick={() => setEditDocBtn(false)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                <PencilIcon className="h-4 w-4 mr-2" />
+                Edit
+              </button>
+              : <button className='flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'>Select Document</button>
             :
             <button onClick={onUpdate} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
               <GrUpdate className="h-4 w-4 mr-2" />
@@ -249,14 +242,14 @@ const Workspaces = () => {
             </button>
           }
 
-          <button onClick={() => <ExportToDoc selectedDocContent={selectedDocContent} />} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Export to .docx</button>
+          <button onClick={() => ExportToDoc(selectedDocContent)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Export Document</button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-wrap justify-center">
+      <div className="flex justify-center">
         {/* Document List */}
-        <div className="static md:h-[calc(92vh)] sd:h-[calc(100%)] w-full md:max-w-[20rem] p-4 pt-0 rounded-none bg-gray-50 dark:bg-gray-800 shadow-none shadow-blue-gray-900/5 flex-shrink-0">
+        <div className="static sd:h-[calc(100%)] md:h-[calc(83.5vh)] overflow-y-auto w-full md:max-w-[20rem] p-4 pt-0 rounded-none bg-gray-50 dark:bg-gray-800 shadow-none shadow-blue-gray-900/5 flex-shrink-0">
           <div className="mt-3">
             <SearchBox search={search} handleSearch={handleSearch} />
           </div>
@@ -278,7 +271,7 @@ const Workspaces = () => {
             {filteredDocs.map((doc, index) => (
               <li
                 key={index}
-                className="bg-gray-100 dark:bg-gray-700 p-2 mt-2 mb-0 cursor-pointer flex justify-between items-center"
+                className="bg-gray-100 dark:bg-gray-700 p-2 mt-2 mb-0 cursor-pointer border border-gray-200 dark:border-gray-600 shadow-sm rounded-md flex justify-between items-center"
                 onClick={() => handleDocClick(doc)}
               >
                 <span className="text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -289,7 +282,7 @@ const Workspaces = () => {
                 <div className="relative inline-block text-left">
                   <button
                     onClick={() => toggleDropdown(doc._id)}
-                    className="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                    className="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-gray-200 rounded-lg hover:bg-gray-300 focus:ring-4 focus:outline-none dark:text-white focus:ring-gray-50 dark:bg-gray-800 dark:hover:bg-gray-900 dark:focus:ring-gray-600"
                     type="button"
                   >
                     <svg
@@ -304,6 +297,7 @@ const Workspaces = () => {
                   </button>
 
                   {/* Dropdown menu */}
+                  {/* <ClickOutsideWrapper onClickOutside={() => setOpenDropdowns(false)}> */}
                   {openDropdowns[doc._id] && (
                     <div className="z-10 absolute right-0 mt-2 w-44 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600">
                       <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
@@ -334,6 +328,7 @@ const Workspaces = () => {
                       </ul>
                     </div>
                   )}
+                  {/* </ClickOutsideWrapper> */}
                 </div>
               </li>
             ))}
@@ -341,145 +336,150 @@ const Workspaces = () => {
         </div>
 
         {/* Document Content */}
-        <div className="md:ml-8 sd:ml-0 p-4 sd:border-0 md:border-l-2 border-gray-200 dark:border-gray-700 flex-grow">
-          {/* <h6 className="text-lg text-blue-gray-600 mb-4">Document Content</h6> */}
-          <div className="bg-white dark:bg-gray-800 p-4 border rounded-md shadow-sm sd:max-h-[calc(100%)] md:max-h-[calc(85vh)] overflow-y-auto">
-            {selectedDoc ? (
-              !editDocBtn ? (
-                < TextEditor
-                  setHeight={710}
-                  commentbtn={false}
-                  content={selectedDocContent}
-                  setContent={setSelectedDocContent}
-                />
-              ) : (
-                <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedDocContent || 'No Content') }} ></p>
-              )
+        <div className="p-4 sd:border-0 md:border-l-2 border-gray-200 dark:border-gray-700 flex-grow">
+          {/* <div className="bg-white dark:bg-gray-800 p-4 border rounded-md shadow-sm sd:max-h-[calc(100%)] md:max-h-[calc(85vh)] overflow-y-auto">
+          </div> */}
+          {selectedDoc ? (
+            !editDocBtn ? (
+              < TextEditor
+                setHeight={710}
+                commentbtn={false}
+                content={selectedDocContent}
+                setContent={setSelectedDocContent}
+              />
             ) : (
-              <p>No Document Selected</p>
-            )}
-          </div>
+              <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedDocContent || 'No Content') }} ></p>
+            )
+          ) : (
+            <p>No Document Selected</p>
+          )}
         </div>
       </div>
 
       {/* Modal for Creating Document */}
-      {isCreateModalOpen && (
-        <Modal title="Create Document" onClose={handleCloseCreateModal}>
-          <input
-            type="text"
-            value={newDocName}
-            onChange={(e) => setNewDocName(e.target.value)}
-            placeholder="Document Name"
-            className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
-          />
-          <button
-            onClick={handleAddDocument}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Add Document
-          </button>
-        </Modal>
-      )}
+      {
+        isCreateModalOpen && (
+          <Modal title="Create Document" onClose={handleCloseCreateModal}>
+            <input
+              type="text"
+              value={newDocName}
+              onChange={(e) => setNewDocName(e.target.value)}
+              placeholder="Document Name"
+              className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
+            />
+            <button
+              onClick={handleAddDocument}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Add Document
+            </button>
+          </Modal>
+        )
+      }
 
       {/* Modal for Editing Document */}
-      {isEditModalOpen && (
-        <Modal title="Edit Document" onClose={handleCloseEditModal}>
-          <input
-            type="text"
-            value={newDocName}
-            onChange={(e) => setNewDocName(e.target.value)}
-            placeholder="Document Name"
-            className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
-          />
-          <button
-            onClick={handleSaveEdit}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Save Changes
-          </button>
-        </Modal>
-      )}
+      {
+        isEditModalOpen && (
+          <Modal title="Edit Document" onClose={handleCloseEditModal}>
+            <input
+              type="text"
+              value={newDocName}
+              onChange={(e) => setNewDocName(e.target.value)}
+              placeholder="Document Name"
+              className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
+            />
+            <button
+              onClick={handleSaveEdit}
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Save Changes
+            </button>
+          </Modal>
+        )
+      }
 
       {/* Modal for Permissions */}
-      {isPermissionsModalOpen && (
-        <Modal title="Manage Permissions" onClose={handleClosePermissionsModal}>
-          <div className="space-y-4">
-            {/* Permissions Section */}
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={permissions.canEdit}
-                  onChange={() => handleTogglePermission('canEdit')}
-                  className="mr-2 h-5 w-5"
-                />
-                <label className="text-sm font-medium">Can Edit</label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={permissions.canView}
-                  onChange={() => handleTogglePermission('canView')}
-                  className="mr-2 h-5 w-5"
-                />
-                <label className="text-sm font-medium">Can View</label>
-              </div>
-            </div>
-
-            {/* Members Section */}
-            <div>
-              <h6 className="text-lg font-semibold mb-2">Members</h6>
+      {
+        isPermissionsModalOpen && (
+          <Modal title="Manage Permissions" onClose={handleClosePermissionsModal}>
+            <div className="space-y-4">
+              {/* Permissions Section */}
               <div className="space-y-2">
-                {permissions.members.length > 0 ? (
-                  permissions.members.map((member, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{member}</span>
-                      <button
-                        onClick={() => handleRemoveMember(member)}
-                        className="text-red-500 text-sm hover:underline"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No members added yet.</p>
-                )}
-              </div>
-
-              {/* Add Member Button */}
-              <div className="mt-4">
-                <h6 className="text-sm font-medium">Add Member</h6>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handleAddMember('new_member')}
-                    className="flex justify-between items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
-                  >
-                    <span>Add New Member</span>
-                  </button>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={permissions.canEdit}
+                    onChange={() => handleTogglePermission('canEdit')}
+                    className="mr-2 h-5 w-5"
+                  />
+                  <label className="text-sm font-medium">Can Edit</label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={permissions.canView}
+                    onChange={() => handleTogglePermission('canView')}
+                    className="mr-2 h-5 w-5"
+                  />
+                  <label className="text-sm font-medium">Can View</label>
                 </div>
               </div>
-            </div>
 
-            {/* Footer Section with Save and Cancel buttons */}
-            <div className="flex justify-end space-x-4 mt-6">
-              <button
-                onClick={handleClosePermissionsModal}
-                className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePermissionsSave}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
-              >
-                Save Permissions
-              </button>
+              {/* Members Section */}
+              <div>
+                <h6 className="text-lg font-semibold mb-2">Members</h6>
+                <div className="space-y-2">
+                  {permissions.members.length > 0 ? (
+                    permissions.members.map((member, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-sm text-gray-700 dark:text-gray-300">{member}</span>
+                        <button
+                          onClick={() => handleRemoveMember(member)}
+                          className="text-red-500 text-sm hover:underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No members added yet.</p>
+                  )}
+                </div>
+
+                {/* Add Member Button */}
+                <div className="mt-4">
+                  <h6 className="text-sm font-medium">Add Member</h6>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => handleAddMember('new_member')}
+                      className="flex justify-between items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+                    >
+                      <span>Add New Member</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Section with Save and Cancel buttons */}
+              <div className="flex justify-end space-x-4 mt-6">
+                <button
+                  onClick={handleClosePermissionsModal}
+                  className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePermissionsSave}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+                >
+                  Save Permissions
+                </button>
+              </div>
             </div>
-          </div>
-        </Modal>
-      )}
-    </div>
+          </Modal>
+        )
+      }
+    </div >
   );
 };
 
