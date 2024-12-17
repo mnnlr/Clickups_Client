@@ -154,10 +154,19 @@ const Workspaces = () => {
     setIsPermissionsModalOpen(true); // Open the Permissions modal
   };
 
+  // const handlePermissionsSave = () => {
+  //   setUserDocs(
+  //     userDocs.map((doc) =>
+  //       doc._id === selectedDoc._id ? { ...doc, permissions } : doc
+  //     )
+  //   );
+  //   setIsPermissionsModalOpen(false);
+  // };
+
   const handlePermissionsSave = () => {
     setUserDocs(
       userDocs.map((doc) =>
-        doc._id === selectedDoc._id ? { ...doc, permissions } : doc
+        doc._id === selectedDoc._id ? { ...doc, permissions: { ...permissions, members: permissions.members || [] } } : doc
       )
     );
     setIsPermissionsModalOpen(false);
@@ -429,7 +438,8 @@ const Workspaces = () => {
               <div>
                 <h6 className="text-lg font-semibold mb-2">Members</h6>
                 <div className="space-y-2">
-                  {permissions.members.length > 0 ? (
+                  {/* Check if members is defined and has items */}
+                  {(permissions.members && permissions.members.length > 0) ? (
                     permissions.members.map((member, index) => (
                       <div key={index} className="flex justify-between items-center">
                         <span className="text-sm text-gray-700 dark:text-gray-300">{member}</span>
@@ -479,6 +489,7 @@ const Workspaces = () => {
           </Modal>
         )
       }
+
     </div >
   );
 };
