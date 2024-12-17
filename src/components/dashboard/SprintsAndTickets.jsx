@@ -69,11 +69,11 @@ export const SprintsAndTickets = ({ sprints, individualTasks }) => {
                                 <div key={task._id} className="p-6 rounded-xl bg-gray-200 shadow-lg hover:scale-105 transform transition dark:bg-gray-800">
                                     <div className="flex justify-between items-center mb-4">
                                         <div>
-                                            <p className="text-2xl font-semibold text-gray-800 dark:text-gray-200">{task.taskName}</p>
+                                            <p className="text-xl font-semibold text-gray-800 dark:text-gray-200">{task.taskName}</p>
                                         </div>
                                     </div>
                                     <div className='flex'>
-                                        <p className="font-bold px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-600 dark:bg-blue-700 dark:text-white">{task.kanId}</p>
+                                        <p className="font-bold px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-600 dark:bg-blue-700 dark:text-white">{task.kanId}</p>
                                     </div>
                                     <div className="mt-4 flex justify-end">
                                         <span
@@ -92,7 +92,7 @@ export const SprintsAndTickets = ({ sprints, individualTasks }) => {
                                         </span>
                                     </div>
                                     <div className='flex'>
-                                        <p className="text-right text-gray-600 font-bold mt-2 dark:text-gray-400">Created By: <span className='font-extralight'>{task.userId?.name}</span></p>
+                                        <p className="text-right text-gray-600 font-bold mt-2 dark:text-gray-400 text-sm">Created By: <span className='font-extralight'>{task.userId?.name}</span></p>
                                     </div>
                                 </div>
                             ))}
@@ -121,7 +121,7 @@ export const SprintsAndTickets = ({ sprints, individualTasks }) => {
 
                         {/* Display Tickets */}
                         {openSprints[sprint.sprintname] && (
-                            <div className="grid grid-cols-3 gap-6 m-8">
+                            <div className="grid grid-cols-3 gap-6 m-8 max-h-[200px] overflow-y-auto">
                                 {sprint.taskIds
                                     .filter(matchesSearchQuery)
                                     .map((ticket) => (
@@ -129,11 +129,11 @@ export const SprintsAndTickets = ({ sprints, individualTasks }) => {
                                             <div className="p-6 rounded-xl bg-gray-100 shadow-lg transition-transform transform hover:scale-105 dark:bg-gray-800">
                                                 <div className="flex justify-between items-center mb-4">
                                                     <div>
-                                                        <p className="text-2xl font-semibold text-gray-800 dark:text-gray-200">{ticket.taskName}</p>
+                                                        <p className="text-xl font-semibold text-gray-800 dark:text-gray-200">{ticket.taskName}</p>
                                                     </div>
                                                 </div>
                                                 <div className='flex'>
-                                                    <p className="font-bold px-2 py-1 rounded-full text-sm bg-blue-100 text-blue-600 dark:bg-blue-700 dark:text-white">{ticket.kanId}</p>
+                                                    <p className="font-bold px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-600 dark:bg-blue-700 dark:text-white">{ticket.kanId}</p>
                                                 </div>
 
                                                 <div className="mt-4 flex justify-end">
@@ -153,7 +153,7 @@ export const SprintsAndTickets = ({ sprints, individualTasks }) => {
                                                     </span>
                                                 </div>
                                                 <div className='flex'>
-                                                    <p className="text-right text-gray-600 font-bold mt-2 dark:text-gray-400">Created By: <span className='font-extralight'>{ticket.userId?.name}</span></p>
+                                                    <p className="text-right text-gray-600 font-bold mt-2 text-sm dark:text-gray-400">Created By: <span className='font-extralight'>{ticket.userId?.name}</span></p>
                                                 </div>
                                             </div>
                                         </div>
