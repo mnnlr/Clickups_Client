@@ -7,11 +7,6 @@ export default function useCreateProject({ projects, projectData, selectedTeams,
     const token = Cookies.get("User");
 
     const createProject = async () => {
-        const newProject = {
-            id: `proj${projects.length + 1}`,
-            ...projectData,
-            teams: selectedTeams,
-        };
 
         // const MembersIds = selectedTeams.map(id => ({ teamData: id }));
 
@@ -33,13 +28,17 @@ export default function useCreateProject({ projects, projectData, selectedTeams,
                     withCredentials: true
                 });
 
-                // console.log("responce: ", projectResponse)
+                // console.log("responce: ", projectResponse.data.data._id);
 
+                const newProject = {
+                    id: projectResponse.data.data._id,
+                    ...projectData,
+                    teams: selectedTeams,
+                };
 
                 if (projectResponse.status === 201) {
                     toast.success("Project Created ")
                     setProjects([...projects, newProject]);
-
                     closeModal();
                 }
             }

@@ -6,7 +6,6 @@ import AddMember from './AddUser';
 import Modal from '../components/Models/Modal'; // Assuming Modal is the same component for both edit and create
 import { TextEditor } from '../components/TinyMCE_TextEditor/TextEditor';
 import { GrUpdate } from "react-icons/gr";
-import DOMPurify from 'dompurify';
 import { useSelector } from 'react-redux';
 import { CreateDocument } from '../document-utils-and-hooks/CreateDocument.js';
 import GetDocuments from '../document-utils-and-hooks/GetDocuments.js';
@@ -14,8 +13,11 @@ import UpdateDocument from '../document-utils-and-hooks/UpdateDocument.js';
 import { showToast } from '../components/Toastconfig';
 import DeleteDocument from '../document-utils-and-hooks/DeleteDocument.js';
 import { ExportToDoc } from '../document-utils-and-hooks/ExportToDoc.js';
-import ClickOutsideWrapper from '../utils/ClickOutsideWrapper.jsx';
-
+// import { GetDocumentContent } from '../document-utils-and-hooks/useGetDocumentContent.js';
+import { useGetDocumentContent } from '../document-utils-and-hooks/useGetDocumentContent.js';
+import { useCreateDocInCloud } from '../document-utils-and-hooks/useCreateDocInCloud.js';
+import DOMPurify from 'dompurify';
+import { IoCloudyNight } from 'react-icons/io5';
 const templates = {
   1: [ // Workspace type 1
     { id: 1, name: 'Nik Doc a', content: 'Content for Nike Doc a', permissions: { canEdit: true, canView: true, members: ['user1', 'user2'] } },
@@ -40,6 +42,12 @@ const Workspaces = () => {
   const { state } = useLocation();
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [editDocBtn, setEditDocBtn] = useState(true);
+
+  // create document in cloudinary and updating the document
+  const { CreateDocLoading, CreateDocError, createDocument } = useCreateDocInCloud({ documentId: selectedDoc, data: selectedDocContent });
+
+  // get document content
+  const { GetDocLoading, GetDocError, GetDocData, getDocumentContent } = useGetDocumentContent();
 
   const [permissions, setPermissions] = useState({
     canEdit: false,
@@ -68,10 +76,38 @@ const Workspaces = () => {
     );
   }, [search, userDocs]);
 
-  const handleDocClick = (doc) => {
+  // const handleDocClick = async (doc) => {
+  //   setSelectedDoc(doc);
+  //   // console.log(doc)
+
+  //   // const DocContent = await GetDocumentContent(doc._id);
+  //   // setSelectedDocContent(DOMPurify.sanitize(DocContent));
+
+  //   getDocumentContent(doc._id);
+  //   const DocContent = GetDocLoading ? { _html: "Loading..." } : GetDocError ? { _html: "Error while fetching document." } : GetDocData;
+  //   setSelectedDocContent(DocContent);
+
+
+  // };
+
+  const handleDocClick = async (doc) => {
     setSelectedDoc(doc);
-    setSelectedDocContent(doc.content);
+    getDocumentContent(doc._id);
   };
+
+  useEffect(() => {
+    if (GetDocData) {
+      // console.log("GetDocData: ", GetDocData);
+      setSelectedDocContent(GetDocData);
+    } else if (GetDocError) {
+      setSelectedDocContent("Error while fetching document.");
+    } else if (GetDocLoading) {
+      setSelectedDocContent("Loading Document...");
+    } else {
+      setSelectedDocContent("Start editing your document...");
+    }
+  }, [GetDocData, GetDocError, GetDocLoading]);
+
 
   const handleAddDocument = async () => {
 
@@ -131,6 +167,7 @@ const Workspaces = () => {
       const updatedDocData = {
         documentTitle: newDocName.trim(),
       }
+
       const res = await UpdateDocument({ docId: selectedDoc._id, updatedData: updatedDocData });
       if (res) {
         showToast("Document updated successfully.", "success");
@@ -197,7 +234,7 @@ const Workspaces = () => {
     const res = await DeleteDocument({ docId: doc._id, workspaceId: _id });
     if (res) {
       showToast("Document deleted successfully.", "success");
-      setUserDocs(userDocs.filter((d) => d.id === doc._id));
+      setUserDocs(userDocs.filter((d) => d._id !== doc._id));
     } else {
       showToast("Failed to delete document.", "error");
     }
@@ -226,6 +263,8 @@ const Workspaces = () => {
 
   const onUpdate = () => {
     setEditDocBtn(true);
+    createDocument();
+    // CreateDocInCloud({ documentId: selectedDoc._id, data: selectedDocContent })
   }
 
   return (
@@ -357,7 +396,17 @@ const Workspaces = () => {
                 setContent={setSelectedDocContent}
               />
             ) : (
-              <p dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(selectedDocContent || 'No Content') }} ></p>
+              <div
+                dangerouslySetInnerHTML={
+                  CreateDocLoading ? { __html: "Loading..." } :
+                    CreateDocError ? { __html: "Error while creating or updating document." } :
+                      {
+                        __html: DOMPurify.sanitize(selectedDocContent, {
+                          ALLOWED_TAGS: ['ol', 'ul', 'li', 'p', 'span', 'br'],
+                        })
+                      }
+                }
+              ></div>
             )
           ) : (
             <p>No Document Selected</p>
