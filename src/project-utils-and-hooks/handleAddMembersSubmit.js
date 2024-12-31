@@ -22,6 +22,8 @@ const handleAddMembersSubmit = async (e, currentProject, projects, selectedTeams
         };
         // console.log(updateData);
 
+        console.log("proID: ", currentProject.id);
+
         try {
             const response = await axiosPrivate.patch(`/api/projects/${currentProject.id}/add`,
                 updateData,
@@ -32,6 +34,7 @@ const handleAddMembersSubmit = async (e, currentProject, projects, selectedTeams
                     },
                 }
             );
+            // console.log("res:", response);
             if (response.status === 200) {
                 setProjects(updatedProjects);
                 closeAddMembersModal();

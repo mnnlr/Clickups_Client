@@ -10,7 +10,7 @@ export const PieCharts = ({ sprints, individualtasks }) => {
 
     useEffect(() => {
         if (sprints.length > 0) {
-            setSelectedSprint(sprints[0]._id); 
+            setSelectedSprint(sprints[0]._id);
         }
     }, [sprints]);
 
@@ -55,7 +55,7 @@ export const PieCharts = ({ sprints, individualtasks }) => {
         const tasks = getIndivdualTasks();
         return Object.entries(
             tasks.reduce((acc, ticket) => {
-                const creatorName = ticket.userId.name; 
+                const creatorName = ticket.userId.name;
                 acc[creatorName] = (acc[creatorName] || 0) + 1;
                 return acc;
             }, {})
@@ -147,60 +147,34 @@ export const PieCharts = ({ sprints, individualtasks }) => {
 
                 {sprints.length > 0 ? (
                     <>
-                <div className="w-full md:w-full">
-                    <select
-                        value={selectedSprint}
-                        onChange={(e) => setSelectedSprint(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
-                    >
-                        {sprints.map((sprint) => (
-                            <option key={sprint._id} value={sprint._id}>
-                                {sprint.sprintname}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+                        <div className="w-full md:w-full">
+                            <select
+                                value={selectedSprint}
+                                onChange={(e) => setSelectedSprint(e.target.value)}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition"
+                            >
+                                {sprints.map((sprint) => (
+                                    <option key={sprint._id} value={sprint._id}>
+                                        {sprint.sprintname}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                {/* Tickets by Sprint */}
-                <div className="bg-white dark:bg-gray-800 flex flex-col justify-center items-center p-6 rounded-lg shadow">
-                    <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
-                        Tickets Created in Sprint
-                    </h3>
-                    <PieChart width={300} height={300}>
-                        <Pie
-                            data={ticketsPerSprint}
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            dataKey="value"
-                        >
-                            {ticketsPerSprint.map((_, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend verticalAlign="bottom" height={36} />
-                    </PieChart>
-                </div>
-
-
-
-                <div className="grid grid-cols-2 gap-8">
-                    {/* Tickets by Status */}
-                    <div className="bg-white dark:bg-gray-800 flex flex-col justify-center items-center p-6 rounded-lg shadow">
-                        <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
-                            Tickets by Status
-                        </h3>
-                        <div className="flex">
+                        {/* Tickets by Sprint */}
+                        <div className="bg-white dark:bg-gray-800 flex flex-col justify-center items-center p-6 rounded-lg shadow">
+                            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
+                                Tickets Created in Sprint
+                            </h3>
                             <PieChart width={300} height={300}>
                                 <Pie
-                                    data={ticketsByStatus()}
+                                    data={ticketsPerSprint}
                                     cx="50%"
                                     cy="50%"
                                     outerRadius={100}
                                     dataKey="value"
                                 >
-                                    {ticketsByStatus().map((_, index) => (
+                                    {ticketsPerSprint.map((_, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
@@ -208,48 +182,74 @@ export const PieCharts = ({ sprints, individualtasks }) => {
                                 <Legend verticalAlign="bottom" height={36} />
                             </PieChart>
                         </div>
-                    </div>
 
-                    {/* Tickets by User */}
-                    <div className="bg-white dark:bg-gray-800 flex flex-col justify-center items-center p-8 rounded-lg shadow">
-                        <h3 className="flex text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
-                            Tickets Created by User
-                        </h3>
-                        <div className="flex">
-                            <PieChart width={300} height={300}>
-                                <Pie
-                                    data={ticketsByCreator()}
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={100}
-                                    dataKey="value"
-                                >
-                                    {ticketsByCreator().map((_, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend verticalAlign="bottom" height={36} />
-                            </PieChart>
+
+
+                        <div className="grid grid-cols-2 gap-8">
+                            {/* Tickets by Status */}
+                            <div className="bg-white dark:bg-gray-800 flex flex-col justify-center items-center p-6 rounded-lg shadow">
+                                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
+                                    Tickets by Status
+                                </h3>
+                                <div className="flex">
+                                    <PieChart width={300} height={300}>
+                                        <Pie
+                                            data={ticketsByStatus()}
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={100}
+                                            dataKey="value"
+                                        >
+                                            {ticketsByStatus().map((_, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend verticalAlign="bottom" height={36} />
+                                    </PieChart>
+                                </div>
+                            </div>
+
+                            {/* Tickets by User */}
+                            <div className="bg-white dark:bg-gray-800 flex flex-col justify-center items-center p-8 rounded-lg shadow">
+                                <h3 className="flex text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">
+                                    Tickets Created by User
+                                </h3>
+                                <div className="flex">
+                                    <PieChart width={300} height={300}>
+                                        <Pie
+                                            data={ticketsByCreator()}
+                                            cx="50%"
+                                            cy="50%"
+                                            outerRadius={100}
+                                            dataKey="value"
+                                        >
+                                            {ticketsByCreator().map((_, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend verticalAlign="bottom" height={36} />
+                                    </PieChart>
+                                </div>
+                            </div>
+
+                        </div>
+                    </>
+                ) : (
+                    <div className="w-full md:w-full">
+                        <div className="bg-white dark:bg-gray-800 flex flex-col justify-center items-center p-6 rounded-lg shadow">
+                            <img
+                                src={noDataImage}
+                                alt="No Data Available"
+                                className="w-full max-w-xs md:max-w-sm lg:max-w-md h-auto object-contain"
+                            />
                         </div>
                     </div>
-                    
-                </div>
-                </>
-        ) : (
-            <div className="w-full md:w-full">
-            <div className="flex justify-center items-center bg-white dark:bg-gray-500 p-4">
-                <img 
-                    src={noDataImage} 
-                    alt="No Data Available" 
-                    className="w-full max-w-xs md:max-w-sm lg:max-w-md h-auto object-contain"
-                />
+
+                )}
             </div>
-        </div>
-        
-        )}
-            </div>
-           
+
         </div>
     );
 };

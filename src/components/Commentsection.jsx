@@ -147,23 +147,10 @@ const CommentsSection = ({ taskId }) => {
 
 
   return (
-    <div className="max-w-5xl mx-auto p-4 overflow-y-auto max-h-[250px] bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <div>
-      <form onSubmit={handleSubmit} className="space-y-2">
-          {/* <textarea
-            placeholder="Add a comment..."
-            value={newComment}
-            onChange={handleChange}
-            className="mt-2 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:border-blue-500 sm:text-sm"
-          ></textarea>
-
-          <button
-            type="submit"
-            className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Comment
-          </button> */}
-        <h1 className="text-md text-gray">Comments</h1>
+    <div className="max-w-5xl mx-auto p-4 overflow-y-auto max-h-[45vh] bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <div>
+        <form onSubmit={handleSubmit} className="space-y-2">
+          <h1 className="text-md text-gray">Comments</h1>
           {inputClick ? (
             <TextEditor
               content={newComment}
@@ -187,18 +174,18 @@ const CommentsSection = ({ taskId }) => {
           <p className="text-gray-500 text-sm dark:text-white">No comments yet.</p>
         ) : (
           <ul className="space-y-2">
-          {comments.map((comment) => (
-            <li
-              key={comment?._id}
-              className="relative bg-white border border-gray-200 p-3 shadow-sm text-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
-            >
-              <div className="flex items-start space-x-3">
-                <div className="flex-1">
-                  <p className="font-semibold text-blue-700 bg-blue-100 rounded-xl px-3 py-1 inline-block dark:text-blue-300 dark:bg-blue-900">
-                    {comment?.creatorId?.name || 'Unknown User'}
-                  </p>
-                  {editingCommentId === comment?._id ? (
-                    <form onSubmit={handleEditSubmit} className="mt-2 space-y-2">
+            {comments.map((comment) => (
+              <li
+                key={comment?._id}
+                className="relative bg-white border border-gray-200 p-3 shadow-sm text-sm rounded-xl dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
+              >
+                <div className="flex items-start space-x-3">
+                  <div className="flex-1">
+                    <p className="font-semibold text-blue-700 bg-blue-100 rounded-xl px-3 py-1 inline-block dark:text-blue-300 dark:bg-blue-900">
+                      {comment?.creatorId?.name || 'Unknown User'}
+                    </p>
+                    {editingCommentId === comment?._id ? (
+                      <form onSubmit={handleEditSubmit} className="mt-2 space-y-2">
                         {/* <textarea
                           value={editText}
                           onChange={handleEditChange}
@@ -217,7 +204,7 @@ const CommentsSection = ({ taskId }) => {
                             Cancel
                           </button>
                         </div> */}
-                        
+
                         <TextEditor
                           content={editText}
                           setContent={setEditText}
