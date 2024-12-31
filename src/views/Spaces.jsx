@@ -7,6 +7,7 @@ import Modal from '../components/Models/Modal'; // Assuming Modal is the same co
 import { TextEditor } from '../components/TinyMCE_TextEditor/TextEditor';
 import { GrUpdate } from "react-icons/gr";
 import DOMPurify from 'dompurify';
+import useGetMembers from '../project-utils-and-hooks/useGetMembers';
 
 const templates = {
   1: [ // Workspace type 1
@@ -32,6 +33,8 @@ const Workspaces = () => {
   const { state } = useLocation();
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [editDocBtn, setEditDocBtn] = useState(true);
+  const [AvailableMembers, setAvailableMembers] = useState([]);
+  const [selectedMembers, setSelectedMembers] = useState([]);
 
   const [permissions, setPermissions] = useState({
     canEdit: false,
@@ -44,6 +47,15 @@ const Workspaces = () => {
       setUserDocs(templates[_id]);
     }
   }, [_id]);
+
+
+  // fetch members from server
+  const members = useGetMembers();
+  console.log("available", members.availableMembers)
+  useEffect(() => {
+    setAvailableMembers(members.availableMembers)
+  }, [members])
+  
 
   useEffect(() => {
     setFilteredDocs(
@@ -177,10 +189,11 @@ const Workspaces = () => {
       {/* Workspace Header */}
       <div className="flex flex-wrap items-center justify-between bg-gray-50 dark:bg-gray-800 p-4 border-b-2">
         <h1 className="text-xl font-semibold m-2">
-          {state.workspaceName}'s Workspace
+          {state.workspace.workspaceName}'s Workspace
         </h1>
         <div className="flex items-center space-x-4">
           <AddMember />
+
           {editDocBtn ?
             <button onClick={() => setEditDocBtn(false)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
               <PencilIcon className="h-4 w-4 mr-2" />
