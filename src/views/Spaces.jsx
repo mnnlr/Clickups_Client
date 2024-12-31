@@ -17,7 +17,8 @@ import { ExportToDoc } from '../document-utils-and-hooks/ExportToDoc.js';
 import { useGetDocumentContent } from '../document-utils-and-hooks/useGetDocumentContent.js';
 import { useCreateDocInCloud } from '../document-utils-and-hooks/useCreateDocInCloud.js';
 import DOMPurify from 'dompurify';
-import { IoCloudyNight } from 'react-icons/io5';import useGetMembers from '../project-utils-and-hooks/useGetMembers';
+// import { IoCloudyNight } from 'react-icons/io5';
+import useGetMembers from '../project-utils-and-hooks/useGetMembers';
 
 const templates = {
   1: [ // Workspace type 1
