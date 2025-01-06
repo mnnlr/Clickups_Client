@@ -36,14 +36,15 @@ const AllWorkspaces = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const token = Cookies.get("User");
+  
 
   const {
     availableMembers,
     selectedMembers,
     handleAddMember,
     handleRemoveMember,
-    setSelectedMembers,
-    handlemembersubmit
+    handlemembersubmit,
+    setSelectedMembers
   } = addMemberModalHook(workspaceToEdit,setIsAddMembersModalOpen);
 
   const handleAddMemberClick = (workspace) => {
@@ -72,7 +73,7 @@ const AllWorkspaces = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await fetchAllWorkspace(setWorkspaces);
+      await fetchAllWorkspace(setWorkspaces,user);
     };
     fetchData();
   }, [selectedMembers,isAddMembersModalOpen]);
@@ -116,7 +117,7 @@ const AllWorkspaces = () => {
 
   useEffect(() => {
     const fetchallworkspaces = async () => {
-      await fetchAllWorkspace(setWorkspaces)
+      await fetchAllWorkspace(setWorkspaces,user);
     }
     fetchallworkspaces();
   }, [])
@@ -158,7 +159,7 @@ const AllWorkspaces = () => {
         setWorkspaces((prevWorkspaces) => [...prevWorkspaces, response.data]);
         setNewWorkspaceName('');
         setWorkspaceType('');
-        fetchAllWorkspace(setWorkspaces);
+        fetchAllWorkspace(setWorkspaces,user);
         closeModal();
       } else {
         throw new Error('Failed to add workspace');
@@ -202,7 +203,7 @@ const AllWorkspaces = () => {
             )
           );
           closeModal();
-          fetchAllWorkspace(setWorkspaces);
+          fetchAllWorkspace(setWorkspaces,user);
           // useFetchworkspaces();
           console.log('Workspace updated successfully');
         } else {
