@@ -270,6 +270,8 @@ const AllWorkspaces = () => {
                 />
               </div>
               <div className="absolute top-2 right-2">
+              {user._id === workspace.workspaceCreatedBy._id || user.role === "admin" ?
+
                 <button
                   aria-haspopup="true"
                   aria-expanded={isDropdownOpen === index ? 'true' : 'false'}
@@ -286,7 +288,7 @@ const AllWorkspaces = () => {
                     <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
                   </svg>
                 </button>
-
+:""}
                 {isDropdownOpen === index && (
                   <div className="absolute right-0 mt-2 w-12 bg-white dark:bg-gray-800 shadow-lg rounded-lg transition-all duration-300 opacity-100">
                     <ul>
