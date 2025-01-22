@@ -12,6 +12,8 @@ import { FaUserPlus } from "react-icons/fa6";
 import addMemberModalHook from '../Worksspace-utils/AddMemberModalHook';
 import AvailableMembersShow from './AvailableMembersShow';
 import { fetchAllWorkspace } from '../utils/fetchingAPIsForWorkspace/fetchAllWorkspace';
+import DeleteConfirmationModal from '../components/Models/DeleteConfirmModel';
+import { showToast } from '../components/Toastconfig';
 
 const mockdataWorkspace = [
   { _id: 1, workspaceName: 'Nike', type: 'Team', createdAt: 'Oct 17, 2019', workspaceCreatedBy: "Manoj" },
@@ -32,6 +34,8 @@ const AllWorkspaces = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [workspaceToEdit, setWorkspaceToEdit] = useState(null);
+  const [WorkspacetoDelete, setWorkspacetoDelete] = useState(null);
+  const [deletemodal ,setdeleteModel]=useState(false)
   const { user } = useSelector((store) => store.login);
   const navigate = useNavigate();
   const location = useLocation();
@@ -107,7 +111,10 @@ const AllWorkspaces = () => {
         setWorkspaces((prevWorkspaces) =>
           prevWorkspaces.filter((workspace) => workspace._id !== workspaceId)
         );
+        setWorkspacetoDelete(null);
+        setdeleteModel(false)
         fetchAllWorkspace(setWorkspaces);
+        showToast("Workspace Deleted Successfully","success")
         console.log('Workspace deleted successfully');
       }
     } catch (error) {
@@ -310,7 +317,13 @@ const AllWorkspaces = () => {
                       </li>
                       <li>
                         <button
-                          onClick={() => handleDeleteWorkspace(workspace._id)}
+                          onClick={() =>{
+                            setWorkspacetoDelete(workspace._id)
+                            setdeleteModel(true)
+                          }
+                            // handleDeleteWorkspace(workspace._id)
+                          }
+                          
                           className="block px-4 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                         >
                           <MdOutlineDeleteForever size={20} />
@@ -397,6 +410,11 @@ const AllWorkspaces = () => {
           />
         )}
       </div>
+      <DeleteConfirmationModal
+      isOpen={deletemodal}
+      onClose={()=>setdeleteModel(false)}
+      onConfirm={()=>handleDeleteWorkspace(WorkspacetoDelete)}
+      />
     </div>
   );
 };

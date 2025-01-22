@@ -18,13 +18,15 @@ import { useGetDocumentContent } from '../document-utils-and-hooks/useGetDocumen
 import { useCreateDocInCloud } from '../document-utils-and-hooks/useCreateDocInCloud.js';
 import DOMPurify from 'dompurify';
 // import { IoCloudyNight } from 'react-icons/io5';
-import useGetMembers from '../project-utils-and-hooks/useGetMembers';
+// import useGetMembers from '../project-utils-and-hooks/useGetMembers';
 import { IoPersonAdd, IoPersonRemove } from "react-icons/io5";
 import { AiTwotoneMail } from "react-icons/ai";
 import { fetchWorkspaceById } from '../utils/fetchingAPIsForWorkspace/fetchWorkspaceById.js';
 import { handleSavePermission } from '../document-utils-and-hooks/handleSavePermission.js';
 import { GetDocumentById } from '../document-utils-and-hooks/GetDocumentById.js';
 import AvailableMembersShow from './AvailableMembersShow.jsx';
+import DeleteConfirmationModal from '../components/Models/DeleteConfirmModel.jsx';
+import ConfirmationPage from '../components/Models/ConfirmationPage.jsx';
 
 const Workspaces = () => {
   const { _id } = useParams();
@@ -42,7 +44,9 @@ const Workspaces = () => {
   const [editDocBtn, setEditDocBtn] = useState(true);
   const [MembersForPermissions, setMembersForPermissions] = useState([]); // for get all workspace member for give permission
   const [AllMembersInWorkspace, setAllMembersInWorkspace] = useState([]);
-
+  const [deleteModel, setdeleteModel] = useState(false);
+  const [DocumentForDelete, setDocumentForDelete] = useState({})
+  const [ExportConfirmation, setExportConfirmation] = useState(false);
   const [CheakPermissions, setCheakPermissions] = useState({
     canEdit: "",
     canView: ""
@@ -325,12 +329,18 @@ const Workspaces = () => {
     console.log(updatedMembers)
 
   }
+  const handleDocumentDelete = (doc) => {
+    setDocumentForDelete(doc);
+    setdeleteModel(true);
+  }
 
   const handleDelete = async (doc) => {
     const res = await DeleteDocument({ docId: doc._id, workspaceId: _id });
     if (res) {
       showToast("Document deleted successfully.", "success");
       setUserDocs(userDocs.filter((d) => d._id !== doc._id));
+      setdeleteModel(false);
+      setDocumentForDelete({})
     } else {
       showToast("Failed to delete document.", "error");
     }
@@ -375,7 +385,7 @@ const Workspaces = () => {
           {user._id === state.workspace.workspaceCreatedBy._id || user.role === "admin"
             ?
             <AddMember />
-            : <AvailableMembersShow workspace={AllMembersInWorkspace}/>
+            : <AvailableMembersShow workspace={AllMembersInWorkspace} />
           }
           {selectedDoc ? (
             CheakPermissions.canEdit ? (
@@ -392,9 +402,11 @@ const Workspaces = () => {
               ""
             )
           )
-            : (<button className='flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'>Select Document</button>)}
+            : <button className='flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'>Select Document</button>}
           {CheakPermissions.canView ?
-            <button onClick={() => ExportToDoc(selectedDocContent)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Export Document</button>
+            <button onClick={() => 
+              setExportConfirmation(true)
+            } className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Export Document</button>
             : ""
           }
           {/* {editDocBtn ?
@@ -503,7 +515,8 @@ const Workspaces = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDelete(doc);
+                              handleDocumentDelete(doc);
+                              // handleDelete(doc);
                               closeAllDropdowns();
                             }} className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
@@ -674,7 +687,21 @@ const Workspaces = () => {
           </Modal>
         )
       }
-
+      <DeleteConfirmationModal
+        isOpen={deleteModel}
+        onClose={() => setdeleteModel(false)}
+        onConfirm={() => handleDelete(DocumentForDelete)}
+      />
+      {ExportConfirmation &&
+        <ConfirmationPage
+          message="Are you sure you want to export this document"
+          confirmText="Export"
+          onConfirm={() =>{ ExportToDoc(selectedDocContent)
+                            setExportConfirmation(false)
+          }}
+          onCancel={()=>setExportConfirmation(false)}
+        />
+      }
     </div >
   );
 };

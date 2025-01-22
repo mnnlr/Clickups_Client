@@ -117,11 +117,12 @@ export const LoginPage = () => {
               placeholder="Enter your Password"
               name="password"
               type="password"
-              className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
+              className="border rounded-lg px-3 py-2 mt-1 mb-3 text-sm w-full"
             />
+            {/* <Link to="/PasswordForgot" className="">Forgot Password ?</Link> */}
             <button
               type="submit"
-              className="transition duration-200 bg-blue-500 hover:bg-blue-600 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 text-white w-full py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block"
+              className="transition duration-200 bg-blue-500 hover:bg-blue-600 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 text-white w-full py-2.5 mt-2 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block"
             >
               Login
             </button>

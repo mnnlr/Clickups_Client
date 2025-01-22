@@ -24,6 +24,8 @@ import { io } from "socket.io-client"
 import { useSelector } from "react-redux"
 import { showToast } from './components/Toastconfig';
 import { SocketProvider } from "./components/socket-io/SocketContext"
+import PasswordForgot from "./views/PasswordForgot"
+import ResetPassword from "./views/ResetPassword"
 
 
 
@@ -113,6 +115,8 @@ function App() {
               <Route index element={<HomePageBeforeLogin />} />
               <Route path="signup" element={<SignUpPage />} />
               <Route path="signin" element={<LoginPage />} />
+              <Route path="PasswordForgot" element={<PasswordForgot/>}/>
+              <Route path="reset-password/:token" element={<ResetPassword/>}/>
             </Route>
           </Route>
           <Route path="/*" element={<PagenotFound />} />

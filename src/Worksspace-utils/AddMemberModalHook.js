@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { fetchAllUsers } from "../utils/fetchingAPIsForWorkspace/fetchAllUsers";
 import Cookies from "js-cookie";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
+import { showToast } from "../components/Toastconfig";
 import customAxios from "../CustomAxios/customAxios";
 import { useSelector } from "react-redux";
 
@@ -91,12 +92,14 @@ const addMemberModalHook = (workspaceToEdit, setIsAddMembersModalOpen, setIsForm
         console.log("Members removed:", membersToRemove);
       }
 
-      toast.success("Workspace saved successfully!");
+      // toast.success("Workspace saved successfully!");
+      showToast("Workspace saved successfully!","success")
       if (setIsAddMembersModalOpen) setIsAddMembersModalOpen(false);
       if (setIsFormVisible) setIsFormVisible(false);
     } catch (error) {
       console.error("Error updating workspace members:", error);
-      toast.error("Failed to update workspace members. Please try again.");
+      // toast.error("Failed to update workspace members. Please try again.");
+      showToast("Failed to update workspace members","error")
     }
   };
 
@@ -115,10 +118,13 @@ const addMemberModalHook = (workspaceToEdit, setIsAddMembersModalOpen, setIsForm
       // );
       console.log(memberToadd)
     } else {
-      toast.info("User already exists in the workspace.");
+      // toast.info("User already exists in the workspace.");
+      showToast("User already exists in the workspace.","info")
     }
     }else{
-      toast.info("User already exists in the workspace.");
+      // toast.info("User already exists in the workspace.");
+      showToast("User already exists in the workspace.","info")
+
     }
   };
 
