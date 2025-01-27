@@ -208,17 +208,17 @@ const Homepage = () => {
               <h2 className="text-2xl font-semibold mb-4 text-blue-600 dark:text-blue-400">Assigned to Me</h2>
               <div className="space-y-4">
                 {AssignedTasks.map((task) => (
-                  task.status!=="Done"&&
+                  task.status!=="Done"&&task.userId._id!==user._id?
                   <div key={task._id}
                   className=" rounded-md p-1 cursor-pointer"
-                    onClick={() => handleNavigation(task)}>
+                  onClick={() => handleNavigation(task)}>
                     <div className="bg-gray-200 dark:bg-gray-700 px-4 py-4 rounded-lg shadow-sm flex flex-col justify-start">
                       <h3 className="font-medium text-lg">{task.taskName}</h3>
                       {/* <div className="flex items-center justify-between mt-3 ">
                         <p className="text-gray-600 dark:text-gray-300">Task ID: {task.kanId}</p>
-
-
-                      </div> */}
+                        
+                        
+                        </div> */}
                       <div className="flex justify-between items-center mt-2">
                           <span
                         className="inline-block bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
@@ -231,7 +231,7 @@ const Homepage = () => {
                     <div className=" flex justify-start gap-2.5 mt-1 items-center mx-2">
                       
                       <div className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
-                        {task.sprintId ? <span>Sprint({task.sprintId.sprintname})</span> : <span>Individual</span>}
+                        {task.sprintId ? <span>Sprint({task.sprintId.sprintname})</span> : <span>Individual ({task.projectId.projectName})</span>}
                       </div>
                       <span className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
                         {task.status}
@@ -240,7 +240,7 @@ const Homepage = () => {
 
                     </div>
                   </div>
-                ))}
+                :""))}
               </div>
             </section>
           ) : (
@@ -289,7 +289,7 @@ const Homepage = () => {
                   <div className=" flex justify-start gap-2.5 mt-1 items-center mx-2">
                     
                     <div className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
-                      {task.sprintId ? <span>Sprint ({task.sprintId.sprintname})</span> : <span>Individual</span>}
+                      {task.sprintId ? <span>Sprint ({task.sprintId.sprintname})</span> : <span>Individual ({task.projectId.projectName})</span>}
                     </div>
                     <span className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
                       {task.status}
