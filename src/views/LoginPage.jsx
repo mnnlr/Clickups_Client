@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector, } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginAction } from "../redux/actions/loginAction";
 import { showToast } from "../components/Toastconfig";
 
@@ -11,17 +11,16 @@ export const LoginPage = () => {
   const dispatch = useDispatch();
   const from = location.state?.from?.pathname || "/dashboard";
 
-  const { user, isLoading, error } = useSelector(state => state.login);
-
+  const { user, isLoading, error } = useSelector((state) => state.login);
 
   useEffect(() => {
     if (!isLoading && user?._id) {
-      return navigate(from, { replace: true })
+      return navigate(from, { replace: true });
     }
     if (!isLoading && error) {
       showToast(error);
     }
-  }, [isLoading, error, navigate, user?._id])
+  }, [isLoading, error, navigate, user?._id]);
 
   //----------------Handle Form Change-----------------
   const handleFormChange = (e) => {
