@@ -107,10 +107,11 @@ const Homepage = () => {
   console.log(CreatedTasks)
 
   const handleNavigation = (task) => {
+    console.log(task)
     task.sprintId ?
-      navigate(`/${task.projectId}/sprints/${task.sprintId}/tasks`)
+      navigate(`/${task.projectId._id}/sprints/${task.sprintId._id}/tasks`)
       :
-      navigate(`/tasks/${task.projectId}/individual`)
+      navigate(`/tasks/${task.projectId._id}/individual`)
   }
   // const fetchsprintTasks = async () => {
   //   try {
