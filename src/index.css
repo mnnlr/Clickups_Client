@@ -59,5 +59,23 @@
   margin-top: 14px;
   color: #666;
 }
+
+/* Style for links */
+.mce-content-body a {
+  color: #007bff; /* Link color (blue) */
+  text-decoration: none; /* Remove underline */
+}
+
+/* Hover effect for links */
+.mce-content-body a:hover {
+  color: #0056b3; /* Darker blue on hover */
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Focused link (when clicked or selected) */
+.mce-content-body a:focus {
+  color: #0056b3; /* Dark blue for focus */
+  outline: none; /* Remove outline */
+}
 /* ---------- TinyMCE Custome style of the tags which are not working by default ----------*/
 
