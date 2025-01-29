@@ -113,76 +113,6 @@ const Homepage = () => {
       :
       navigate(`/tasks/${task.projectId._id}/individual`)
   }
-  // const fetchsprintTasks = async () => {
-  //   try {
-  //     const response = await axiosPrivate.get(`/api/tasks/${user._id}`, {
-  //       headers: {
-  //         "Authorization": `Bearer ${token}`,
-  //       },
-  //     });
-  //     if (response.status === 200) {
-  //       const SprinttasksData = response.data.data;
-  //       // console.log(tasksData);
-  //       setsprintTask(SprinttasksData)
-  //       // setTasks(SprinttasksData);
-  //       fetchIndividualTasks()
-
-  //     } else {
-  //       console.error("Failed to fetch tasks: " + response.data.message);
-  //     }
-  //   } catch (err) {
-  //     console.error('Error fetching tasks: ' + (err.response ? err.response.data.message : err.message));
-  //   }
-  // };
-
-  // const fetchIndividualTasks = async () => {
-  //   const responce = await axiosPrivate(`/api/project/individualTask/${user._id}`,
-  //     {
-  //       headers: {
-  //         "Authorization": `Bearer ${token}`,
-  //       },
-  //     }
-  //   )
-  //   console.log(responce)
-  //   if (responce.status === 200) {
-  //     const IndividualTasks = responce.data.data
-  //     setIndividualTasks(IndividualTasks)
-  //   }
-  // }
-
-  // const fetchsprintCreatedTasks = async () => {
-  //   try {
-  //     const response = await axiosPrivate.get(`/api/tasks/${user._id}/task`, {
-  //       headers: {
-  //         "Authorization": `Bearer ${token}`,
-  //       },
-  //     });
-  //     if (response.status === 200) {
-  //       const tasksData = response.data.data;
-  //       // console.log(tasksData);
-
-  //       setsprintCreatedTasks(tasksData);
-  //       fetchIndividualcreatedtasks();
-  //       console.log(tasksData);
-  //     } else {
-  //       console.error("Failed to fetch tasks: " + response.data.message);
-  //     }
-  //   } catch (err) {
-  //     console.error('Error fetching tasks: ' + (err.response ? err.response.data.message : err.message));
-  //   }
-  // };
-  // console.log(sprinttasksShow)
-  // const fetchIndividualcreatedtasks = async () => {
-  //   try {
-  //     const response = await axiosPrivate.get(`/api/project/individualTask/${user._id}/getcreatedIndividualtasks`);
-  //     console.log(response)
-  //     const IndividualCreatedTasks = response.data.data
-  //     // setCreateTasks(...CreateTasks, IndividualCreatedTasks)
-  //     setIndividualCreatedTasks(IndividualCreatedTasks)
-  //   } catch (error) {
-  //     console.log(error)
-  //   }
-  // }
 
   const getInitial = (name) => {
     if (!name) return 'No User Assigneed';
@@ -225,19 +155,21 @@ const Homepage = () => {
                         className="inline-block bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
                         {task.kanId}
                       </span>
-                       <div className=" rounded-full py-0.5 px-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold">{getInitial(task?.userId?.name)}</div>
+                       <div className=" rounded-full py-0.5 px-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold">{getInitial(task?.assignees?.name)}</div>
                        </div>
                       {console.log(task)}
                     </div>
                     <div className=" flex justify-start gap-2.5 mt-1 items-center mx-2">
-                      
+                      {console.log(task)}
                       <div className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
-                        {task.sprintId ? <span>Sprint({task.sprintId.sprintname})</span> : <span>Individual ({task.projectId.projectName})</span>}
+                        {task.sprintId ? <span>Sprint({task.sprintId.sprintname})</span> : <span>Individual ({task.projectId?.projectName})</span>}
                       </div>
                       <span className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
                         {task.status}
                       </span>
-                     
+                      {/* <span className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
+                        Reporter{task.status}
+                      </span> */}
 
                     </div>
                   </div>
@@ -283,14 +215,14 @@ const Homepage = () => {
                       className="inline-block bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
                       {task.kanId}
                     </span>
-                     <div className=" rounded-full py-0.5 px-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold">{getInitial(task?.userId?.name)}</div>
+                     <div className=" rounded-full py-0.5 px-2 bg-blue-200 text-blue-800 flex items-center justify-center text-sm font-bold">{getInitial(task?.assignees?.name)}</div>
                      </div>
                     {console.log(task)}
                   </div>
                   <div className=" flex justify-start gap-2.5 mt-1 items-center mx-2">
                     
                     <div className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
-                      {task.sprintId ? <span>Sprint ({task.sprintId.sprintname})</span> : <span>Individual ({task.projectId.projectName})</span>}
+                      {task.sprintId ? <span>Sprint ({task.sprintId.sprintname})</span> : <span>Individual ({task.projectId?.projectName})</span>}
                     </div>
                     <span className="flex gap-1 justify-center items-center bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-blue-200 text-sm font-semibold px-2.5 py-0.5 rounded">
                       {task.status}

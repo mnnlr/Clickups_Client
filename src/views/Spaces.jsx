@@ -121,7 +121,7 @@ const Workspaces = () => {
 
         return userPermission // if user present and canView is true then show only canView documemnts
           ? userPermission.canView &&
-              doc.documentTitle.toLowerCase().includes(search.toLowerCase())
+          doc.documentTitle.toLowerCase().includes(search.toLowerCase())
           : doc.documentTitle.toLowerCase().includes(search.toLowerCase()); // if user is not present means user is add after document creation he didn't get permission bydefault it is canView
         // or user is remove from workspace
       }),
@@ -180,13 +180,13 @@ const Workspaces = () => {
       );
       permissionUser
         ? setCheakPermissions({
-            canEdit: permissionUser.canEdit,
-            canView: permissionUser.canView,
-          })
+          canEdit: permissionUser.canEdit,
+          canView: permissionUser.canView,
+        })
         : setCheakPermissions({
-            canEdit: false,
-            canView: true,
-          });
+          canEdit: false,
+          canView: true,
+        });
     }
 
     getDocumentContent(doc._id);
@@ -306,10 +306,10 @@ const Workspaces = () => {
             return AlreadyExistMember
               ? AlreadyExistMember
               : {
-                  user: workSpaceMember,
-                  canView: true,
-                  canEdit: false,
-                };
+                user: workSpaceMember,
+                canView: true,
+                canEdit: false,
+              };
           },
         );
 
@@ -401,7 +401,7 @@ const Workspaces = () => {
         </h1>
         <div className="flex items-center space-x-4">
           {user._id === state.workspace.workspaceCreatedBy._id ||
-          user.role === "admin" ? (
+            user.role === "admin" ? (
             <AddMember />
           ) : (
             <AvailableMembersShow workspace={AllMembersInWorkspace} />
@@ -578,29 +578,38 @@ const Workspaces = () => {
           {/* <div className="bg-white dark:bg-gray-800 p-4 border rounded-md shadow-sm sd:max-h-[calc(100%)] md:max-h-[calc(85vh)] overflow-y-auto">
           </div> */}
           {selectedDoc ? (
-            !editDocBtn ? (
-              <TextEditor
-                setHeight={710}
-                commentbtn={false}
-                content={selectedDocContent}
-                setContent={setSelectedDocContent}
-                DocElements={true}
-              />
-            ) : (
-              <div
-                className="mce-content-body"
-                dangerouslySetInnerHTML={
-                  CreateDocLoading
-                    ? { __html: "Loading..." }
-                    : CreateDocError
-                      ? { __html: "Error while creating or updating document." }
-                      : {
+            <div>
+              <div  className="text-center text-2xl font-bold text-white bg-blue-400 py-2 rounded-lg shadow-md mb-4 flex justify-between items-center">
+              <p className="mx-4">
+                {selectedDoc?.documentTitle}
+              </p>
+              <p className="text-base mx-4">Created By - {selectedDoc.createdBy?.name}</p>
+              </div>
+              {!editDocBtn ? (
+                // <div className="shadow-lg shadow-blue-500/50 bg-white rounded-lg">
+                <TextEditor
+                  setHeight={710}
+                  commentbtn={false}
+                  content={selectedDocContent}
+                  setContent={setSelectedDocContent}
+                  DocElements={true}
+                />
+                // </div>
+              ) : (
+                <div
+                  className="mce-content-body"
+                  dangerouslySetInnerHTML={
+                    CreateDocLoading
+                      ? { __html: "Loading..." }
+                      : CreateDocError
+                        ? { __html: "Error while creating or updating document." }
+                        : {
                           __html: DOMPurify.sanitize(selectedDocContent, {}),
                         }
-                }
-              ></div>
-            )
-          ) : (
+                  }
+                ></div>
+              )}
+            </div>) : (
             <p>No Document Selected</p>
           )}
         </div>
