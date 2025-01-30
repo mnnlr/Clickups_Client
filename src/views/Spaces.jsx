@@ -25,6 +25,8 @@ import { fetchWorkspaceById } from '../utils/fetchingAPIsForWorkspace/fetchWorks
 import { handleSavePermission } from '../document-utils-and-hooks/handleSavePermission.js';
 import { GetDocumentById } from '../document-utils-and-hooks/GetDocumentById.js';
 import AvailableMembersShow from './AvailableMembersShow.jsx';
+import DeleteConfirmationModal from "../components/Models/DeleteConfirmModel.jsx";
+import ConfirmationPage from "../components/Models/ConfirmationPage.jsx";
 
 const Workspaces = () => {
   const { _id } = useParams();
@@ -45,6 +47,9 @@ const Workspaces = () => {
   const [editDocBtn, setEditDocBtn] = useState(true);
   const [MembersForPermissions, setMembersForPermissions] = useState([]); // for get all workspace member for give permission
   const [AllMembersInWorkspace, setAllMembersInWorkspace] = useState([]);
+  const [deleteModel, setdeleteModel] = useState(false);
+  const [DocumentForDelete, setDocumentForDelete] = useState({});
+  const [ExportConfirmation, setExportConfirmation] = useState(false);
 
   const [CheakPermissions, setCheakPermissions] = useState({
     canEdit: "",
@@ -237,7 +242,10 @@ const Workspaces = () => {
     }
   };
 
-
+  const handleDocumentDelete = (doc) => {
+    setDocumentForDelete(doc);
+    setdeleteModel(true);
+  };
   const handleSearch = (e) => {
     e.preventDefault();
     setSearch(e.target.value);
@@ -355,6 +363,8 @@ const Workspaces = () => {
     if (res) {
       showToast("Document deleted successfully.", "success");
       setUserDocs(userDocs.filter((d) => d._id !== doc._id));
+      setdeleteModel(false);
+      setDocumentForDelete({});
     } else {
       showToast("Failed to delete document.", "error");
     }
@@ -423,7 +433,11 @@ const Workspaces = () => {
           )
             : (<button className='flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'>Select Document</button>)}
           {CheakPermissions.canView ?
-            <button onClick={() => ExportToDoc(selectedDocContent)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Export Document</button>
+            <button
+            //  onClick={() => ExportToDoc(selectedDocContent)} 
+            onClick={() => setExportConfirmation(true)}
+
+            className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Export Document</button>
             : ""
           }
           {/* {editDocBtn ?
@@ -546,7 +560,8 @@ const Workspaces = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDelete(doc);
+                              // handleDelete(doc);
+                              handleDocumentDelete(doc);
                               closeAllDropdowns();
                             }} className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
@@ -778,7 +793,22 @@ const Workspaces = () => {
           </Modal>
         )
       }
-
+ <DeleteConfirmationModal
+        isOpen={deleteModel}
+        onClose={() => setdeleteModel(false)}
+        onConfirm={() => handleDelete(DocumentForDelete)}
+      />
+      {ExportConfirmation && (
+        <ConfirmationPage
+          message="Are you sure you want to export this document"
+          confirmText="Export"
+          onConfirm={() => {
+            ExportToDoc(selectedDocContent);
+            setExportConfirmation(false);
+          }}
+          onCancel={() => setExportConfirmation(false)}
+        />
+      )}
     </div >
   );
 };
