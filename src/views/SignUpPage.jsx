@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import customAxios from '../CustomAxios/customAxios';
+import { showToast } from '../components/Toastconfig';
+import { toast } from 'react-toastify';
 
 export const SignUpPage = () => {
 
@@ -26,21 +28,21 @@ export const SignUpPage = () => {
             if (signinFormData.password === signinFormData.confirmPassword) {
                 try {
                     console.log(signinFormData);
-
+                    
                     const response = await customAxios.post('/api/users/signup', signinFormData, {
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         withCredentials: true
                     });
-
-                    console.log(response); // Logging the response data
-
-                    navigate('/signin'); // Navigate only after successful signup
-
-                } catch (err) {
-                    console.error(`ERROR on signup: ${err.message}`);
-                    // Handle login failure or display an error message
+                    
+                    if (response.data.success) {
+                        toast.success(response.data.message); // Show success message
+                        navigate('/signin'); // Navigate only after successful signup
+                    } else {
+                        toast.error(response.data.message || "Signup failed. Please try again.");
+                    }
+                } catch (error) {
+                    const errorMessage = error.response?.data?.message || "Signup failed. Please try again.";
+                    toast.error(errorMessage);
                 }
             } else {
                 alert('Password and Confirm Password should be the same.');
@@ -59,6 +61,10 @@ export const SignUpPage = () => {
                         <div className="mb-4">
                             <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="name">Name</label>
                             <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" type="text" id="name" name="name" placeholder="John Doe" />
+                        </div>
+                        <div className="mb-4">
+                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="MnnlrId">Mnnlr Id</label>
+                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" type="text" id="MnnlrId" name="MnnlrId" placeholder="mern-dev-john@example.com" />
                         </div>
                         <div className="mb-4">
                             <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="email">Email</label>

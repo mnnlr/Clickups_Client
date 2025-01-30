@@ -26,6 +26,8 @@ import { showToast } from './components/Toastconfig';
 import { SocketProvider } from "./components/socket-io/SocketContext"
 import PasswordForgot from "./views/PasswordForgot"
 import ResetPassword from "./views/ResetPassword"
+import ViewsDocument from "./views/ViewsDocument"
+
 
 
 
@@ -108,6 +110,8 @@ function App() {
               <Route path="/projects/:projectId/sprints" element={<Sprint />} />
               <Route path="/dashboard/:projectId" element={<DashboardForProjectPage />} />
               <Route path="/workspace/:_id/:type" element={<Spaces />} />
+              <Route path="/viewsdocument/:DocumentId" element={<ViewsDocument />} />
+
             </Route>
           </Route>
           <Route>

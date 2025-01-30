@@ -13,7 +13,7 @@
     "@heroicons/react": "^2.1.5",
     "@reduxjs/toolkit": "^2.2.7",
     "@tinymce/tinymce-react": "^5.1.1",
-    "axios": "^1.7.5",
+    "axios": "^1.7.9",
     "dompurify": "^3.2.3",
     "i": "^0.3.7",
     "js-cookie": "^3.0.5",
