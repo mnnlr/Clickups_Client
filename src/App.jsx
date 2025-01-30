@@ -24,6 +24,7 @@ import { io } from "socket.io-client"
 import { useSelector } from "react-redux"
 import { showToast } from './components/Toastconfig';
 import { SocketProvider } from "./components/socket-io/SocketContext"
+import ViewsDocument from "./views/ViewsDocument"
 import PasswordForgot from "./views/PasswordForgot"
 import ResetPassword from "./views/ResetPassword"
 import ViewsDocument from "./views/ViewsDocument"
@@ -95,6 +96,7 @@ function App() {
     <SocketProvider>
       <Router>
         <Routes>
+        <Route path="viewsdocument" element={<ViewsDocument />} />
           <Route element={<Check_auth />}>
             <Route path="/" element={<AuthLayout />}>
               <Route path="home" element={<Homepage />} />

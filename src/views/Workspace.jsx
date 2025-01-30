@@ -328,7 +328,7 @@ const AllWorkspaces = () => {
                         >
                           <MdOutlineDeleteForever size={20} />
                         </button>
-                      </li>
+                      </li>                     
                     </ul>
                   </div>
                 )}

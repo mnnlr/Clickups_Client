@@ -265,11 +265,10 @@ const Workspaces = () => {
         () => setCopySuccess("copied!"),
         () => setCopySuccess("Failed to copy link.")
       );
-    } else {      
+    } else {
       setCopySuccess("No link provided to copy.");
     }
   };
-
 
   const handleSaveEdit = async () => {
     if (newDocName.trim() && selectedDoc) {
@@ -382,6 +381,7 @@ const Workspaces = () => {
     setIsShareModalOpen(false);
     setSelectedDoc(null);    
   };
+ 
 
   const handleClosePermissionsModal = () => {
     setIsPermissionsModalOpen(false);
@@ -672,6 +672,32 @@ const Workspaces = () => {
           </Modal>
         )
       }
+
+      {/* Modal for Share */}
+      {isShareModelOpen && (
+        <Modal title="Copy Document Link" onClose={handleCloseShareModal}>
+          <div class="flex items-center justify-between">
+            <input
+              type="text"
+              value={link}
+              readOnly
+              id="copyLink"
+              className="mb-4 p-2 w-full border rounded-l-lg ... dark:bg-gray-600 dark:text-white h-12"
+            />
+            <button
+              className=" text-black px-4 py-2 hover:bg-blue-700 hover:text-white mb-4  border rounded-r-lg ... h-12"
+              onClick={() =>
+                copyToClipboard(document.getElementById("copyLink").value)
+              }
+            >
+              Copy
+            </button>
+          </div>
+          {copySuccess && (
+            <p class="text-center mb-3 text-red-600">{copySuccess}</p>
+          )}
+        </Modal>
+      )}
 
       {/* Modal for Permissions */}
       {
