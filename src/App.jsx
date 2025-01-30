@@ -95,7 +95,6 @@ function App() {
     <SocketProvider>
       <Router>
         <Routes>
-        <Route path="viewsdocument" element={<ViewsDocument />} />
           <Route element={<Check_auth />}>
             <Route path="/" element={<AuthLayout />}>
               <Route path="home" element={<Homepage />} />

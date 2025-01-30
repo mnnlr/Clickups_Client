@@ -251,7 +251,7 @@ const Workspaces = () => {
 
   const handleShare = (doc) => {
     setSelectedDoc(doc); // Set the selected document to share
-    const DocumentLink=`https://mnnlr-workspace.netlify.app/${doc._id}`;
+    const DocumentLink=`https://mnnlr-workspace.netlify.app/viewsdocument/${doc._id}`;
     setLink(DocumentLink)
     setIsShareModalOpen(true); // Open the share modal
   };
