@@ -256,7 +256,7 @@ const Workspaces = () => {
     setNewDocName(doc.documentTitle);
     setIsEditModalOpen(true);
   };
-
+// to share document for users
   const handleShare = (doc) => {
     setSelectedDoc(doc); // Set the selected document to share
     const DocumentLink=`https://mnnlr-workspace.netlify.app/viewsdocument/${doc._id}`;
@@ -266,14 +266,14 @@ const Workspaces = () => {
 
    
 
-
+// copy link on clipboard
   const copyToClipboard = (text) => {
     if (text) {      
       navigator.clipboard.writeText(text).then(
         () => setCopySuccess("copied!"),
         () => setCopySuccess("Failed to copy link.")
       );
-    } else {
+    } else {      
       setCopySuccess("No link provided to copy.");
     }
   };
@@ -387,6 +387,7 @@ const Workspaces = () => {
     setSelectedDoc(null);
     setNewDocName('');
   };
+
   const handleCloseShareModal = () => {
     setIsShareModalOpen(false);
     setSelectedDoc(null);    
@@ -543,8 +544,7 @@ const Workspaces = () => {
                           >
                             Share
                           </button>
-                        </li>
-                      
+                        </li> 
                         <li>
                           <button
                             onClick={(e) => {
@@ -663,32 +663,7 @@ const Workspaces = () => {
         )
       }
 
-      {/* Modal for Share */}
-      {
-        isShareModelOpen && (
-          <Modal title="Copy Document Link" onClose={handleCloseShareModal}>            
-           <div 
-            class="flex items-center justify-between"
-           >            
-           <input
-              type="text"
-              value={link}
-              readOnly
-              id='copyLink'              
-              className="mb-4 p-2 w-full border rounded-l-lg ... dark:bg-gray-600 dark:text-white h-12"
-              />                
-            <button
-            className=" text-black px-4 py-2 hover:bg-blue-700 hover:text-white mb-4  border rounded-r-lg ... h-12"
-            onClick={() => copyToClipboard(document.getElementById('copyLink').value)}            
-            >Copy</button>
-           
-           </div>
-           {copySuccess && <p class="text-center mb-3 text-red-600" >{copySuccess}</p>}           
-          </Modal>
-        )
-      }
-
-      {/* Modal for Share */}
+    {/* Modal for Share */}
       {isShareModelOpen && (
         <Modal title="Copy Document Link" onClose={handleCloseShareModal}>
           <div class="flex items-center justify-between">
