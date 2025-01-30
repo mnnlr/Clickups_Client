@@ -27,7 +27,6 @@ import { SocketProvider } from "./components/socket-io/SocketContext"
 import ViewsDocument from "./views/ViewsDocument"
 import PasswordForgot from "./views/PasswordForgot"
 import ResetPassword from "./views/ResetPassword"
-import ViewsDocument from "./views/ViewsDocument"
 
 
 
