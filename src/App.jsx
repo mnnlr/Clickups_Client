@@ -24,6 +24,7 @@ import { io } from "socket.io-client"
 import { useSelector } from "react-redux"
 import { showToast } from './components/Toastconfig';
 import { SocketProvider } from "./components/socket-io/SocketContext"
+import ViewsDocument from "./views/ViewsDocument"
 
 
 
@@ -91,6 +92,7 @@ function App() {
     <SocketProvider>
       <Router>
         <Routes>
+        <Route path="viewsdocument" element={<ViewsDocument />} />
           <Route element={<Check_auth />}>
             <Route path="/" element={<AuthLayout />}>
               <Route path="home" element={<Homepage />} />
@@ -105,7 +107,7 @@ function App() {
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="/projects/:projectId/sprints" element={<Sprint />} />
               <Route path="/dashboard/:projectId" element={<DashboardForProjectPage />} />
-              <Route path="/workspace/:_id/:type" element={<Spaces />} />
+              <Route path="/workspace/:_id/:type" element={<Spaces />} />              
             </Route>
           </Route>
           <Route>

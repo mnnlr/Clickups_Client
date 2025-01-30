@@ -1,30 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
-import { DocumentIcon, PlusIcon, PencilIcon } from '@heroicons/react/24/solid';
-import SearchBox from './Search';
-import AddMember from './AddUser';
-import Modal from '../components/Models/Modal'; // Assuming Modal is the same component for both edit and create
-import { TextEditor } from '../components/TinyMCE_TextEditor/TextEditor';
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import { DocumentIcon, PlusIcon, PencilIcon } from "@heroicons/react/24/solid";
+import SearchBox from "./Search";
+import AddMember from "./AddUser";
+import Modal from "../components/Models/Modal"; // Assuming Modal is the same component for both edit and create
+import { TextEditor } from "../components/TinyMCE_TextEditor/TextEditor";
 import { GrUpdate } from "react-icons/gr";
-import { useSelector } from 'react-redux';
-import { CreateDocument } from '../document-utils-and-hooks/CreateDocument.js';
-import GetDocuments from '../document-utils-and-hooks/GetDocuments.js';
-import UpdateDocument from '../document-utils-and-hooks/UpdateDocument.js';
-import { showToast } from '../components/Toastconfig';
-import DeleteDocument from '../document-utils-and-hooks/DeleteDocument.js';
-import { ExportToDoc } from '../document-utils-and-hooks/ExportToDoc.js';
+import { useSelector } from "react-redux";
+import { CreateDocument } from "../document-utils-and-hooks/CreateDocument.js";
+import GetDocuments from "../document-utils-and-hooks/GetDocuments.js";
+import UpdateDocument from "../document-utils-and-hooks/UpdateDocument.js";
+import { showToast } from "../components/Toastconfig";
+import DeleteDocument from "../document-utils-and-hooks/DeleteDocument.js";
+import { ExportToDoc } from "../document-utils-and-hooks/ExportToDoc.js";
 // import { GetDocumentContent } from '../document-utils-and-hooks/useGetDocumentContent.js';
-import { useGetDocumentContent } from '../document-utils-and-hooks/useGetDocumentContent.js';
-import { useCreateDocInCloud } from '../document-utils-and-hooks/useCreateDocInCloud.js';
-import DOMPurify from 'dompurify';
+import { useGetDocumentContent } from "../document-utils-and-hooks/useGetDocumentContent.js";
+import { useCreateDocInCloud } from "../document-utils-and-hooks/useCreateDocInCloud.js";
+import DOMPurify from "dompurify";
 // import { IoCloudyNight } from 'react-icons/io5';
-import useGetMembers from '../project-utils-and-hooks/useGetMembers';
+import useGetMembers from "../project-utils-and-hooks/useGetMembers";
 import { IoPersonAdd, IoPersonRemove } from "react-icons/io5";
 import { AiTwotoneMail } from "react-icons/ai";
-import { fetchWorkspaceById } from '../utils/fetchingAPIsForWorkspace/fetchWorkspaceById.js';
-import { handleSavePermission } from '../document-utils-and-hooks/handleSavePermission.js';
-import { GetDocumentById } from '../document-utils-and-hooks/GetDocumentById.js';
-import AvailableMembersShow from './AvailableMembersShow.jsx';
+import { fetchWorkspaceById } from "../utils/fetchingAPIsForWorkspace/fetchWorkspaceById.js";
+import { handleSavePermission } from "../document-utils-and-hooks/handleSavePermission.js";
+import { GetDocumentById } from "../document-utils-and-hooks/GetDocumentById.js";
+import AvailableMembersShow from "./AvailableMembersShow.jsx";
 
 const Workspaces = () => {
   const { _id } = useParams();
@@ -32,10 +32,13 @@ const Workspaces = () => {
   const [selectedDocContent, setSelectedDocContent] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isShareModelOpen, setIsShareModalOpen] = useState(false); //Model for Share
+  const [link, setLink] = useState(""); // Link state
+  const [copySuccess, setCopySuccess] = useState("");
   const [isPermissionsModalOpen, setIsPermissionsModalOpen] = useState(false); // Modal for Permissions
-  const [newDocName, setNewDocName] = useState('');
+  const [newDocName, setNewDocName] = useState("");
   const [selectedDoc, setSelectedDoc] = useState(null); // Track the document being edited
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [filteredDocs, setFilteredDocs] = useState([]);
   const { state } = useLocation();
   const [openDropdowns, setOpenDropdowns] = useState({});
@@ -45,15 +48,17 @@ const Workspaces = () => {
 
   const [CheakPermissions, setCheakPermissions] = useState({
     canEdit: "",
-    canView: ""
+    canView: "",
   });
   const dropdownRefs = useRef({});
 
   // create document in cloudinary and updating the document
-  const { CreateDocLoading, CreateDocError, createDocument } = useCreateDocInCloud({ documentId: selectedDoc, data: selectedDocContent });
+  const { CreateDocLoading, CreateDocError, createDocument } =
+    useCreateDocInCloud({ documentId: selectedDoc, data: selectedDocContent });
 
   // get document content
-  const { GetDocLoading, GetDocError, GetDocData, getDocumentContent } = useGetDocumentContent();
+  const { GetDocLoading, GetDocError, GetDocData, getDocumentContent } =
+    useGetDocumentContent();
 
   // const [permissions, setPermissions] = useState({
   //   canEdit: false,
@@ -64,23 +69,24 @@ const Workspaces = () => {
   const user = useSelector((state) => state.login.user);
   useEffect(() => {
     const fetchWorkspaceMembers = async () => {
-      await fetchWorkspaceById(state.workspace._id, setAllMembersInWorkspace)
+      await fetchWorkspaceById(state.workspace._id, setAllMembersInWorkspace);
     };
     fetchWorkspaceMembers();
   }, [openDropdowns, _id]);
 
   useEffect(() => {
-    GetDocuments(_id).then((docsData) => {
-      showToast("Documents fetched successfully.", "success");
-      setUserDocs(docsData);
-    }).catch((error) => {
-      showToast("Failed to fetch documents.", "error");
-      console.error("Error fetching documents:", error);
-    });
+    GetDocuments(_id)
+      .then((docsData) => {
+        showToast("Documents fetched successfully.", "success");
+        setUserDocs(docsData);
+      })
+      .catch((error) => {
+        showToast("Failed to fetch documents.", "error");
+        console.error("Error fetching documents:", error);
+      });
   }, [_id]);
 
-
-  // useEffect(() => { 
+  // useEffect(() => {
   //   setFilteredDocs(
   //     userDocs.filter((doc) =>
   //       doc.documentTitle.toLowerCase().includes(search.toLowerCase())
@@ -90,24 +96,29 @@ const Workspaces = () => {
   useEffect(() => {
     setFilteredDocs(
       userDocs.filter((doc) => {
-        console.log(doc)
-        if (user._id === state.workspace.workspaceCreatedBy._id || user._id === "admin") {   // if login user is workspace creator or admin then he see all document 
+        console.log(doc);
+        if (
+          user._id === state.workspace.workspaceCreatedBy._id ||
+          user._id === "admin"
+        ) {
+          // if login user is workspace creator or admin then he see all document
           return doc.documentTitle.toLowerCase().includes(search.toLowerCase());
         }
 
-        if (user._id === doc.createdBy._id) {   // if user is document creator then he see his own document
+        if (user._id === doc.createdBy._id) {
+          // if user is document creator then he see his own document
           return doc.documentTitle.toLowerCase().includes(search.toLowerCase());
         }
 
-        const userPermission = doc.permissions.find(          // if normal login user find user from doc permissions and give permission
+        const userPermission = doc.permissions.find(
+          // if normal login user find user from doc permissions and give permission
           (permission) => permission.user._id === user._id
         );
 
-        return userPermission ?  // if user present and canView is true then show only canView documemnts
-          userPermission.canView &&
-          doc.documentTitle.toLowerCase().includes(search.toLowerCase())
-
-          : doc.documentTitle.toLowerCase().includes(search.toLowerCase()) // if user is not present means user is add after document creation he didn't get permission bydefault it is canView
+        return userPermission // if user present and canView is true then show only canView documemnts
+          ? userPermission.canView &&
+              doc.documentTitle.toLowerCase().includes(search.toLowerCase())
+          : doc.documentTitle.toLowerCase().includes(search.toLowerCase()); // if user is not present means user is add after document creation he didn't get permission bydefault it is canView
         // or user is remove from workspace
       })
     );
@@ -132,8 +143,6 @@ const Workspaces = () => {
     };
   }, []);
 
-
-
   // const handleDocClick = async (doc) => {
   //   setSelectedDoc(doc);
   //   // console.log(doc)
@@ -144,7 +153,6 @@ const Workspaces = () => {
   //   getDocumentContent(doc._id);
   //   const DocContent = GetDocLoading ? { _html: "Loading..." } : GetDocError ? { _html: "Error while fetching document." } : GetDocData;
   //   setSelectedDocContent(DocContent);
-
 
   // };
 
@@ -160,22 +168,21 @@ const Workspaces = () => {
     ) {
       setCheakPermissions({
         canEdit: true,
-        canView: true
-      })
+        canView: true,
+      });
     } else {
-
-      const permissionUser = doc.permissions.find(((member) =>
-        member.user._id === user._id
-      ))
-      permissionUser ?
-        setCheakPermissions({
-          canEdit: permissionUser.canEdit,
-          canView: permissionUser.canView
-        }) :
-        setCheakPermissions({
-          canEdit: false,
-          canView: true
-        })
+      const permissionUser = doc.permissions.find(
+        (member) => member.user._id === user._id
+      );
+      permissionUser
+        ? setCheakPermissions({
+            canEdit: permissionUser.canEdit,
+            canView: permissionUser.canView,
+          })
+        : setCheakPermissions({
+            canEdit: false,
+            canView: true,
+          });
     }
 
     getDocumentContent(doc._id);
@@ -189,7 +196,11 @@ const Workspaces = () => {
     } else if (GetDocLoading) {
       setSelectedDocContent("Loading Document...");
     } else {
-      setSelectedDocContent(CheakPermissions.canEdit ? "Start editing your document..." : "No Content");
+      setSelectedDocContent(
+        CheakPermissions.canEdit
+          ? "Start editing your document..."
+          : "No Content"
+      );
     }
   }, [GetDocData, GetDocError, GetDocLoading]);
 
@@ -204,8 +215,7 @@ const Workspaces = () => {
         //   canEdit: false,
         //   canView: true,
         // },
-        permissions:
-          AllMembersInWorkspace.workspaceMembers
+        permissions: AllMembersInWorkspace.workspaceMembers,
       };
 
       try {
@@ -215,25 +225,24 @@ const Workspaces = () => {
           documentTitle: res.documentTitle,
           content: res.content,
           permissions: res.permissions,
-          createdBy: res.createdBy
+          createdBy: res.createdBy,
         };
         if (res) {
           showToast("Document created successfully.", "success");
           setUserDocs([...userDocs, newDocument]);
-          setNewDocName('');
+          setNewDocName("");
           setIsCreateModalOpen(false);
           console.log("New document created: ", res);
         } else {
           showToast("Failed to create document.", "error");
-          console.error('Failed to create document.');
+          console.error("Failed to create document.");
         }
       } catch (error) {
         showToast("Something went wrong while creating document.", "error");
-        console.error('Error in handleAddDocument:', error);
+        console.error("Error in handleAddDocument:", error);
       }
     }
   };
-
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -246,23 +255,56 @@ const Workspaces = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleShare = (doc) => {
+    setSelectedDoc(doc); // Set the selected document to share
+    setIsShareModalOpen(true); // Open the share modal
+  };
+
+  // Function to generate the URL
+  const generateLink = () => {
+    if (!link) {
+      const generatedUrl = `https://example.com/${Math.random()
+        .toString(36)
+        .substring(2, 15)}`;
+      setLink(generatedUrl);
+    } else {
+      console.log("A link has already been generated.");
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    if (text) {
+      navigator.clipboard.writeText(text).then(
+        () => setCopySuccess("copied!"),
+        () => setCopySuccess("Failed to copy link.")
+      );
+    } else {
+      setCopySuccess("No link provided to copy.");
+    }
+  };
+
   const handleSaveEdit = async () => {
     if (newDocName.trim() && selectedDoc) {
       const updatedDocData = {
         documentTitle: newDocName.trim(),
-      }
+      };
 
-      const res = await UpdateDocument({ docId: selectedDoc._id, updatedData: updatedDocData });
+      const res = await UpdateDocument({
+        docId: selectedDoc._id,
+        updatedData: updatedDocData,
+      });
       if (res) {
         showToast("Document updated successfully.", "success");
         setUserDocs(
           userDocs.map((doc) =>
-            doc._id === selectedDoc._id ? { ...doc, documentTitle: newDocName.trim() } : doc
+            doc._id === selectedDoc._id
+              ? { ...doc, documentTitle: newDocName.trim() }
+              : doc
           )
         );
         setIsEditModalOpen(false);
         setSelectedDoc(null);
-        setNewDocName('');
+        setNewDocName("");
       } else {
         showToast("Failed to update document.", "error");
       }
@@ -273,23 +315,27 @@ const Workspaces = () => {
     try {
       setSelectedDoc(doc); // Set the selected document
 
-      GetDocumentById(doc._id, (permissions) => {        // get all permissions members from server
+      GetDocumentById(doc._id, (permissions) => {
+        // get all permissions members from server
         setMembersForPermissions(permissions); // Update state
         console.log("Permissions fetched and state updated:", permissions);
 
         // Add new members to permissions
-        const UpdateUsers = AllMembersInWorkspace.workspaceMembers.map((workSpaceMember) => {  // cheak all workspace member is present or not in permission other wise add canview and can add for permission
-          const AlreadyExistMember = permissions.find((member) => (
-            member.user._id === workSpaceMember._id
-          ));
-          return AlreadyExistMember
-            ? AlreadyExistMember
-            : {
-              user: workSpaceMember,
-              canView: true,
-              canEdit: false,
-            };
-        });
+        const UpdateUsers = AllMembersInWorkspace.workspaceMembers.map(
+          (workSpaceMember) => {
+            // cheak all workspace member is present or not in permission other wise add canview and can add for permission
+            const AlreadyExistMember = permissions.find(
+              (member) => member.user._id === workSpaceMember._id
+            );
+            return AlreadyExistMember
+              ? AlreadyExistMember
+              : {
+                  user: workSpaceMember,
+                  canView: true,
+                  canEdit: false,
+                };
+          }
+        );
 
         // Filter out members no longer in the workspace
         const PerMissionMembers = UpdateUsers.filter((member) =>
@@ -299,8 +345,10 @@ const Workspaces = () => {
         );
 
         // remove login user itself to not show itself in permission.
-        const FinalPerMissionMembers = PerMissionMembers.filter((member) => !(member.user._id === user._id))
-        console.log(FinalPerMissionMembers)
+        const FinalPerMissionMembers = PerMissionMembers.filter(
+          (member) => !(member.user._id === user._id)
+        );
+        console.log(FinalPerMissionMembers);
         setMembersForPermissions(FinalPerMissionMembers);
         setIsPermissionsModalOpen(true);
       });
@@ -322,9 +370,8 @@ const Workspaces = () => {
     });
     setMembersForPermissions(updatedMembers); // Update the state with the modified array
 
-    console.log(updatedMembers)
-
-  }
+    console.log(updatedMembers);
+  };
 
   const handleDelete = async (doc) => {
     const res = await DeleteDocument({ docId: doc._id, workspaceId: _id });
@@ -341,7 +388,6 @@ const Workspaces = () => {
       ...prevState,
       [docId]: !prevState[docId],
     }));
-
   };
 
   const handleCloseCreateModal = () => {
@@ -351,7 +397,11 @@ const Workspaces = () => {
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setSelectedDoc(null);
-    setNewDocName('');
+    setNewDocName("");
+  };
+  const handleCloseShareModal = () => {
+    setIsShareModalOpen(false);
+    setSelectedDoc(null);
   };
 
   const handleClosePermissionsModal = () => {
@@ -362,7 +412,7 @@ const Workspaces = () => {
     setEditDocBtn(true);
     createDocument();
     // CreateDocInCloud({ documentId: selectedDoc._id, data: selectedDocContent })
-  }
+  };
 
   return (
     <div className="p-1 mt-16 md:ml-20 sd:ml-0 h-100vh dark:bg-gray-900 dark:text-white">
@@ -372,31 +422,49 @@ const Workspaces = () => {
           {state.workspace.workspaceName}'s Workspace
         </h1>
         <div className="flex items-center space-x-4">
-          {user._id === state.workspace.workspaceCreatedBy._id || user.role === "admin"
-            ?
+          {user._id === state.workspace.workspaceCreatedBy._id ||
+          user.role === "admin" ? (
             <AddMember />
-            : <AvailableMembersShow workspace={AllMembersInWorkspace}/>
-          }
+          ) : (
+            <AvailableMembersShow workspace={AllMembersInWorkspace} />
+          )}
           {selectedDoc ? (
             CheakPermissions.canEdit ? (
               editDocBtn ? (
-                <button onClick={() => setEditDocBtn(false)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                <button
+                  onClick={() => setEditDocBtn(false)}
+                  className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                >
                   <PencilIcon className="h-4 w-4 mr-2" />
                   Edit
-                </button>)
-                : (<button onClick={onUpdate} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                </button>
+              ) : (
+                <button
+                  onClick={onUpdate}
+                  className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                >
                   <GrUpdate className="h-4 w-4 mr-2" />
                   Update
-                </button>)) : (
-
+                </button>
+              )
+            ) : (
               ""
             )
-          )
-            : (<button className='flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600'>Select Document</button>)}
-          {CheakPermissions.canView ?
-            <button onClick={() => ExportToDoc(selectedDocContent)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Export Document</button>
-            : ""
-          }
+          ) : (
+            <button className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+              Select Document
+            </button>
+          )}
+          {CheakPermissions.canView ? (
+            <button
+              onClick={() => ExportToDoc(selectedDocContent)}
+              className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+            >
+              Export Document
+            </button>
+          ) : (
+            ""
+          )}
           {/* {editDocBtn ?
             selectedDoc ?
               <button onClick={() => setEditDocBtn(false)} className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
@@ -410,7 +478,6 @@ const Workspaces = () => {
               Update
             </button>
           } */}
-
         </div>
       </div>
 
@@ -431,7 +498,8 @@ const Workspaces = () => {
                 <p className="text-sm font-normal inline">Documents</p>
               </span>
               <span>
-                <PlusIcon className="h-4 w-4 mr-1 inline" />Create
+                <PlusIcon className="h-4 w-4 mr-1 inline" />
+                Create
               </span>
             </button>
           </div>
@@ -448,8 +516,7 @@ const Workspaces = () => {
 
                 {/* Dropdown Menu */}
                 <div className="relative inline-block text-left">
-                  {user._id === doc.createdBy._id || user.role === "admin"
-                    ?
+                  {user._id === doc.createdBy._id || user.role === "admin" ? (
                     <button
                       // onClick={() => toggleDropdown(doc._id)}
                       onClick={(e) => {
@@ -469,13 +536,16 @@ const Workspaces = () => {
                         <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" />
                       </svg>
                     </button>
-                    : ""}
+                  ) : (
+                    ""
+                  )}
                   {/* Dropdown menu */}
                   {/* <ClickOutsideWrapper onClickOutside={() => setOpenDropdowns(false)}> */}
                   {openDropdowns[doc._id] && (
                     <div
                       ref={(el) => (dropdownRefs.current[doc._id] = el)}
-                      className="z-10 absolute right-0 mt-2 w-44 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600">
+                      className="z-10 absolute right-0 mt-2 w-44 bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
+                    >
                       <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
                         <li>
                           <button
@@ -483,7 +553,8 @@ const Workspaces = () => {
                               e.stopPropagation();
                               handleEdit(doc);
                               closeAllDropdowns();
-                            }} className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            }}
+                            className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
                             Edit
                           </button>
@@ -491,10 +562,26 @@ const Workspaces = () => {
                         <li>
                           <button
                             onClick={(e) => {
+                              generateLink();
+                              e.stopPropagation();
+                              handleShare(doc);
+                              // handleEdit(doc);
+                              closeAllDropdowns();
+                            }}
+                            className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                          >
+                            Share
+                          </button>
+                        </li>
+
+                        <li>
+                          <button
+                            onClick={(e) => {
                               e.stopPropagation();
                               handlePermission(doc);
                               closeAllDropdowns();
-                            }} className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            }}
+                            className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
                             Permissions
                           </button>
@@ -505,7 +592,8 @@ const Workspaces = () => {
                               e.stopPropagation();
                               handleDelete(doc);
                               closeAllDropdowns();
-                            }} className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                            }}
+                            className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                           >
                             Delete
                           </button>
@@ -527,7 +615,7 @@ const Workspaces = () => {
           </div> */}
           {selectedDoc ? (
             !editDocBtn ? (
-              < TextEditor
+              <TextEditor
                 setHeight={710}
                 commentbtn={false}
                 content={selectedDocContent}
@@ -536,12 +624,14 @@ const Workspaces = () => {
             ) : (
               <div
                 dangerouslySetInnerHTML={
-                  CreateDocLoading ? { __html: "Loading..." } :
-                    CreateDocError ? { __html: "Error while creating or updating document." } :
-                      {
+                  CreateDocLoading
+                    ? { __html: "Loading..." }
+                    : CreateDocError
+                    ? { __html: "Error while creating or updating document." }
+                    : {
                         __html: DOMPurify.sanitize(selectedDocContent, {
-                          ALLOWED_TAGS: ['ol', 'ul', 'li', 'p', 'span', 'br'],
-                        })
+                          ALLOWED_TAGS: ["ol", "ul", "li", "p", "span", "br"],
+                        }),
                       }
                 }
               ></div>
@@ -549,135 +639,161 @@ const Workspaces = () => {
           ) : (
             <p>No Document Selected</p>
           )}
-
         </div>
       </div>
 
       {/* Modal for Creating Document */}
-      {
-        isCreateModalOpen && (
-          <Modal title="Create Document" onClose={handleCloseCreateModal}>
-            <input
-              type="text"
-              value={newDocName}
-              onChange={(e) => setNewDocName(e.target.value)}
-              placeholder="Document Name"
-              className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
-            />
-            <button
-              onClick={handleAddDocument}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Add Document
-            </button>
-          </Modal>
-        )
-      }
+      {isCreateModalOpen && (
+        <Modal title="Create Document" onClose={handleCloseCreateModal}>
+          <input
+            type="text"
+            value={newDocName}
+            onChange={(e) => setNewDocName(e.target.value)}
+            placeholder="Document Name"
+            className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
+          />
+          <button
+            onClick={handleAddDocument}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Add Document
+          </button>
+        </Modal>
+      )}
 
       {/* Modal for Editing Document */}
-      {
-        isEditModalOpen && (
-          <Modal title="Edit Document" onClose={handleCloseEditModal}>
+      {isEditModalOpen && (
+        <Modal title="Edit Document" onClose={handleCloseEditModal}>
+          <input
+            type="text"
+            value={newDocName}
+            onChange={(e) => setNewDocName(e.target.value)}
+            placeholder="Document Name"
+            className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
+          />
+          <button
+            onClick={handleSaveEdit}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Save Changes
+          </button>
+        </Modal>
+      )}
+
+      {/* Modal for Share */}
+      {isShareModelOpen && (
+        <Modal title="Copy Document Link" onClose={handleCloseShareModal}>
+          <div class="flex items-center justify-between">
             <input
               type="text"
-              value={newDocName}
-              onChange={(e) => setNewDocName(e.target.value)}
-              placeholder="Document Name"
-              className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
+              value={link}
+              readOnly
+              id="copyLink"
+              className="mb-4 p-2 w-full border rounded-l-lg ... dark:bg-gray-600 dark:text-white h-12"
             />
             <button
-              onClick={handleSaveEdit}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              className=" text-black px-4 py-2 hover:bg-blue-700 hover:text-white mb-4  border rounded-r-lg ... h-12"
+              onClick={() =>
+                copyToClipboard(document.getElementById("copyLink").value)
+              }
             >
-              Save Changes
+              Copy
             </button>
-          </Modal>
-        )
-      }
+          </div>
+          {copySuccess && (
+            <p class="text-center mb-3 text-red-600">{copySuccess}</p>
+          )}
+        </Modal>
+      )}
 
       {/* Modal for Permissions */}
-      {
-        isPermissionsModalOpen && (
-          <Modal title="Manage Permissions" onClose={handleClosePermissionsModal}>
-            <div className="space-y-4">
-              {/* Permissions Section */}
-              <div className="space-y-2 flex flex-col h-[60vh] overflow-auto ">
-                {
-                  MembersForPermissions && MembersForPermissions.length > 0 ? (
-                    MembersForPermissions.map((members, index) => (
-                      <div className="flex bg-blue-600 rounded-md text-white p-2" key={index}>
-                        {/* Left Section: Displaying Name and Email */}
-                        <div className="flex justify-start flex-col w-[70%]">
-                          {/* Check if user exists to avoid errors */}
-                          <div className="flex items-center gap-1">
-                            <IoPersonAdd size={15} />
-                            {members?.user?.name || "Unknown User"}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <AiTwotoneMail />
-                            {members?.user?.email || "No Email Available"}
-                          </div>
-                        </div>
-
-                        {/* Right Section: Checkbox Permissions */}
-                        <div className="flex justify-start gap-4 items-center">
-                          {/* CanView Permission */}
-                          <label className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={members?.canView || false} // Fallback to false if canView is undefined
-                              className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
-                              onChange={(e) => handleToggleGivePermition(e, members, "canView")}
-                            />
-                            <span>CanView</span>
-                          </label>
-
-                          {/* CanEdit Permission */}
-                          <label className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={members?.canEdit || false} // Fallback to false if canEdit is undefined
-                              className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
-                              onChange={(e) => handleToggleGivePermition(e, members, "canEdit")}
-                            />
-                            <span>CanEdit</span>
-                          </label>
-                        </div>
+      {isPermissionsModalOpen && (
+        <Modal title="Manage Permissions" onClose={handleClosePermissionsModal}>
+          <div className="space-y-4">
+            {/* Permissions Section */}
+            <div className="space-y-2 flex flex-col h-[60vh] overflow-auto ">
+              {MembersForPermissions && MembersForPermissions.length > 0 ? (
+                MembersForPermissions.map((members, index) => (
+                  <div
+                    className="flex bg-blue-600 rounded-md text-white p-2 w-fit"
+                    key={index}
+                  >
+                    {/* Left Section: Displaying Name and Email */}
+                    <div className="flex justify-start flex-col w-[70%]">
+                      {/* Check if user exists to avoid errors */}
+                      <div className="flex items-center gap-1">
+                        <IoPersonAdd size={15} />
+                        {members?.user?.name || "Unknown User"}
                       </div>
-                    ))
-                  ) : (
-                    <div>No members available</div> // Message when the array is empty or undefined
-                  )
-                }
+                      <div className="flex items-center gap-1">
+                        <AiTwotoneMail />
+                        {members?.user?.email || "No Email Available"}
+                      </div>
+                    </div>
 
-              </div>
+                    {/* Right Section: Checkbox Permissions */}
+                    <div className="flex justify-start gap-4 items-center">
+                      {/* CanView Permission */}
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={members?.canView || false} // Fallback to false if canView is undefined
+                          className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
+                          onChange={(e) =>
+                            handleToggleGivePermition(e, members, "canView")
+                          }
+                        />
+                        <span>CanView</span>
+                      </label>
 
-              {/* Members Section */}
-
-
-              {/* Footer Section with Save and Cancel buttons */}
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  onClick={handleClosePermissionsModal}
-                  className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleSavePermission({ docId: selectedDoc._id, MembersForPermissions, setIsPermissionsModalOpen })}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
-                >
-                  Save Permissions
-                </button>
-              </div>
+                      {/* CanEdit Permission */}
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={members?.canEdit || false} // Fallback to false if canEdit is undefined
+                          className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
+                          onChange={(e) =>
+                            handleToggleGivePermition(e, members, "canEdit")
+                          }
+                        />
+                        <span>CanEdit</span>
+                      </label>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div>No members available</div> // Message when the array is empty or undefined
+              )}
             </div>
-          </Modal>
-        )
-      }
 
-    </div >
+            {/* Members Section */}
+
+            {/* Footer Section with Save and Cancel buttons */}
+            <div className="flex justify-end space-x-4 mt-6">
+              <button
+                onClick={handleClosePermissionsModal}
+                className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() =>
+                  handleSavePermission({
+                    docId: selectedDoc._id,
+                    MembersForPermissions,
+                    setIsPermissionsModalOpen,
+                  })
+                }
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+              >
+                Save Permissions
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
   );
 };
 
 export default Workspaces;
-
