@@ -18,13 +18,18 @@ import { useGetDocumentContent } from "../document-utils-and-hooks/useGetDocumen
 import { useCreateDocInCloud } from "../document-utils-and-hooks/useCreateDocInCloud.js";
 import DOMPurify from "dompurify";
 // import { IoCloudyNight } from 'react-icons/io5';
-import useGetMembers from "../project-utils-and-hooks/useGetMembers";
+// import useGetMembers from '../project-utils-and-hooks/useGetMembers';
 import { IoPersonAdd, IoPersonRemove } from "react-icons/io5";
 import { AiTwotoneMail } from "react-icons/ai";
 import { fetchWorkspaceById } from "../utils/fetchingAPIsForWorkspace/fetchWorkspaceById.js";
 import { handleSavePermission } from "../document-utils-and-hooks/handleSavePermission.js";
 import { GetDocumentById } from "../document-utils-and-hooks/GetDocumentById.js";
 import AvailableMembersShow from "./AvailableMembersShow.jsx";
+import DeleteConfirmationModal from "../components/Models/DeleteConfirmModel.jsx";
+import ConfirmationPage from "../components/Models/ConfirmationPage.jsx";
+
+// TinyMCE_TextEditor style
+import "tinymce/skins/content/default/content.min.css";
 
 const Workspaces = () => {
   const { _id } = useParams();
@@ -45,7 +50,9 @@ const Workspaces = () => {
   const [editDocBtn, setEditDocBtn] = useState(true);
   const [MembersForPermissions, setMembersForPermissions] = useState([]); // for get all workspace member for give permission
   const [AllMembersInWorkspace, setAllMembersInWorkspace] = useState([]);
-
+  const [deleteModel, setdeleteModel] = useState(false);
+  const [DocumentForDelete, setDocumentForDelete] = useState({});
+  const [ExportConfirmation, setExportConfirmation] = useState(false);
   const [CheakPermissions, setCheakPermissions] = useState({
     canEdit: "",
     canView: "",
@@ -112,15 +119,15 @@ const Workspaces = () => {
 
         const userPermission = doc.permissions.find(
           // if normal login user find user from doc permissions and give permission
-          (permission) => permission.user._id === user._id
+          (permission) => permission.user._id === user._id,
         );
 
         return userPermission // if user present and canView is true then show only canView documemnts
           ? userPermission.canView &&
-              doc.documentTitle.toLowerCase().includes(search.toLowerCase())
+          doc.documentTitle.toLowerCase().includes(search.toLowerCase())
           : doc.documentTitle.toLowerCase().includes(search.toLowerCase()); // if user is not present means user is add after document creation he didn't get permission bydefault it is canView
         // or user is remove from workspace
-      })
+      }),
     );
   }, [search, userDocs]);
 
@@ -172,17 +179,17 @@ const Workspaces = () => {
       });
     } else {
       const permissionUser = doc.permissions.find(
-        (member) => member.user._id === user._id
+        (member) => member.user._id === user._id,
       );
       permissionUser
         ? setCheakPermissions({
-            canEdit: permissionUser.canEdit,
-            canView: permissionUser.canView,
-          })
+          canEdit: permissionUser.canEdit,
+          canView: permissionUser.canView,
+        })
         : setCheakPermissions({
-            canEdit: false,
-            canView: true,
-          });
+          canEdit: false,
+          canView: true,
+        });
     }
 
     getDocumentContent(doc._id);
@@ -199,7 +206,7 @@ const Workspaces = () => {
       setSelectedDocContent(
         CheakPermissions.canEdit
           ? "Start editing your document..."
-          : "No Content"
+          : "No Content",
       );
     }
   }, [GetDocData, GetDocError, GetDocLoading]);
@@ -299,8 +306,8 @@ const Workspaces = () => {
           userDocs.map((doc) =>
             doc._id === selectedDoc._id
               ? { ...doc, documentTitle: newDocName.trim() }
-              : doc
-          )
+              : doc,
+          ),
         );
         setIsEditModalOpen(false);
         setSelectedDoc(null);
@@ -325,28 +332,28 @@ const Workspaces = () => {
           (workSpaceMember) => {
             // cheak all workspace member is present or not in permission other wise add canview and can add for permission
             const AlreadyExistMember = permissions.find(
-              (member) => member.user._id === workSpaceMember._id
+              (member) => member.user._id === workSpaceMember._id,
             );
             return AlreadyExistMember
               ? AlreadyExistMember
               : {
-                  user: workSpaceMember,
-                  canView: true,
-                  canEdit: false,
-                };
-          }
+                user: workSpaceMember,
+                canView: true,
+                canEdit: false,
+              };
+          },
         );
 
         // Filter out members no longer in the workspace
         const PerMissionMembers = UpdateUsers.filter((member) =>
           AllMembersInWorkspace.workspaceMembers.some(
-            (workspaceMember) => workspaceMember._id === member.user._id
-          )
+            (workspaceMember) => workspaceMember._id === member.user._id,
+          ),
         );
 
         // remove login user itself to not show itself in permission.
         const FinalPerMissionMembers = PerMissionMembers.filter(
-          (member) => !(member.user._id === user._id)
+          (member) => !(member.user._id === user._id),
         );
         console.log(FinalPerMissionMembers);
         setMembersForPermissions(FinalPerMissionMembers);
@@ -372,12 +379,18 @@ const Workspaces = () => {
 
     console.log(updatedMembers);
   };
+  const handleDocumentDelete = (doc) => {
+    setDocumentForDelete(doc);
+    setdeleteModel(true);
+  };
 
   const handleDelete = async (doc) => {
     const res = await DeleteDocument({ docId: doc._id, workspaceId: _id });
     if (res) {
       showToast("Document deleted successfully.", "success");
       setUserDocs(userDocs.filter((d) => d._id !== doc._id));
+      setdeleteModel(false);
+      setDocumentForDelete({});
     } else {
       showToast("Failed to delete document.", "error");
     }
@@ -423,7 +436,7 @@ const Workspaces = () => {
         </h1>
         <div className="flex items-center space-x-4">
           {user._id === state.workspace.workspaceCreatedBy._id ||
-          user.role === "admin" ? (
+            user.role === "admin" ? (
             <AddMember />
           ) : (
             <AvailableMembersShow workspace={AllMembersInWorkspace} />
@@ -457,7 +470,7 @@ const Workspaces = () => {
           )}
           {CheakPermissions.canView ? (
             <button
-              onClick={() => ExportToDoc(selectedDocContent)}
+              onClick={() => setExportConfirmation(true)}
               className="flex items-center bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
             >
               Export Document
@@ -590,7 +603,8 @@ const Workspaces = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDelete(doc);
+                              handleDocumentDelete(doc);
+                              // handleDelete(doc);
                               closeAllDropdowns();
                             }}
                             className="block px-4 py-2 w-full text-start hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
@@ -614,29 +628,38 @@ const Workspaces = () => {
           {/* <div className="bg-white dark:bg-gray-800 p-4 border rounded-md shadow-sm sd:max-h-[calc(100%)] md:max-h-[calc(85vh)] overflow-y-auto">
           </div> */}
           {selectedDoc ? (
-            !editDocBtn ? (
-              <TextEditor
-                setHeight={710}
-                commentbtn={false}
-                content={selectedDocContent}
-                setContent={setSelectedDocContent}
-              />
-            ) : (
-              <div
-                dangerouslySetInnerHTML={
-                  CreateDocLoading
-                    ? { __html: "Loading..." }
-                    : CreateDocError
-                    ? { __html: "Error while creating or updating document." }
-                    : {
-                        __html: DOMPurify.sanitize(selectedDocContent, {
-                          ALLOWED_TAGS: ["ol", "ul", "li", "p", "span", "br"],
-                        }),
-                      }
-                }
-              ></div>
-            )
-          ) : (
+            <div>
+              <div  className="text-center text-2xl font-bold text-white bg-blue-400 py-2 rounded-lg shadow-md mb-4 flex justify-between items-center">
+              <p className="mx-4">
+                {selectedDoc?.documentTitle}
+              </p>
+              <p className="text-base mx-4">Created By - {selectedDoc.createdBy?.name}</p>
+              </div>
+              {!editDocBtn ? (
+                // <div className="shadow-lg shadow-blue-500/50 bg-white rounded-lg">
+                <TextEditor
+                  setHeight={710}
+                  commentbtn={false}
+                  content={selectedDocContent}
+                  setContent={setSelectedDocContent}
+                  DocElements={true}
+                />
+                // </div>
+              ) : (
+                <div
+                  className="mce-content-body"
+                  dangerouslySetInnerHTML={
+                    CreateDocLoading
+                      ? { __html: "Loading..." }
+                      : CreateDocError
+                        ? { __html: "Error while creating or updating document." }
+                        : {
+                          __html: DOMPurify.sanitize(selectedDocContent, {}),
+                        }
+                  }
+                ></div>
+              )}
+            </div>) : (
             <p>No Document Selected</p>
           )}
         </div>
@@ -791,6 +814,22 @@ const Workspaces = () => {
             </div>
           </div>
         </Modal>
+      )}
+      <DeleteConfirmationModal
+        isOpen={deleteModel}
+        onClose={() => setdeleteModel(false)}
+        onConfirm={() => handleDelete(DocumentForDelete)}
+      />
+      {ExportConfirmation && (
+        <ConfirmationPage
+          message="Are you sure you want to export this document"
+          confirmText="Export"
+          onConfirm={() => {
+            ExportToDoc(selectedDocContent);
+            setExportConfirmation(false);
+          }}
+          onCancel={() => setExportConfirmation(false)}
+        />
       )}
     </div>
   );

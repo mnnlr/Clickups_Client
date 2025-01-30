@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector, } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginAction } from "../redux/actions/loginAction";
 import { showToast } from "../components/Toastconfig";
 
@@ -11,17 +11,16 @@ export const LoginPage = () => {
   const dispatch = useDispatch();
   const from = location.state?.from?.pathname || "/dashboard";
 
-  const { user, isLoading, error } = useSelector(state => state.login);
-
+  const { user, isLoading, error } = useSelector((state) => state.login);
 
   useEffect(() => {
     if (!isLoading && user?._id) {
-      return navigate(from, { replace: true })
+      return navigate(from, { replace: true });
     }
     if (!isLoading && error) {
       showToast(error);
     }
-  }, [isLoading, error, navigate, user?._id])
+  }, [isLoading, error, navigate, user?._id]);
 
   //----------------Handle Form Change-----------------
   const handleFormChange = (e) => {
@@ -117,19 +116,20 @@ export const LoginPage = () => {
               placeholder="Enter your Password"
               name="password"
               type="password"
-              className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full"
+              className="border rounded-lg px-3 py-2 mt-1 mb-3 text-sm w-full"
             />
+            {/* <Link to="/PasswordForgot" className="">Forgot Password ?</Link> */}
             <button
               type="submit"
-              className="transition duration-200 bg-blue-500 hover:bg-blue-600 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 text-white w-full py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block"
+              className="transition duration-200 bg-blue-500 hover:bg-blue-600 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 text-white w-full py-2.5 mt-2 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block"
             >
               Login
             </button>
           </form>
           <div className="py-5">
-            <div className="grid grid-cols-2 gap-1">
+            <div className="grid grid-cols-2 gap-2">
               <div className="text-center justify-center sm:text-left whitespace-nowrap">
-                <button className=" transition duration-200 mx-5 px-5 pt-2 cursor-pointer font-normal text-sm rounded-lg text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 ring-inset">
+                <button className=" transition duration-200 pl-5 pr-1 pt-2 cursor-pointer font-normal text-sm rounded-lg text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 ring-inset">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="inline-block w-7 h-7 align-text-top"
@@ -144,7 +144,29 @@ export const LoginPage = () => {
                     Don't have an Account
                   </Link>
                 </button>
+                
               </div>
+              
+              <div className="flex justify-center gap-1 items-center transition duration-200 cursor-pointer font-normal text-sm rounded-lg text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-200 focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 ring-inset  sm:text-left whitespace-nowrap">
+              <svg
+  xmlns="http://www.w3.org/2000/svg"
+  className="inline-block w-5 h-5 align-text-top"
+  fill="none"
+  viewBox="0 0 24 24"
+  stroke="currentColor"
+  strokeWidth={2}
+>
+  <path
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    d="M12 17v.01m-6-9V8a6 6 0 1112 0v.01M5 10h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2zm6 6h.01"
+  />
+  
+</svg>
+<Link to="/PasswordForgot" className="">
+<p>Forgot Password?</p>
+</Link>
+</div>
             </div>
           </div>
         </div>

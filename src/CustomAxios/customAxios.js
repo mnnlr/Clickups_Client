@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
-// const BASE_URL = 'http://localhost:5000/'
-const BASE_URL = 'https://clickups-server.onrender.com'
+// const BASE_URL = "http://localhost:5000/";
+const BASE_URL = "https://clickups-server.onrender.com";
 
 export default axios.create({
     baseURL: BASE_URL,
@@ -10,7 +10,7 @@ export default axios.create({
 export const axiosPrivate = axios.create({
     baseURL: BASE_URL,
     headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
     },
     withCredentials: true,
 });
