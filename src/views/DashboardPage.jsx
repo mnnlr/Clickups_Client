@@ -74,6 +74,8 @@ export const DashboardPage = () => {
     };
 
     const DashboardData = useSelector((state) => state.dashboard.dashboards);
+    const { user } = useSelector((store) => store.login);
+
 
     return (
         <div className="relative pt-16 pb-6 bg-gray-100 dark:bg-gray-800 h-screen md:ml-16">
@@ -83,7 +85,8 @@ export const DashboardPage = () => {
             </section>
             <DashboardTemplates />
             {Array.isArray(DashboardData) && DashboardData.length > 0 ? (
-                DashboardData.map((data, index) => (
+                DashboardData.map((data, index) =>(
+                    data.owner._id===user._id||user.role==="Admin"? 
                     <div className="my-1 mx-7" key={index}>
                         <UserDashboards
                             dashboardName={data.dashboardProject?.projectName}
@@ -92,8 +95,10 @@ export const DashboardPage = () => {
                             handleDeleteBtn={() => handleDeleteBtn(data._id)}
                             handleDashboard={() => handleClick(data.dashboardProject?._id)}
                         />
+                    
                     </div>
-                ))
+                   :"" )
+                )
             ) : (
                 <p className="text-center text-gray-500 dark:text-gray-300">No dashboards available. Please create one!</p>
             )}

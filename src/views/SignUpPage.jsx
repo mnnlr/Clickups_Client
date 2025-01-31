@@ -59,24 +59,24 @@ export const SignUpPage = () => {
                 <div className="bg-white shadow w-full rounded-lg divide-y divide-gray-200">
                     <form className="px-5 py-7">
                         <div className="mb-4">
-                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="name">Name</label>
-                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" type="text" id="name" name="name" placeholder="John Doe" />
+                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="name">Name<span className='text-red-500'>*</span></label>
+                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" required type="text" id="name" name="name" placeholder="John Doe" />
                         </div>
                         <div className="mb-4">
-                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="MnnlrId">Mnnlr Id</label>
-                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" type="text" id="MnnlrId" name="MnnlrId" placeholder="mern-dev-john@example.com" />
+                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="MnnlrId">Mnnlr Id<span className='text-red-500'>*</span></label>
+                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" required type="text" id="MnnlrId" name="MnnlrId" placeholder="mern-dev-john@example.com" />
                         </div>
                         <div className="mb-4">
-                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="email">Email</label>
-                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" type="email" id="email" name="email" placeholder="john@example.com" />
+                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="email">Email<span className='text-red-500'>*</span></label>
+                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" required type="email" id="email" name="email" placeholder="john@example.com" />
                         </div>
                         <div className="mb-4">
-                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="password">Password</label>
-                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" type="password" id="password" name="password" placeholder="********" />
+                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="password">Password<span className='text-red-500'>*</span></label>
+                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" required type="password" id="password" name="password" placeholder="********" />
                         </div>
                         <div className="mb-4">
-                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="confirm-password">Confirm Password</label>
-                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" type="password" id="confirm-password" name="confirmPassword" placeholder="********" />
+                            <label className="font-semibold text-sm text-gray-600 pb-1 block" htmlFor="confirm-password">Confirm Password<span className='text-red-500'>*</span></label>
+                            <input onChange={handleFormChange} className="border rounded-lg px-3 py-2 mt-1 mb-5 text-sm w-full" required type="password" id="confirm-password" name="confirmPassword" placeholder="********" />
                         </div>
                         <button className="transition duration-200 bg-blue-500 hover:bg-blue-600 focus:bg-blue-700 focus:shadow-sm focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 text-white w-full py-2.5 rounded-lg text-sm shadow-sm hover:shadow-md font-semibold text-center inline-block" type="submit" onClick={handleSigninSubmitBtn}>Register</button>
                     </form>
