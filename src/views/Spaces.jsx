@@ -56,6 +56,7 @@ const Workspaces = () => {
     canView: ""
   });
   const dropdownRefs = useRef({});
+  const [PermissionForAll, setPermissionsForAll] = useState(false);
 
   // create document in cloudinary and updating the document
   const { CreateDocLoading, CreateDocError, createDocument } = useCreateDocInCloud({ documentId: selectedDoc, data: selectedDocContent });
@@ -107,15 +108,15 @@ const Workspaces = () => {
           return doc.documentTitle.toLowerCase().includes(search.toLowerCase());
         }
 
-        const userPermission = doc.permissions.find(          // if normal login user find user from doc permissions and give permission
+        const userPermission = doc.permissions.find(
+          // if normal login user find user from doc permissions and give permission
           (permission) => permission.user._id === user._id
         );
 
-        return userPermission ?  // if user present and canView is true then show only canView documemnts
-          userPermission.canView &&
-          doc.documentTitle.toLowerCase().includes(search.toLowerCase())
-
-          : doc.documentTitle.toLowerCase().includes(search.toLowerCase()) // if user is not present means user is add after document creation he didn't get permission bydefault it is canView
+        return userPermission // if user present and canView is true then show only canView documemnts
+          ? userPermission.canView &&
+              doc.documentTitle.toLowerCase().includes(search.toLowerCase())
+          : doc.documentTitle.toLowerCase().includes(search.toLowerCase()); // if user is not present means user is add after document creation he didn't get permission bydefault it is canView
         // or user is remove from workspace
       })
     );
@@ -171,19 +172,18 @@ const Workspaces = () => {
         canView: true
       })
     } else {
-
-      const permissionUser = doc.permissions.find(((member) =>
-        member.user._id === user._id
-      ))
-      permissionUser ?
-        setCheakPermissions({
-          canEdit: permissionUser.canEdit,
-          canView: permissionUser.canView
-        }) :
-        setCheakPermissions({
-          canEdit: false,
-          canView: true
-        })
+      const permissionUser = doc.permissions.find(
+        (member) => member.user._id === user._id
+      );
+      permissionUser
+        ? setCheakPermissions({
+            canEdit: permissionUser.canEdit,
+            canView: permissionUser.canView,
+          })
+        : setCheakPermissions({
+            canEdit: false,
+            canView: true,
+          });
     }
 
     getDocumentContent(doc._id);
@@ -197,7 +197,11 @@ const Workspaces = () => {
     } else if (GetDocLoading) {
       setSelectedDocContent("Loading Document...");
     } else {
-      setSelectedDocContent(CheakPermissions.canEdit ? "Start editing your document..." : "No Content");
+      setSelectedDocContent(
+        CheakPermissions.canEdit
+          ? "Start editing your document..."
+          : "No Content"
+      );
     }
   }, [GetDocData, GetDocError, GetDocLoading]);
 
@@ -212,9 +216,12 @@ const Workspaces = () => {
         //   canEdit: false,
         //   canView: true,
         // },
-        permissions:
-          AllMembersInWorkspace.workspaceMembers
+        // permissions: AllMembersInWorkspace.workspaceMembers,
+        permission: {         
+          ...PermissionForAll, member:AllMembersInWorkspace.workSpaceMembers,
+        },        
       };
+      console.log(PermissionForAll)
 
       try {
         const res = await CreateDocument({ newDocumentData });
@@ -289,7 +296,9 @@ const Workspaces = () => {
         showToast("Document updated successfully.", "success");
         setUserDocs(
           userDocs.map((doc) =>
-            doc._id === selectedDoc._id ? { ...doc, documentTitle: newDocName.trim() } : doc
+            doc._id === selectedDoc._id
+              ? { ...doc, documentTitle: newDocName.trim() }
+              : doc
           )
         );
         setIsEditModalOpen(false);
@@ -310,29 +319,33 @@ const Workspaces = () => {
         console.log("Permissions fetched and state updated:", permissions);
 
         // Add new members to permissions
-        const UpdateUsers = AllMembersInWorkspace.workspaceMembers.map((workSpaceMember) => {  // cheak all workspace member is present or not in permission other wise add canview and can add for permission
-          const AlreadyExistMember = permissions.find((member) => (
-            member.user._id === workSpaceMember._id
-          ));
-          return AlreadyExistMember
-            ? AlreadyExistMember
-            : {
-              user: workSpaceMember,
-              canView: true,
-              canEdit: false,
-            };
-        });
-
+        const UpdateUsers = AllMembersInWorkspace.workspaceMembers.map(
+          (workSpaceMember) => {
+            // cheak all workspace member is present or not in permission other wise add canview and can add for permission
+            const AlreadyExistMember = permissions.find(
+              (member) => member.user._id === workSpaceMember._id
+            );
+            return AlreadyExistMember
+              ? AlreadyExistMember
+              : {
+                  user: workSpaceMember,
+                  canView: true,
+                  canEdit: false,
+                };
+          }
+        );
         // Filter out members no longer in the workspace
         const PerMissionMembers = UpdateUsers.filter((member) =>
           AllMembersInWorkspace.workspaceMembers.some(
             (workspaceMember) => workspaceMember._id === member.user._id
-          ) 
+          )
         );
 
         // remove login user itself to not show itself in permission.
-        const FinalPerMissionMembers = PerMissionMembers.filter((member) => !(member.user._id === user._id))
-        console.log(FinalPerMissionMembers)
+        const FinalPerMissionMembers = PerMissionMembers.filter(
+          (member) => !(member.user._id === user._id)
+        );
+        console.log(FinalPerMissionMembers);
         setMembersForPermissions(FinalPerMissionMembers);
         setIsPermissionsModalOpen(true);
       });
@@ -412,8 +425,8 @@ const Workspaces = () => {
           {state.workspace.workspaceName}'s Workspace
         </h1>
         <div className="flex items-center space-x-4">
-          {user._id === state.workspace.workspaceCreatedBy._id || user.role === "admin"
-            ?
+          {user._id === state.workspace.workspaceCreatedBy._id ||
+          user.role === "admin" ?
             <AddMember />
             : <AvailableMembersShow workspace={AllMembersInWorkspace}/>
           }
@@ -585,11 +598,11 @@ const Workspaces = () => {
           </div> */}
           {selectedDoc ? (
             <div>
-              <div  className="text-center text-2xl font-bold text-white bg-blue-400 py-2 rounded-lg shadow-md mb-4 flex justify-between items-center">
-              <p className="mx-4">
-                {selectedDoc?.documentTitle}
-              </p>
-              <p className="text-base mx-4">Created By - {selectedDoc.createdBy?.name}</p>
+              <div className="text-center text-2xl font-bold text-white bg-blue-400 py-2 rounded-lg shadow-md mb-4 flex justify-between items-center">
+                <p className="mx-4">{selectedDoc?.documentTitle}</p>
+                <p className="text-base mx-4">
+                  Created By - {selectedDoc.createdBy?.name}
+                </p>
               </div>
               {!editDocBtn ? (
                 // <div className="shadow-lg shadow-blue-500/50 bg-white rounded-lg">
@@ -600,22 +613,23 @@ const Workspaces = () => {
                   setContent={setSelectedDocContent}
                   DocElements={true}
                 />
-                // </div>
               ) : (
+                // </div>
                 <div
                   className="mce-content-body"
                   dangerouslySetInnerHTML={
                     CreateDocLoading
                       ? { __html: "Loading..." }
                       : CreateDocError
-                        ? { __html: "Error while creating or updating document." }
-                        : {
+                      ? { __html: "Error while creating or updating document." }
+                      : {
                           __html: DOMPurify.sanitize(selectedDocContent, {}),
                         }
                   }
                 ></div>
               )}
-            </div>) : (
+            </div>
+          ) : (
             <p>No Document Selected</p>
           )}
         </div>
@@ -689,85 +703,167 @@ const Workspaces = () => {
         </Modal>
       )}
 
+{isCreateModalOpen && (
+        <Modal title="Create Document" onClose={handleCloseCreateModal}>
+          <input
+            type="text"
+            value={newDocName}
+            onChange={(e) => setNewDocName(e.target.value)}
+            placeholder="Document Name"
+            className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
+          />
+          <button
+            onClick={handleAddDocument}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Add Document
+          </button>
+        </Modal>
+      )}
+
+      {/* Modal for Editing Document */}
+      {isEditModalOpen && (
+        <Modal title="Edit Document" onClose={handleCloseEditModal}>
+          <input
+            type="text"
+            value={newDocName}
+            onChange={(e) => setNewDocName(e.target.value)}
+            placeholder="Document Name"
+            className="mb-4 p-2 w-full border rounded dark:bg-gray-600 dark:text-white"
+          />
+          <button
+            onClick={handleSaveEdit}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Save Changes
+          </button>
+        </Modal>
+      )}
+
+      {/* Modal for Share Document*/}
+      {isShareModelOpen && (
+        <Modal title="Copy Document Link" onClose={handleCloseShareModal}>
+          <div class="flex items-center justify-between">
+            <input
+              type="text"
+              value={link}
+              readOnly
+              id="copyLink"
+              className="mb-4 p-2 w-full border rounded-l-lg ... dark:bg-gray-600 dark:text-white h-12"
+            />
+            <button
+              className=" text-black px-4 py-2 hover:bg-blue-700 hover:text-white mb-4  border rounded-r-lg ... h-12"
+              onClick={() =>
+                copyToClipboard(document.getElementById("copyLink").value)
+              }
+            >
+              Copy
+            </button>
+          </div>
+          {copySuccess && (
+            <p class="text-center mb-3 text-red-600">{copySuccess}</p>
+          )}
+        </Modal>
+      )}
+
       {/* Modal for Permissions */}
-      {
-        isPermissionsModalOpen && (
-          <Modal title="Manage Permissions" onClose={handleClosePermissionsModal}>
-            <div className="space-y-4">
-              {/* Permissions Section */}
-              <div className="space-y-2 flex flex-col h-[60vh] overflow-auto ">
-                {
-                  MembersForPermissions && MembersForPermissions.length > 0 ? (
-                    MembersForPermissions.map((members, index) => (
-                      <div className="flex bg-blue-600 rounded-md text-white p-2" key={index}>
-                        {/* Left Section: Displaying Name and Email */}
-                        <div className="flex justify-start flex-col w-[70%]">
-                          {/* Check if user exists to avoid errors */}
-                          <div className="flex items-center gap-1">
-                            <IoPersonAdd size={15} />
-                            {members?.user?.name || "Unknown User"}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <AiTwotoneMail />
-                            {members?.user?.email || "No Email Available"}
-                          </div>
-                        </div>
-
-                        {/* Right Section: Checkbox Permissions */}
-                        <div className="flex justify-start gap-4 items-center">
-                          {/* CanView Permission */}
-                          <label className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={members?.canView || false} // Fallback to false if canView is undefined
-                              className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
-                              onChange={(e) => handleToggleGivePermition(e, members, "canView")}
-                            />
-                            <span>CanView</span>
-                          </label>
-
-                          {/* CanEdit Permission */}
-                          <label className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={members?.canEdit || false} // Fallback to false if canEdit is undefined
-                              className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
-                              onChange={(e) => handleToggleGivePermition(e, members, "canEdit")}
-                            />
-                            <span>CanEdit</span>
-                          </label>                       
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div>No members available</div> // Message when the array is empty or undefined
-                  )
-                }
-
-              </div>
-
-              {/* Members Section */}
-
-
-              {/* Footer Section with Save and Cancel buttons */}
-              <div className="flex justify-end space-x-4 mt-6">
-                <button
-                  onClick={handleClosePermissionsModal}
-                  className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleSavePermission({ docId: selectedDoc._id, MembersForPermissions, setIsPermissionsModalOpen })}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
-                >
-                  Save Permissions
-                </button>
-              </div>
+      {isPermissionsModalOpen && (
+        <Modal title="Manage Permissions" onClose={handleClosePermissionsModal}>
+          <div className="space-y-4">
+            {/* Permissions Section */}
+            {/* CheckBox Premission For All users */}
+            <div className="flex bg-neutral-200 hover:bg-neutral-300 rounded-3xl text-black p-2 w-40 h-12">
+              <label className="flex items-center space-x-2 ml-4">
+                <input
+                  type="checkbox"
+                  checked={PermissionForAll}
+                  onChange={(e) => setPermissionsForAll(e.target.checked)}
+                  className="cursor-pointer"
+                />
+                <span>ForAllUsers</span>
+              </label>
             </div>
-          </Modal>
-        )
-      }
+            <div className="space-y-2 flex flex-col h-[60vh] overflow-auto w-fit">
+              {MembersForPermissions && MembersForPermissions.length > 0 ? (
+                MembersForPermissions.map((members, index) => (
+                  <div
+                    className="flex bg-blue-600 rounded-md text-white p-2 w-"
+                    key={index}
+                  >
+                    {/* Left Section: Displaying Name and Email */}
+                    <div className="flex justify-start flex-col w-[70%]">
+                      {/* Check if user exists to avoid errors */}
+                      <div className="flex items-center gap-1">
+                        <IoPersonAdd size={15} />
+                        {members?.user?.name || "Unknown User"}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <AiTwotoneMail />
+                        {members?.user?.email || "No Email Available"}
+                      </div>
+                    </div>
+
+                    {/* Right Section: Checkbox Permissions */}
+                    <div className="flex justify-start gap-4 items-center">
+                      {/* CanView Permission */}
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={members?.canView || false} // Fallback to false if canView is undefined
+                          className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
+                          onChange={(e) =>
+                            handleToggleGivePermition(e, members, "canView")
+                          }
+                        />
+                        <span>CanView</span>
+                      </label>
+
+                      {/* CanEdit Permission */}
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={members?.canEdit || false} // Fallback to false if canEdit is undefined
+                          className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
+                          onChange={(e) =>
+                            handleToggleGivePermition(e, members, "canEdit")
+                          }
+                        />
+                        <span>CanEdit</span>
+                      </label>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div>No members available</div> // Message when the array is empty or undefined
+              )}
+            </div>
+
+            {/* Members Section */}
+
+            {/* Footer Section with Save and Cancel buttons */}
+            <div className="flex justify-end space-x-4 mt-6">
+              <button
+                onClick={handleClosePermissionsModal}
+                className="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400 focus:outline-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() =>
+                  handleSavePermission({
+                    docId: selectedDoc._id,
+                    MembersForPermissions,
+                    setIsPermissionsModalOpen,
+                  })
+                }
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none"
+              >
+                Save Permissions
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
  <DeleteConfirmationModal
         isOpen={deleteModel}
         onClose={() => setdeleteModel(false)}
