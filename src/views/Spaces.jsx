@@ -783,7 +783,7 @@ const Workspaces = () => {
                 <span>ForAllUsers</span>
               </label>
             </div>
-            <div className="space-y-2 flex flex-col h-[60vh] overflow-auto w-fit">
+            <div className="space-y-2 flex flex-col h-[60vh] overflow-y-auto text-sm">
               {MembersForPermissions && MembersForPermissions.length > 0 ? (
                 MembersForPermissions.map((members, index) => (
                   <div
