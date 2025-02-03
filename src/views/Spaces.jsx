@@ -56,7 +56,7 @@ const Workspaces = () => {
     canView: ""
   });
   const dropdownRefs = useRef({});
-  const [PermissionForAll, setPermissionForAll] = useState(false);
+  const [PermissionForAll, setPermissionForAll] = useState("");
 
   // create document in cloudinary and updating the document
   const { CreateDocLoading, CreateDocError, createDocument } = useCreateDocInCloud({ documentId: selectedDoc, data: selectedDocContent });
@@ -165,13 +165,13 @@ const Workspaces = () => {
   const handleDocClick = async (doc) => {
     setSelectedDoc(doc);
     setEditDocBtn(true);       // to hide editor for document
-    if (                                                              // cheaking user is workspace or Document creater and document is Public Document
+    if (                       // cheaking user is workspace or Document creater and document is Public Document
       AllMembersInWorkspace.workspaceCreatedBy._id === user._id ||
       doc?.createdBy._id === user._id ||
-      doc?.PermissionForAll?.PermissionForAll===true||
+      doc.PermissionForAll===true||
       user.role === "Admin"
     ) {
-      setCheakPermissions({                               // give all permissions true
+      setCheakPermissions({     // give all permissions true
         canEdit: true,
         canView: true
       })
