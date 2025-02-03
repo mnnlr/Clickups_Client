@@ -1,11 +1,11 @@
 import { toast } from 'react-toastify';
 import { axiosPrivate } from '../CustomAxios/customAxios';
 import Cookies from 'js-cookie';
-export const handleSavePermission=async({docId,MembersForPermissions,setIsPermissionsModalOpen})=>{
+export const handleSavePermission=async({docId,MembersForPermissions,PermissionForAll,setIsPermissionsModalOpen})=>{
     try{
         console.log(MembersForPermissions)
 const token = Cookies.get("User");
-  const  response = await axiosPrivate.patch(`/api/workspace/documents/Permission/${docId}`, {Members:MembersForPermissions}, {
+  const  response = await axiosPrivate.patch(`/api/workspace/documents/Permission/${docId}`, {Members:MembersForPermissions,PermissionForAll}, {
                 headers: {
                     "Content-Type": "application/json",
                     "authorization": `Bearer ${token}`

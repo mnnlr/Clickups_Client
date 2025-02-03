@@ -56,7 +56,7 @@ const Workspaces = () => {
     canView: ""
   });
   const dropdownRefs = useRef({});
-  const [PermissionForAll, setPermissionsForAll] = useState(false);
+  const [PermissionForAll, setPermissionForAll] = useState(false);
 
   // create document in cloudinary and updating the document
   const { CreateDocLoading, CreateDocError, createDocument } = useCreateDocInCloud({ documentId: selectedDoc, data: selectedDocContent });
@@ -100,7 +100,7 @@ const Workspaces = () => {
     setFilteredDocs(
       userDocs.filter((doc) => {
         console.log(doc)
-        if (user._id === state.workspace.workspaceCreatedBy._id || user._id === "admin") {   // if login user is workspace creator or admin then he see all document 
+        if (user._id === state.workspace.workspaceCreatedBy._id || user._id === "Admin") {   // if login user is workspace creator or admin then he see all document 
           return doc.documentTitle.toLowerCase().includes(search.toLowerCase());
         }
 
@@ -160,30 +160,34 @@ const Workspaces = () => {
   const closeAllDropdowns = () => {
     setOpenDropdowns({});
   };
+
+
   const handleDocClick = async (doc) => {
     setSelectedDoc(doc);
-    if (
+    setEditDocBtn(true);       // to hide editor for document
+    if (                                                              // cheaking user is workspace or Document creater and document is Public Document
       AllMembersInWorkspace.workspaceCreatedBy._id === user._id ||
-      doc.createdBy._id === user._id ||
-      user.role === "admin"
+      doc?.createdBy._id === user._id ||
+      doc?.PermissionForAll?.PermissionForAll===true||
+      user.role === "Admin"
     ) {
-      setCheakPermissions({
+      setCheakPermissions({                               // give all permissions true
         canEdit: true,
         canView: true
       })
     } else {
-      const permissionUser = doc.permissions.find(
-        (member) => member.user._id === user._id
-      );
-      permissionUser
-        ? setCheakPermissions({
-            canEdit: permissionUser.canEdit,
-            canView: permissionUser.canView,
-          })
-        : setCheakPermissions({
-            canEdit: false,
-            canView: true,
-          });
+      const permissionUser = doc.permissions.find(((member) => // find login user in document
+        member.user._id === user._id
+      ))
+      permissionUser ?
+        setCheakPermissions({                                  // if member exist give original permissions
+          canEdit: permissionUser.canEdit,
+          canView: permissionUser.canView
+        }) :
+        setCheakPermissions({                                 // if member not found means user add after document creation
+          canEdit: false,
+          canView: true
+        })
     }
 
     getDocumentContent(doc._id);
@@ -216,10 +220,8 @@ const Workspaces = () => {
         //   canEdit: false,
         //   canView: true,
         // },
-        // permissions: AllMembersInWorkspace.workspaceMembers,
-        permission: {         
-          ...PermissionForAll, member:AllMembersInWorkspace.workSpaceMembers,
-        },        
+        permissions:AllMembersInWorkspace.workspaceMembers,
+        PermissionForAll:false
       };
       console.log(PermissionForAll)
 
@@ -230,6 +232,7 @@ const Workspaces = () => {
           documentTitle: res.documentTitle,
           content: res.content,
           permissions: res.permissions,
+          PermissionForAll:res.PermissionForAll,
           createdBy: res.createdBy
         };
         if (res) {
@@ -313,27 +316,23 @@ const Workspaces = () => {
   const handlePermission = (doc) => {
     try {
       setSelectedDoc(doc); // Set the selected document
-
-      GetDocumentById(doc._id, (permissions) => {        // get all permissions members from server
-        setMembersForPermissions(permissions); // Update state
-        console.log("Permissions fetched and state updated:", permissions);
-
+      GetDocumentById(doc._id, (DocPermitions) => {    // get all permissions members from server
+        setMembersForPermissions(DocPermitions?.permissions); // Update state
+        setPermissionForAll(DocPermitions?.PermissionForAll || false);  // set public document permission
         // Add new members to permissions
-        const UpdateUsers = AllMembersInWorkspace.workspaceMembers.map(
-          (workSpaceMember) => {
-            // cheak all workspace member is present or not in permission other wise add canview and can add for permission
-            const AlreadyExistMember = permissions.find(
-              (member) => member.user._id === workSpaceMember._id
-            );
-            return AlreadyExistMember
-              ? AlreadyExistMember
-              : {
-                  user: workSpaceMember,
-                  canView: true,
-                  canEdit: false,
-                };
-          }
-        );
+        const UpdateUsers = AllMembersInWorkspace.workspaceMembers.map((workSpaceMember) => {  // cheak all workspace member is present or not in permission other wise add canview and can add for permission
+          const AlreadyExistMember = DocPermitions.permissions.find((member) => (
+            member.user._id === workSpaceMember._id
+          ));
+          return AlreadyExistMember
+            ? AlreadyExistMember
+            : {
+              user: workSpaceMember,
+              canView: true,
+              canEdit: false,
+            };
+        });
+
         // Filter out members no longer in the workspace
         const PerMissionMembers = UpdateUsers.filter((member) =>
           AllMembersInWorkspace.workspaceMembers.some(
@@ -425,8 +424,8 @@ const Workspaces = () => {
           {state.workspace.workspaceName}'s Workspace
         </h1>
         <div className="flex items-center space-x-4">
-          {user._id === state.workspace.workspaceCreatedBy._id ||
-          user.role === "admin" ?
+          {user._id === state.workspace.workspaceCreatedBy._id || user.role === "Admin"
+            ?
             <AddMember />
             : <AvailableMembersShow workspace={AllMembersInWorkspace}/>
           }
@@ -505,7 +504,7 @@ const Workspaces = () => {
 
                 {/* Dropdown Menu */}
                 <div className="relative inline-block text-left">
-                  {user._id === doc.createdBy._id || user.role === "admin"
+                  {user._id === doc.createdBy._id || user.role === "Admin"
                     ?
                     <button
                       // onClick={() => toggleDropdown(doc._id)}
@@ -703,7 +702,7 @@ const Workspaces = () => {
         </Modal>
       )}
 
-{isCreateModalOpen && (
+      {isCreateModalOpen && (
         <Modal title="Create Document" onClose={handleCloseCreateModal}>
           <input
             type="text"
@@ -772,22 +771,22 @@ const Workspaces = () => {
           <div className="space-y-4">
             {/* Permissions Section */}
             {/* CheckBox Premission For All users */}
-            <div className="flex bg-neutral-200 hover:bg-neutral-300 rounded-3xl text-black p-2 w-40 h-12">
+            <div className="flex bg-neutral-200 hover:bg-neutral-300 rounded-3xl text-black w-44 h-12">
               <label className="flex items-center space-x-2 ml-4">
                 <input
                   type="checkbox"
                   checked={PermissionForAll}
-                  onChange={(e) => setPermissionsForAll(e.target.checked)}
-                  className="cursor-pointer"
+                  onChange={(e) => setPermissionForAll(!PermissionForAll)}
+                  className="cursor-pointer w-4 h-4 "
                 />
-                <span>ForAllUsers</span>
+                <span>Public Document</span>
               </label>
             </div>
-            <div className="space-y-2 flex flex-col h-[60vh] overflow-auto w-fit">
+            <div className="space-y-2 flex flex-col h-[60vh] overflow-auto ">
               {MembersForPermissions && MembersForPermissions.length > 0 ? (
                 MembersForPermissions.map((members, index) => (
                   <div
-                    className="flex bg-blue-600 rounded-md text-white p-2 w-"
+                    className={`flex ${PermissionForAll?"bg-slate-400":"bg-blue-500"} rounded-md text-white p-2`}
                     key={index}
                   >
                     {/* Left Section: Displaying Name and Email */}
@@ -809,6 +808,7 @@ const Workspaces = () => {
                       <label className="flex items-center space-x-2">
                         <input
                           type="checkbox"
+                          disabled={PermissionForAll}
                           checked={members?.canView || false} // Fallback to false if canView is undefined
                           className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
                           onChange={(e) =>
@@ -822,6 +822,7 @@ const Workspaces = () => {
                       <label className="flex items-center space-x-2">
                         <input
                           type="checkbox"
+                          disabled={PermissionForAll}
                           checked={members?.canEdit || false} // Fallback to false if canEdit is undefined
                           className="w-5 h-5 text-blue-600 bg-gray-100 border-2 border-gray-300 rounded-full focus:ring-blue-500 focus:ring-2 focus:outline-none"
                           onChange={(e) =>
@@ -853,6 +854,7 @@ const Workspaces = () => {
                   handleSavePermission({
                     docId: selectedDoc._id,
                     MembersForPermissions,
+                    PermissionForAll,
                     setIsPermissionsModalOpen,
                   })
                 }
@@ -863,7 +865,8 @@ const Workspaces = () => {
             </div>
           </div>
         </Modal>
-      )}
+      )}
+      
  <DeleteConfirmationModal
         isOpen={deleteModel}
         onClose={() => setdeleteModel(false)}
