@@ -277,7 +277,7 @@ const AllWorkspaces = () => {
                 />
               </div>
               <div className="absolute top-2 right-2">
-              {user._id === workspace.workspaceCreatedBy._id || user.role === "admin" ?
+              {user._id === workspace.workspaceCreatedBy._id || user.role === "Admin" ?
 
                 <button
                   aria-haspopup="true"
